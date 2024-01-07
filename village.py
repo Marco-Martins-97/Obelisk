@@ -157,10 +157,10 @@ def calculate_points(build):
 
 
 
-print('W: ' + str(calculate_wood(Warehouse())))
-print('C: ' + str(calculate_clay(Warehouse())))
-print('I: ' + str(calculate_iron(Warehouse())))
-print('P: ' + str(calculate_pop(Warehouse())))
-print('F: ' + str(calculate_factor(Warehouse())))
-print('T: ' + str(calculate_time(Warehouse())))
-print('Pts:' + str(calculate_points(Warehouse())))
+# print('W: ' + str(calculate_wood(Warehouse())))
+# print('C: ' + str(calculate_clay(Warehouse())))
+# print('I: ' + str(calculate_iron(Warehouse())))
+# print('P: ' + str(calculate_pop(Warehouse())))
+# print('F: ' + str(calculate_factor(Warehouse())))
+# print('T: ' + str(calculate_time(Warehouse())))
+# print('Pts:' + str(calculate_points(Warehouse())))
