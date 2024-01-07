@@ -1,21 +1,21 @@
-#Obelisk v.1.0
+#Obelisk v.1.1
 import time
+import village as v
 
 WOOD = 0
 CLAY = 0
 IRON = 0
-WAREHOUSE = 1000
+WAREHOUSE = v.calculate_factor(v.Warehouse())
 
-def delay(t):
-    s = time.time()
-    while time.time() < s+t:
-        pass
 
 def production():
     global WOOD, CLAY, IRON
-    WOOD = min(WOOD + 100, WAREHOUSE)
-    CLAY = min(CLAY + 10, WAREHOUSE)
-    IRON = min(IRON + 10, WAREHOUSE)
+    w = v.calculate_factor(v.TimberCamp())
+    c = v.calculate_factor(v.ClayPit())
+    i = v.calculate_factor(v.IronMine())
+    WOOD = min(WOOD + w, WAREHOUSE)
+    CLAY = min(CLAY + c, WAREHOUSE)
+    IRON = min(IRON + i, WAREHOUSE)
 
 def run_game():
     while True:
@@ -24,7 +24,7 @@ def run_game():
                 CLAY: {CLAY}/{WAREHOUSE}\
                 IRON: {IRON}/{WAREHOUSE}')
         
-        delay(1)
+        time.sleep(1)
 
         
 if __name__=='__main__':
