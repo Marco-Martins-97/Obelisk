@@ -2,6 +2,7 @@
 
 class TimberCamp:
     def __init__(self):
+        self.name = 'Timber Camp'
         self.maxlv = 30
         self.wood = 50
         self.clay = 60
@@ -23,6 +24,7 @@ class TimberCamp:
 
 class ClayPit:
     def __init__(self):
+        self.name = 'Clay Pit'
         self.maxlv = 30
         self.wood = 65
         self.clay = 50
@@ -44,6 +46,7 @@ class ClayPit:
 
 class IronMine:
     def __init__(self):
+        self.name = 'Iron Mine'
         self.maxlv = 30
         self.wood = 75
         self.clay = 65
@@ -65,6 +68,7 @@ class IronMine:
 
 class Warehouse:
     def __init__(self):
+        self.name = 'Warehouse'
         self.maxlv = 30
         self.wood = 60
         self.clay = 50
