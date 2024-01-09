@@ -1,4 +1,4 @@
-#Obelisk v.1.3
+#Obelisk v.1.4
 import time
 import village as v
 
@@ -7,10 +7,10 @@ WOOD = 0
 CLAY = 0
 IRON = 0
 #Factor
-WAREHOUSE = v.calculate_factor(v.Warehouse())
-WOOD_P = v.calculate_factor(v.TimberCamp())
-CLAY_P = v.calculate_factor(v.ClayPit())
-IRON_P = v.calculate_factor(v.IronMine())
+WOOD_P = 0
+CLAY_P = 0
+IRON_P = 0
+WAREHOUSE = 0
 #Timers
 S = time.time()
 SA = time.time()
@@ -60,13 +60,47 @@ def production():
     CLAY = min(CLAY + CLAY_P, WAREHOUSE)
     IRON = min(IRON + IRON_P, WAREHOUSE)
 
-#Loads the data
-load_database()
+#Subtracts the resources needed to increase the lv from resources
+def sub_resources(b):
+    global WOOD, CLAY, IRON
+    WOOD -= v.calculate_wood(village[b])
+    CLAY -= v.calculate_clay(village[b])
+    IRON -= v.calculate_iron(village[b])
+
+#Add 1 lv to a building
+def add_lv(b):
+    sub_resources(b)
+    village[b].lv += 1
+    update()
+
+#Return if is possible add a lv to a building
+def can_add_lv(b):
+    global WOOD, CLAY, IRON 
+    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and village[b].lv < village[b].maxlv:
+        return True
+    else:
+        return False
+
+#Update the factor
+def update():
+    global WOOD_P, CLAY_P, IRON_P, WAREHOUSE
+    WOOD_P = v.calculate_factor(village[0])
+    CLAY_P = v.calculate_factor(village[1])
+    IRON_P = v.calculate_factor(village[2])
+    WAREHOUSE = v.calculate_factor(village[3])
+
+
+
+
 
 #Run the game
+
+load_database()                     #Loads the data
+update()                            #Update
 def run_game():
 
-    if delay(1):                 #Game speed
+    if delay(1):                    #Game speed
         production()                      
-    if autosave(5):                #Save frequency
+    if autosave(5):                 #Save frequency
         save_database(village)      #Save the data
+

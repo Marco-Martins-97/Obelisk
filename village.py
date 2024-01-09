@@ -95,7 +95,7 @@ def calculate_wood(build):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range(build.lv):
             c =  c * f
         return int(c)
     
@@ -105,7 +105,7 @@ def calculate_clay(build):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range(build.lv):
             c =  c * f
         return int(c)
     
@@ -115,7 +115,7 @@ def calculate_iron(build):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range(build.lv):
             c =  c * f
         return int(c)
     
@@ -125,7 +125,7 @@ def calculate_pop(build):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range(build.lv):
             c =  c * f
         return int(c)
     
@@ -133,7 +133,7 @@ def calculate_factor(build):
     c = build.factor
     f = build.factor_f   
     if build.lv == 0:
-        return int(c)
+        return 0
     else:
         for _ in range(build.lv-1):
             c =  c * f
