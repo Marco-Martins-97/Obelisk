@@ -49,6 +49,10 @@ def drawCircle(win, x, y, b):
     pygame.draw.circle(win, BOR_COL, (x, y), b)
     pygame.draw.circle(win, BT_COL, (x, y), b-3)
 
+def drawCross(win, x, y, b):
+    pygame.draw.rect(win, (TEXT_COL), (x+b/6, y+b/2-2, b/3*2, 4))
+    pygame.draw.rect(win, (TEXT_COL), (x+b/2-2, y+b/6, 4, b/3*2))
+
 
 #Dashboards
 def draw_production(win, x, y, w, b):
@@ -87,7 +91,16 @@ def draw_village(win, x, y, w, h, b):
         #lv
         drawCircle(win, x-h+7, y*i+40+h/2, h/2+3)
         drawTextC(win, g.village[i].lv, 20, x-h+7, y*i+38, 0, h)
+        if g.can_add_lv(i):
+            #add button 
+            drawCircle(win, x+w+h-7, y*i+40+h/2, h/2+3)
+            drawCross(win, x+w+h/2-7, y*i+40, h)
 
+def create_btn():
+    btns = []
+    for i in range(len(g.village)):
+        btns.append([373, 40*i+55])
+    return btns
 
 def update_screen():
     win.fill(BG_COL)
@@ -102,7 +115,7 @@ def update_screen():
 
 
 def game():
-
+    add_btn = create_btn()
     run = True
     clock = pygame.time.Clock()
     update_screen()
@@ -113,6 +126,18 @@ def game():
                 run = False
                 pygame.quit()
 
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                x1 = pos[0]
+                y1 = pos[1]
+
+                for i, btns in enumerate(add_btn):
+                    x = btns[0]
+                    y = btns[1]
+                    if x-15 <= x1 <= x+15 and y-15 <= y1 <= y+15:
+                        if g.can_add_lv(i):
+                            g.add_lv(i)
+                            break
 
 
 
