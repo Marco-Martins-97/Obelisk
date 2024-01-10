@@ -83,6 +83,15 @@ def draw_warehouse(win, x, y, w, b):
     drawTextL(win, 'IRON: ', 20, x+20, y+i*4, h/c)
     drawTextR(win, g.IRON, 20, x-20, y+i*4, w, h/c)
 
+def draw_populçation(win, x, y, w, b):
+    c = 2
+    i = 30
+    h = c*i
+    drawRoundRect(win, x, y, w, h+5, b)
+    drawTextC(win, 'FARM', 20, x, y+5, w, h/c)
+    drawTextL(win, 'POPULATION: ', 20, x+20, y+i*1, h/c)
+    drawTextR(win, g.POPULATION, 20, x-20, y+i*1, w, h/c)
+
 def draw_village(win, x, y, w, h, b):
     for i in range(len(g.village)):
         #builds
@@ -105,7 +114,8 @@ def create_btn():
 def update_screen():
     win.fill(BG_COL)
     draw_production(win, WIDTH-350, 150, 300, 10)
-    draw_warehouse(win, WIDTH-350, 300, 300, 10)
+    draw_warehouse(win, WIDTH-350, 310, 300, 10)
+    draw_populçation(win, WIDTH-350, 500, 300, 10)
     draw_village(win, 50, 40, 300, 30, 10)
     pygame.display.update()
 

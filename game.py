@@ -1,4 +1,4 @@
-#Obelisk v.1.4
+#Obelisk v.1.5
 import time
 import village as v
 
@@ -10,12 +10,14 @@ IRON = 0
 WOOD_P = 0
 CLAY_P = 0
 IRON_P = 0
+FARM = 0
 WAREHOUSE = 0
+POPULATION = 0
 #Timers
 S = time.time()
 SA = time.time()
 #Village buildings
-village = [v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Warehouse()]
+village = [v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
 
 
 #Save data to a file
@@ -76,18 +78,33 @@ def add_lv(b):
 #Return if is possible add a lv to a building
 def can_add_lv(b):
     global WOOD, CLAY, IRON 
-    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and village[b].lv < village[b].maxlv:
+    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv:
         return True
     else:
         return False
+    
+#Return the actual population
+def get_pop():
+    pop = 0
+    for b in range(len(village)):
+        pop += v.calculate_pop(village[b])
+    return pop
+#Return the next population
+def get_next_pop(b):
+    return v.calculate_next_pop(village[b])
 
 #Update the factor
 def update():
-    global WOOD_P, CLAY_P, IRON_P, WAREHOUSE
+    global WOOD_P, CLAY_P, IRON_P, FARM, WAREHOUSE, POPULATION
     WOOD_P = v.calculate_factor(village[0])
     CLAY_P = v.calculate_factor(village[1])
     IRON_P = v.calculate_factor(village[2])
-    WAREHOUSE = v.calculate_factor(village[3])
+    FARM = v.calculate_factor(village[3])
+    WAREHOUSE = v.calculate_factor(village[4])
+    POPULATION = FARM - get_pop()
+    
+    print(POPULATION)
+    print(FARM)
 
 
 
