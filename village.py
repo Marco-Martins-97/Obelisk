@@ -66,6 +66,28 @@ class IronMine:
 
         self.lv = 1
 
+class Farm:
+    def __init__(self):
+        self.name = 'Farm'
+        self.maxlv = 30
+        self.wood = 45
+        self.clay = 40
+        self.iron = 30
+        self.pop = 0
+        self.factor = 240
+        self.build_t = 17
+        self.points = 1
+
+        self.wood_f = 1.2887
+        self.clay_f = 1.3078
+        self.iron_f = 1.28
+        self.pop_f = 0
+        self.factor_f = 1.172103
+        self.build_tf = 1.2
+        self.points_f = 1.1925
+
+        self.lv = 1
+
 class Warehouse:
     def __init__(self):
         self.name = 'Warehouse'
@@ -81,7 +103,7 @@ class Warehouse:
         self.wood_f = 1.265
         self.clay_f = 1.27
         self.iron_f = 1.245
-        self.pop_f = 1
+        self.pop_f = 0
         self.factor_f = 1.2294935
         self.build_tf = 1.2
         self.points_f = 1.2
@@ -125,6 +147,16 @@ def calculate_pop(build):
     if build.lv == 0:
         return int(c)
     else:
+        for _ in range(build.lv-1):
+            c =  c * f
+        return int(c)
+    
+def calculate_next_pop(build):
+    c = build.pop
+    f = build.pop_f   
+    if build.lv == 0:
+        return int(c)
+    else:
         for _ in range(build.lv):
             c =  c * f
         return int(c)
@@ -160,11 +192,12 @@ def calculate_points(build):
         return int(c)
 
 
-
-# print('W: ' + str(calculate_wood(Warehouse())))
-# print('C: ' + str(calculate_clay(Warehouse())))
-# print('I: ' + str(calculate_iron(Warehouse())))
-# print('P: ' + str(calculate_pop(Warehouse())))
-# print('F: ' + str(calculate_factor(Warehouse())))
-# print('T: ' + str(calculate_time(Warehouse())))
-# print('Pts:' + str(calculate_points(Warehouse())))
+#build = IronMine()
+#print('W: ' + str(calculate_wood(build)))
+#print('C: ' + str(calculate_clay(build)))
+#print('I: ' + str(calculate_iron(build)))
+#print('P: ' + str(calculate_pop(build)))
+#print('PN: ' + str(calculate_next_pop(build)))
+#print('F: ' + str(calculate_factor(build)))
+#print('T: ' + str(calculate_time(build)))
+#print('Pts:' + str(calculate_points(build)))
