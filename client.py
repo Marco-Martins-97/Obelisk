@@ -53,8 +53,26 @@ def drawCross(win, x, y, b):
     pygame.draw.rect(win, (TEXT_COL), (x+b/6, y+b/2-2, b/3*2, 4))
     pygame.draw.rect(win, (TEXT_COL), (x+b/2-2, y+b/6, 4, b/3*2))
 
-
 #Dashboards
+def draw_progress(win, x, y, w, b):
+    c = 3
+    i = 30
+    h = c*i
+    drawRoundRect(win, x, y, w, h+5, b)
+    drawTextC(win, 'PROGRESS', 20, x, y+5, w, h/c)
+    drawTextL(win, '1: ', 20, x+20, y+i*1, h/c)
+    if g.PROGRESS[0] is not None:
+        drawTextL(win, g.village[g.PROGRESS[0]].name, 20, x+40, y+i*1, h/c)
+        drawTextR(win, int(g.PROGRESS_TIME[0]+1), 20, x-20, y+i*1, w, h/c)
+    else:
+        drawTextL(win, '', 20, x+40, y+i*1, h/c)
+    drawTextL(win, '2: ', 20, x+20, y+i*2, h/c)
+    if g.PROGRESS[1] is not None:
+        drawTextL(win, g.village[g.PROGRESS[1]].name, 20, x+40, y+i*2, h/c)
+        drawTextR(win, int(g.PROGRESS_TIME[1]+1), 20, x-20, y+i*2, w, h/c)
+    else:
+        drawTextL(win, '', 20, x+40, y+i*2, h/c)
+
 def draw_production(win, x, y, w, b):
     c = 4
     i = 30
@@ -111,11 +129,15 @@ def create_btn():
         btns.append([373, 40*i+55])
     return btns
 
+
+
+
 def update_screen():
     win.fill(BG_COL)
-    draw_production(win, WIDTH-350, 150, 300, 10)
-    draw_warehouse(win, WIDTH-350, 310, 300, 10)
-    draw_populçation(win, WIDTH-350, 500, 300, 10)
+    draw_progress(win, WIDTH-350, 60, 300, 10)
+    draw_production(win, WIDTH-350, 180, 300, 10)
+    draw_warehouse(win, WIDTH-350, 330, 300, 10)
+    draw_populçation(win, WIDTH-350, 510, 300, 10)
     draw_village(win, 50, 40, 300, 30, 10)
     pygame.display.update()
 
@@ -146,7 +168,7 @@ def game():
                     y = btns[1]
                     if x-15 <= x1 <= x+15 and y-15 <= y1 <= y+15:
                         if g.can_add_lv(i):
-                            g.add_lv(i)
+                            g.add_to_progress(i)
                             break
 
 
