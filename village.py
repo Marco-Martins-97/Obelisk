@@ -1,5 +1,27 @@
 
 
+class Headquartes:
+    def __init__(self):
+        self.name = 'Headquartes'
+        self.maxlv = 30
+        self.wood = 90
+        self.clay = 80
+        self.iron = 70
+        self.pop = 5
+        self.factor = 95
+        self.build_t = 15
+        self.points = 5
+
+        self.wood_f = 1.2503
+        self.clay_f = 1.2647
+        self.iron_f = 1.25
+        self.pop_f = 1.17
+        self.factor_f = 0.953
+        self.build_tf = 1.2
+        self.points_f = 1.1555
+
+        self.lv = 1
+
 class TimberCamp:
     def __init__(self):
         self.name = 'Timber Camp'
@@ -192,12 +214,12 @@ def calculate_points(build):
         return int(c)
 
 
-#build = IronMine()
-#print('W: ' + str(calculate_wood(build)))
-#print('C: ' + str(calculate_clay(build)))
-#print('I: ' + str(calculate_iron(build)))
-#print('P: ' + str(calculate_pop(build)))
-#print('PN: ' + str(calculate_next_pop(build)))
-#print('F: ' + str(calculate_factor(build)))
-#print('T: ' + str(calculate_time(build)))
-#print('Pts:' + str(calculate_points(build)))
+# build = Headquartes()
+# print('W: ' + str(calculate_wood(build)))
+# print('C: ' + str(calculate_clay(build)))
+# print('I: ' + str(calculate_iron(build)))
+# print('P: ' + str(calculate_pop(build)))
+# print('PN: ' + str(calculate_next_pop(build)))
+# print('F: ' + str(calculate_factor(build)))
+# print('T: ' + str(calculate_time(build)))
+# print('Pts:' + str(calculate_points(build)))
