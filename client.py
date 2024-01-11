@@ -63,13 +63,13 @@ def draw_progress(win, x, y, w, b):
     drawTextL(win, '1: ', 20, x+20, y+i*1, h/c)
     if g.PROGRESS[0] is not None:
         drawTextL(win, g.village[g.PROGRESS[0]].name, 20, x+40, y+i*1, h/c)
-        drawTextR(win, int(g.PROGRESS_TIME[0]+1), 20, x-20, y+i*1, w, h/c)
+        drawTextR(win, int(g.PROGRESS[2]+1), 20, x-20, y+i*1, w, h/c)
     else:
         drawTextL(win, '', 20, x+40, y+i*1, h/c)
     drawTextL(win, '2: ', 20, x+20, y+i*2, h/c)
     if g.PROGRESS[1] is not None:
         drawTextL(win, g.village[g.PROGRESS[1]].name, 20, x+40, y+i*2, h/c)
-        drawTextR(win, int(g.PROGRESS_TIME[1]+1), 20, x-20, y+i*2, w, h/c)
+        drawTextR(win, int(g.PROGRESS[3]+1), 20, x-20, y+i*2, w, h/c)
     else:
         drawTextL(win, '', 20, x+40, y+i*2, h/c)
 

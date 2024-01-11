@@ -1,4 +1,4 @@
-#Obelisk v.1.6
+#Obelisk v.1.6.1
 import time
 import village as v
 
@@ -16,11 +16,10 @@ POPULATION = 0
 #Timers
 S = time.time()
 SA = time.time()
-P1 = time.time()
-P2 = time.time()
+P = time.time()
+
 #Progress
-PROGRESS = [None, None]
-PROGRESS_TIME = [0, 0]
+PROGRESS = [None, None, 0, 0]
 
 #Village buildings
 village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
@@ -62,20 +61,12 @@ def autosave(t):
         return True
     
 #Progress 1 timer
-def p1_timer(t):
-    global P1
-    if time.time() > t+P1:
-        P1 = time.time()
+def p_timer(t):
+    global P
+    if time.time() > t+P:
+        P = time.time()
         return True
-    PROGRESS_TIME[0] = (P1 + t) - time.time()
-    
-#Progress 2 timer
-def p2_timer(t):
-    global P2
-    if time.time() > t+P2:
-        P2 = time.time()
-        return True
-    PROGRESS_TIME[1] = (P2 + t) - time.time()
+    PROGRESS[2] = (P + t) - time.time()
 
 #Production
 def production():
@@ -113,13 +104,12 @@ def can_add_lv(b):
 #Process the progress
 def progress():
     if PROGRESS[0] is not None:
-        if p1_timer(build_speed(PROGRESS[0])):
+        if p_timer(build_speed(PROGRESS[0])):
             add_lv(PROGRESS[0])
-            PROGRESS[0] = None
-    if PROGRESS[1] is not None:
-        if p2_timer(build_speed(PROGRESS[1])):
-            add_lv(PROGRESS[1])
+            PROGRESS[0] = PROGRESS[1]
             PROGRESS[1] = None
+    if PROGRESS[1] is not None:
+            PROGRESS[3] = build_speed(PROGRESS[1])
 
 #Add a build to progress
 def add_to_progress(b):
