@@ -1,4 +1,4 @@
-#Obelisk v.1.6.1
+#Obelisk v.1.7
 import time
 import village as v
 
@@ -96,7 +96,7 @@ def build_speed(b):
 #Return if is possible add a lv to a building
 def can_add_lv(b):
     global WOOD, CLAY, IRON 
-    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv and PROGRESS[0] == None or PROGRESS[1] == None:
+    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv and (PROGRESS[0] == None or PROGRESS[1] == None):
         return True
     else:
         return False
@@ -116,6 +116,8 @@ def add_to_progress(b):
     if PROGRESS[0] == None:
         sub_resources(b)
         PROGRESS[0] = b
+        global P
+        P = time.time()
     elif PROGRESS[1] == None:
         sub_resources(b)
         PROGRESS[1] = b
