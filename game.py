@@ -1,4 +1,4 @@
-#Obelisk v.1.7.1
+#Obelisk v.1.7.2
 import time
 import village as v
 
@@ -81,11 +81,12 @@ def production():
     IRON = min(IRON + IRON_P, WAREHOUSE)
 
 #Subtracts the resources needed to increase the lv from resources
-def sub_resources(b):
+def sub_resources(b, l):
     global WOOD, CLAY, IRON
-    WOOD -= v.calculate_wood(village[b])
-    CLAY -= v.calculate_clay(village[b])
-    IRON -= v.calculate_iron(village[b])
+    WOOD -= v.calculate_wood(village[b], l)
+    CLAY -= v.calculate_clay(village[b], l)
+    IRON -= v.calculate_iron(village[b], l)
+    print(v.calculate_wood(village[b], l), v.calculate_clay(village[b], l),v.calculate_iron(village[b], l))
 
 #Add 1 lv to a building
 def add_lv(b):
@@ -94,14 +95,14 @@ def add_lv(b):
 
 #Calculate the building speed
 def build_speed(b):
-    s = v.calculate_factor(village[0])
-    t = v.calculate_time(village[b])
+    s = v.calculate_factor(village[0], 0)
+    t = v.calculate_time(village[b], 0)
     return (s/100)*t
 
 #Return if is possible add a lv to a building
-def can_add_lv(b):
+def can_add_lv(b, l):
     global WOOD, CLAY, IRON 
-    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv and (PROGRESS[0] == -1 or PROGRESS[1] == -1):
+    if WOOD >= v.calculate_wood(village[b], l) and CLAY >= v.calculate_clay(village[b], l) and IRON >= v.calculate_iron(village[b], l) and POPULATION >= v.calculate_pop(village[b], l) and village[b].lv < village[b].maxlv and (PROGRESS[0] == -1 or PROGRESS[1] == -1):
         return True
     else:
         return False
@@ -119,12 +120,12 @@ def progress():
 #Add a build to progress
 def add_to_progress(b):
     if PROGRESS[0] == -1:
-        sub_resources(b)
+        sub_resources(b, 1)
         PROGRESS[0] = b
         global P
         P = time.time()
     elif PROGRESS[1] == -1:
-        sub_resources(b)
+        sub_resources(b, 2)
         PROGRESS[1] = b
     else: print('Cant add to progress!')
 
@@ -132,21 +133,18 @@ def add_to_progress(b):
 def get_pop():
     pop = 0
     for b in range(len(village)):
-        pop += v.calculate_pop(village[b])
+        pop += v.calculate_pop(village[b], 0)
     return pop
 
-#Return the next population
-def get_next_pop(b):
-    return v.calculate_next_pop(village[b])
 
 #Update the factor
 def update():
     global WOOD_P, CLAY_P, IRON_P, FARM, WAREHOUSE, POPULATION
-    WOOD_P = v.calculate_factor(village[1])
-    CLAY_P = v.calculate_factor(village[2])
-    IRON_P = v.calculate_factor(village[3])
-    FARM = v.calculate_factor(village[4])
-    WAREHOUSE = v.calculate_factor(village[5])
+    WOOD_P = v.calculate_factor(village[1], 0)
+    CLAY_P = v.calculate_factor(village[2], 0)
+    IRON_P = v.calculate_factor(village[3], 0)
+    FARM = v.calculate_factor(village[4], 0)
+    WAREHOUSE = v.calculate_factor(village[5], 0)
     POPULATION = FARM - get_pop()
 
 
