@@ -124,11 +124,14 @@ def draw_requeriments(win, ix, x, y, w, b):
     c = 6
     i = 30
     h = c*i
-    wood = v.calculate_wood(g.village[ix])
-    clay = v.calculate_clay(g.village[ix])
-    iron = v.calculate_iron(g.village[ix])
-    pop = v.calculate_next_pop(g.village[ix])
-    t = int(g.build_speed(ix)+1)
+    if ix == g.PROGRESS[0] and ix == g.PROGRESS[1]: l = 3
+    elif ix == g.PROGRESS[0] or ix == g.PROGRESS[1]: l = 2
+    else: l = 1
+    wood = v.calculate_wood(g.village[ix], l)
+    clay = v.calculate_clay(g.village[ix], l)
+    iron = v.calculate_iron(g.village[ix], l)
+    pop = v.calculate_pop(g.village[ix], l)
+    t = int(g.build_speed(ix)+l)
 
     drawRoundRect(win, x, y, w, h+5, b)
     drawTextC(win, 'REQERIMENTS', 20, TEXT_COL, x, y+5, w, h/c)
@@ -160,7 +163,9 @@ def draw_village(win, x, y, w, h, b):
         #lv
         drawCircle(win, BOR_COL, BT_COL, x-h+7, y*i+40+h/2, h/2+3)
         drawTextC(win, g.village[i].lv, 20, tc, x-h+7, y*i+38, 0, h)
-        if g.can_add_lv(i):
+        if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
+        else: l = 1
+        if g.can_add_lv(i, l):
             #add button 
             drawCircle(win, BOR_COL, BT_COL, x+w+h-7, y*i+40+h/2, h/2+3)
             drawCross(win, TEXT_COL, x+w+h/2-7, y*i+40, h)
@@ -218,7 +223,9 @@ def game():
                     x = btns[0]
                     y = btns[1]
                     if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
-                        if g.can_add_lv(i):
+                        if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
+                        else: l = 1
+                        if g.can_add_lv(i, l):
                             g.add_to_progress(i)
                             break
 

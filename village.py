@@ -133,83 +133,83 @@ class Warehouse:
         self.lv = 1
 
        
-def calculate_wood(build):
+def calculate_wood(build, l):
     c = build.wood
     f = build.wood_f   
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_clay(build):
+def calculate_clay(build, l):
     c = build.clay
     f = build.clay_f   
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_iron(build):
+def calculate_iron(build, l):
     c = build.iron
     f = build.iron_f   
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_pop(build):
+def calculate_pop(build, l):
     c = build.pop
     f = build.pop_f   
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_next_pop(build):
-    c = build.pop
-    f = build.pop_f   
-    if build.lv == 0:
-        return int(c)
-    else:
-        for _ in range(build.lv):
-            c =  c * f
-        return int(c)
+#def calculate_next_pop(build):
+#    c = build.pop
+#    f = build.pop_f   
+#    if build.lv == 0:
+#        return int(c)
+#    else:
+#        for _ in range(build.lv):
+#            c =  c * f
+#        return int(c)
     
-def calculate_factor(build):
+def calculate_factor(build, l):
     c = build.factor
     f = build.factor_f   
     if build.lv == 0:
         return 0
     else:
-        for _ in range(build.lv-1):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_time(build):
+def calculate_time(build, l):
     c = build.build_t
     f = build.build_tf
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
     
-def calculate_points(build):
+def calculate_points(build, l):
     c = build.points
     f = build.points_f 
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range(build.lv-1):
+        for _ in range((build.lv+l)-1):
             c =  c * f
         return int(c)
 
