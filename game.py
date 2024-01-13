@@ -1,4 +1,4 @@
-#Obelisk v.1.7
+#Obelisk v.1.7.1
 import time
 import village as v
 
@@ -19,7 +19,7 @@ SA = time.time()
 P = time.time()
 
 #Progress
-PROGRESS = [None, None, 0, 0]
+PROGRESS = [-1, -1, 0, 0]
 
 #Village buildings
 village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
@@ -28,23 +28,28 @@ village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(),
 #Save data to a file
 def save_database(village, filename='village.txt'):
     with open (filename, 'w') as file:
-        file.write(f'{WOOD},{CLAY},{IRON}\n')           #write resources
+        file.write(f'{WOOD},{CLAY},{IRON},{PROGRESS[0]},{PROGRESS[1]},{int(PROGRESS[2])}\n')           #write resources
+
         for build in village:
             file.write(f'{build.lv}\n')                 #write building levels
     print('Database Saved.')
 
 #Load data from a file
 def load_database(filename='village.txt'):
+    global P
     try:
         with open (filename, 'r') as file:
             global WOOD, CLAY, IRON
             resources = file.readline().strip().split(',')      #Read data from te file
-            WOOD, CLAY, IRON = map(int, resources)              #Assigns data to variables
+            WOOD, CLAY, IRON, PROGRESS[0], PROGRESS[1], PROGRESS[2]= map(int, resources)              #Assigns data to variables
+ 
             for i, line in enumerate(file):
                 build = int(line.strip())                       #Read data from te file
                 village[i].lv = build                           #Assigns data to variables
     except FileNotFoundError:
         pass
+
+    P = (PROGRESS[2] - build_speed(PROGRESS[0])) + time.time()
 
 #Delay timer
 def delay(t):
@@ -96,29 +101,29 @@ def build_speed(b):
 #Return if is possible add a lv to a building
 def can_add_lv(b):
     global WOOD, CLAY, IRON 
-    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv and (PROGRESS[0] == None or PROGRESS[1] == None):
+    if WOOD >= v.calculate_wood(village[b]) and CLAY >= v.calculate_clay(village[b]) and IRON >= v.calculate_iron(village[b]) and POPULATION >= get_next_pop(b) and village[b].lv < village[b].maxlv and (PROGRESS[0] == -1 or PROGRESS[1] == -1):
         return True
     else:
         return False
     
 #Process the progress
 def progress():
-    if PROGRESS[0] is not None:
+    if PROGRESS[0] != -1:
         if p_timer(build_speed(PROGRESS[0])):
             add_lv(PROGRESS[0])
             PROGRESS[0] = PROGRESS[1]
-            PROGRESS[1] = None
-    if PROGRESS[1] is not None:
+            PROGRESS[1] = -1
+    if PROGRESS[1] != -1:
             PROGRESS[3] = build_speed(PROGRESS[1])
 
 #Add a build to progress
 def add_to_progress(b):
-    if PROGRESS[0] == None:
+    if PROGRESS[0] == -1:
         sub_resources(b)
         PROGRESS[0] = b
         global P
         P = time.time()
-    elif PROGRESS[1] == None:
+    elif PROGRESS[1] == -1:
         sub_resources(b)
         PROGRESS[1] = b
     else: print('Cant add to progress!')
