@@ -1,7 +1,12 @@
+#v.1.0
 import pygame
 import game as g
 import village as v
+from network import Network
 
+n = Network()
+n.connect()                 #connectto the server
+print(n.read())
 
 WIDTH = 800
 HEIGHT = 600
