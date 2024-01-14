@@ -13,7 +13,9 @@ TEXT_COL = (96, 48, 45)     #text color
 BT_COL2 = (96, 96, 96)      #button color
 BOR_COL2 = (0, 0, 0)        #border color
 TEXT_COL2 = (200, 200, 200) #text color
+#others
 TEXT_COL3 = (222, 0,42)     #text color
+
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Obelisk')
@@ -36,6 +38,13 @@ def drawTextR(win, t, s, c, x, y, w, h):
     win.blit(text, (x + w -round(text.get_width()), y + round(h/2)-round(text.get_height()/2)))
 
 #Shapes
+    
+def drawrectangle(win, x, y, w, h):
+    pygame.draw.rect(win, ((0,0,0)), (x, y, w, h))
+    pygame.draw.rect(win, ((255,255,255)), (x+3, y+3, w-6, h-6))
+
+
+
 def drawRoundRect(win, x, y, w, h, b):  
     pygame.draw.rect(win, (BOR_COL), (x, y+b, w, h-2*b))
     pygame.draw.rect(win, (BOR_COL), (x+b, y, w-2*b, h))
@@ -59,6 +68,46 @@ def drawCross(win, tc, x, y, b):
     pygame.draw.rect(win, (tc), (x+b/2-2, y+b/6, 4, b/3*2))
 
 #Dashboards
+    
+def draw_login(win, u, p,  x, y, w, b):
+    c = 4
+    i = 30
+    h = c*i
+    tc= TEXT_COL
+    drawRoundRect(win, x, y, w, h+5, b)
+    drawTextC(win, 'LOGIN', 20, tc, x, y+5, w, h/c)
+    drawTextL(win, 'USERNAME: ', 20, tc, x+20, y+i*2, h/c)
+    drawTextR(win, u, 20, tc, x-20, y+i*2, w, h/c)
+    drawTextL(win, 'PASSWORD: ', 20, tc, x+20, y+i*3, h/c)
+    drawTextR(win, p, 20, tc, x-20, y+i*3, w, h/c)
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def draw_progress(win, x, y, w, b):
     c = 3
     i = 30
@@ -172,3 +221,5 @@ def draw_village(win, x, y, w, h, b):
             #add button 
             drawCircle(win, BOR_COL2, BT_COL2, x+w+h-7, y*i+40+h/2, h/2+3)
             drawCross(win, TEXT_COL2, x+w+h/2-7, y*i+40, h)
+
+    

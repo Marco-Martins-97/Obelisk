@@ -1,4 +1,4 @@
-#v.1.1
+#v.1.2
 import pygame
 import game as g
 import village as v
@@ -6,8 +6,7 @@ import graphics as graph
 from network import Network
 
 n = Network()
-n.connect()                 #connectto the server
-print(n.read())
+
 
 
 
@@ -19,7 +18,7 @@ def create_btn():
     return btns
 
 
-def update_screen(btn, pos):
+def game_screen(btn, pos):
     graph.win.fill(graph.BG_COL)
     graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
     graph.draw_production(graph.win, graph.WIDTH-350, 180, 300, 10)
@@ -35,15 +34,74 @@ def update_screen(btn, pos):
             graph.draw_requeriments(graph.win, i, mouse_x, mouse_y, 300, 10)
     pygame.display.update()
 
+def login_screen(u, p):#btn, pos
+    title = 'OBELISK'
+    graph.win.fill(graph.BG_COL)
+    graph.drawTextC(graph.win, title, 130, (96, 48, 45), 5, 5, graph.WIDTH, graph.HEIGHT/3)
+    graph.drawTextC(graph.win, title, 130, (125, 81, 15), 0, 0, graph.WIDTH, graph.HEIGHT/3)
+    graph.draw_login(graph.win, u, p, graph.WIDTH/2-150, graph.HEIGHT/2, 300, 10)
+    pygame.display.update()
 
 
 
 
 
-def game():
+def main():
+    n.connect()                 #connect to the server
     add_btn = create_btn()
-    run = True
     clock = pygame.time.Clock()
+    run = False
+    login = True
+
+    username = ''
+    password = ''
+    active_input = 'username'
+
+    print(n.read())
+    while login:
+        clock.tick(60)
+        #pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                login = False
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB:
+                    active_input = 'password' if active_input == 'username' else 'username'
+                elif event.key == pygame.K_RETURN:
+                    if active_input == 'username':
+                        active_input = 'password'
+                    elif active_input == "password":
+                        n.send(username)
+                        print(n.read())
+                        n.send(password)
+                        c = n.read()
+                        print(c)
+                        if c == 'connected':
+                            run = True
+                            login = False
+                            break
+                        else:   
+                            print(n.read())
+                            active_input = 'username'
+
+                elif event.key == pygame.K_BACKSPACE:
+                    if active_input == 'username':
+                        username = username[:-1]
+                    elif active_input == "password":
+                        password = password[:-1]
+                else:
+                    if active_input == 'username':
+                        username += event.unicode
+                    elif active_input == "password":
+                        password += event.unicode
+
+
+
+
+
+        login_screen(username, password)
 
     while run:
         clock.tick(60)
@@ -51,9 +109,8 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
-
-            
+                pygame.quit()  
+        
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x = pos[0]
                 mouse_y = pos[1]
@@ -69,7 +126,7 @@ def game():
 
 
         g.run_game()
-        update_screen(add_btn, pos)
+        game_screen(add_btn, pos)
 
 
 
@@ -81,4 +138,4 @@ def game():
 
 
 if __name__ == '__main__':
-    game()
+    main()
