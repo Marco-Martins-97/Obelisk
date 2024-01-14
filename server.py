@@ -1,4 +1,4 @@
-#v.1.2
+#v.1.3
 import socket
 import threading
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
@@ -33,25 +33,51 @@ user_database = {
 }
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
+
+
+
 def client_conn(conn, addr):
     print('Connected to: ', addr)
-    login = True
-    while login:
-        send(conn, 'username')
-        username = read(conn)
+    
+    send(conn, 'choise')
+    while True:
+        choice = read(conn)
+        if choice == 'login':
+            send(conn, 'username')
+            username = read(conn)
 
-        send(conn, 'password')
-        password = read(conn)
+            send(conn, 'password')
+            password = read(conn)
 
-        if username in user_database and user_database[username] == password:
-            send(conn, 'connected')
-            login = False
-        else:
-            send(conn, 'invalid')
-            print(user_database)
-            print(username, password)
-           
+            if username in user_database and user_database[username] == password:
+                send(conn, 'connected')
+                break
+            else:
+                send(conn, 'invalid')
+                print(user_database)
+                print(username, password)
 
+        elif choice == 'register':
+            send(conn, 'username')
+            username = read(conn)
+
+            send(conn, 'password')
+            password = read(conn)
+
+            send(conn, 'password2')
+            password2 = read(conn)
+
+            if username in user_database:
+                send(conn, 'exists')
+            elif password != password2:
+                send(conn, 'nomatch')
+            else:
+                user_database[username] = password
+                send(conn, 'created')
+                print(user_database)
+                print(username, password)
+
+        
     conn.close()
     print('Disconnected from: ', addr)
 

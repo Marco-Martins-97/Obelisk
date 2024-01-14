@@ -69,17 +69,43 @@ def drawCross(win, tc, x, y, b):
 
 #Dashboards
     
-def draw_login(win, u, p,  x, y, w, b):
-    c = 4
+def draw_login_menu(win, c, ai, u, p, p2,  x, y, w, b):
+    col = 4
     i = 30
-    h = c*i
+    h = col*i
     tc= TEXT_COL
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'LOGIN', 20, tc, x, y+5, w, h/c)
-    drawTextL(win, 'USERNAME: ', 20, tc, x+20, y+i*2, h/c)
-    drawTextR(win, u, 20, tc, x-20, y+i*2, w, h/c)
-    drawTextL(win, 'PASSWORD: ', 20, tc, x+20, y+i*3, h/c)
-    drawTextR(win, p, 20, tc, x-20, y+i*3, w, h/c)
+    drawRoundRect(win, x-w-50, y, w, h+5, b)
+    drawRoundRect(win, x+50, y, w, h+5, b)
+    if c == 'login':
+        drawTextC(win, 'REGISTER', 40, tc, x-w-50, y+h/3, w, h/col)
+        drawTextC(win, 'LOGIN', 20, tc, x+50, y+5, w, h/col)
+        drawTextL(win, 'USERNAME: ', 20, tc, x+50+20, y+i*2, h/col)
+        drawTextR(win, u, 20, tc, x+50-20, y+i*2, w, h/col)
+        drawTextL(win, 'PASSWORD: ', 20, tc, x+50+20, y+i*3, h/col)
+        drawTextR(win, p, 20, tc, x+50-20, y+i*3, w, h/col)
+        if ai == 'username': 
+            drawTextR(win, '<', 20, tc, x+60-20, y+i*2, w, h/col)
+        else: 
+            drawTextR(win, '<', 20, tc, x+60-20, y+i*3, w, h/col)
+    elif c == 'register': 
+        drawTextC(win, 'LOGIN', 40, tc, x+50, y+h/3, w, h/col)
+        drawTextC(win, 'LOGIN', 20, tc, x-w-50, y+5, w, h/col)
+        drawTextL(win, 'USERNAME: ', 20, tc, x-w-50+20, y+i*1, h/col)
+        drawTextR(win, u, 20, tc, x-w-50-20, y+i*1, w, h/col)
+        drawTextL(win, 'PASSWORD: ', 20, tc, x-w-50+20, y+i*2, h/col)
+        drawTextR(win, p, 20, tc, x-w-50-20, y+i*2, w, h/col)
+        drawTextL(win, 'PASSWORD: ', 20, tc, x-w-50+20, y+i*3, h/col)
+        drawTextR(win, p2, 20, tc, x-w-50-20, y+i*3, w, h/col)
+        if ai == 'username': 
+            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*1, w, h/col)
+        elif ai == 'password': 
+            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*2, w, h/col)
+        else: 
+            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*3, w, h/col)
+    else:
+        drawTextC(win, 'REGISTER', 40, tc, x-w-50, y+h/3, w, h/col)
+        drawTextC(win, 'LOGIN', 40, tc, x+50, y+h/3, w, h/col)
+
    
 
 
