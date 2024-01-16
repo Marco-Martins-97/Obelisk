@@ -1,6 +1,7 @@
-#v.1.3.1
+#v.1.3.2
 import socket
 import threading
+import game as g
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -28,14 +29,15 @@ def read(conn):
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 
 user_database = {
-    'user': '12345',
+    'user': ['12345', 0, 0, 0]
 }
-#save_database(user_database)
+
 
 def save_database(database, filename='user_database.txt'):
     with open(filename, 'w') as file:
-        for u, p in database.items():
-            file.write(f'{u},{p}\n')
+        for u, data in database.items():
+            p, w, c, i = data
+            file.write(f'{u},{p},{w},{c},{i}\n')
             
     print('database saved.')
 
@@ -44,14 +46,32 @@ def load_database(filename='user_database.txt'):
     try:
         with open (filename, 'r') as file:
             for line in file:
-                u, p = line.strip().split(',')
-                database[u] = p
-                
+                u, p, w, c, i = line.strip().split(',')
+                database[u] = [p, w, c, i]
+           
     except FileNotFoundError:
         pass
 
     print('database loaded.')
     return database
+
+def add_new_user(database, username, password):
+    database[username] = [password, 0, 0, 0]
+    save_database(database)
+
+def load_user_data(database, username):
+    w = database[username][1]
+    c = database[username][2]
+    i = database[username][3]
+    return w, c, i
+
+def update_user_data(database, username):
+    w, c, i = 100, 150, 200
+    database[username][1] = w
+    database[username][2] = c
+    database[username][3] = i
+    save_database(database)
+#save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
 
@@ -60,6 +80,7 @@ def load_database(filename='user_database.txt'):
 def client_conn(conn, addr):
     print('Connected to: ', addr)
     user_database = load_database()
+    print(user_database)
     
     send(conn, 'choise')
     while True:
@@ -71,8 +92,11 @@ def client_conn(conn, addr):
             send(conn, 'password')
             password = read(conn)
 
-            if username in user_database and user_database[username] == password:
+            if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
+                print(load_user_data(user_database, username))
+                update_user_data(user_database, username)
+                print(user_database)
                 break
             else:
                 send(conn, 'invalid')
@@ -94,12 +118,11 @@ def client_conn(conn, addr):
             elif password != password2:
                 send(conn, 'nomatch')
             else:
-                user_database[username] = password
-                save_database(user_database)
+                add_new_user(user_database, username, password)
                 send(conn, 'created')
 
-                print(user_database)
                 print(username, password)
+                print(user_database)
 
         
     conn.close()

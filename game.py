@@ -1,6 +1,7 @@
 #Obelisk v.1.7.2
 import time
 import village as v
+#import server as s
 
 #Resources
 WOOD = 0
@@ -153,7 +154,7 @@ def update():
 
 #Run the game
 
-load_database()                     #Loads the data
+#load_database()                     #Loads the data
 update()                            #Update
 def run_game():
 
