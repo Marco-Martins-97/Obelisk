@@ -1,4 +1,4 @@
-#v.1.3
+#v.1.3.1
 import socket
 import threading
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
@@ -29,8 +29,29 @@ def read(conn):
 
 user_database = {
     'user': '12345',
-    'user2': '123',
 }
+#save_database(user_database)
+
+def save_database(database, filename='user_database.txt'):
+    with open(filename, 'w') as file:
+        for u, p in database.items():
+            file.write(f'{u},{p}\n')
+            
+    print('database saved.')
+
+def load_database(filename='user_database.txt'):
+    database = {}
+    try:
+        with open (filename, 'r') as file:
+            for line in file:
+                u, p = line.strip().split(',')
+                database[u] = p
+                
+    except FileNotFoundError:
+        pass
+
+    print('database loaded.')
+    return database
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
 
@@ -38,6 +59,7 @@ user_database = {
 
 def client_conn(conn, addr):
     print('Connected to: ', addr)
+    user_database = load_database()
     
     send(conn, 'choise')
     while True:
@@ -73,7 +95,9 @@ def client_conn(conn, addr):
                 send(conn, 'nomatch')
             else:
                 user_database[username] = password
+                save_database(user_database)
                 send(conn, 'created')
+
                 print(user_database)
                 print(username, password)
 
