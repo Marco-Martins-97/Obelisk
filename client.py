@@ -50,7 +50,7 @@ def login_screen(c, i, u, p, p2):#btn, pos
 
 def main():
     n.connect()                 #connect to the server
-    add_btn = create_btn()
+    #add_btn = create_btn()
     clock = pygame.time.Clock()
     run = True
     logged = False
@@ -70,22 +70,22 @@ def main():
                     run = False
                     pygame.quit()  
             
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x = pos[0]
-                    mouse_y = pos[1]
-                    for i, btns in enumerate(add_btn):
-                        x = btns[0]
-                        y = btns[1]
-                        if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
-                            if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
-                            else: l = 1
-                            if g.can_add_lv(i, l):
-                                g.add_to_progress(i)
-                                break
+                # if event.type == pygame.MOUSEBUTTONDOWN:
+                #     mouse_x = pos[0]
+                #     mouse_y = pos[1]
+                #     for i, btns in enumerate(add_btn):
+                #         x = btns[0]
+                #         y = btns[1]
+                #         if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
+                #             if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
+                #             else: l = 1
+                #             if g.can_add_lv(i, l):
+                #                 g.add_to_progress(i)
+                #                 break
 
 
-            g.run_game()
-            game_screen(add_btn, pos)
+            #g.run_game()
+            #game_screen(add_btn, pos)
 
 
         else:
