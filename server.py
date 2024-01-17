@@ -1,7 +1,7 @@
-#v.1.3.2
+#v.1.4
 import socket
 import threading
-import game as g
+from game import Game
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -65,12 +65,12 @@ def load_user_data(database, username):
     i = database[username][3]
     return w, c, i
 
-def update_user_data(database, username):
-    w, c, i = 100, 150, 200
+def update_user_data(database, username, w, c, i):
     database[username][1] = w
     database[username][2] = c
     database[username][3] = i
     save_database(database)
+    
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
@@ -94,9 +94,16 @@ def client_conn(conn, addr):
 
             if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
-                print(load_user_data(user_database, username))
-                update_user_data(user_database, username)
-                print(user_database)
+                w, c, i = load_user_data(user_database, username)
+                print(w,c,i)
+                g = Game(w,c,i)
+                logged = True
+                while logged:
+                    if g.delay(1):
+                        g.production()
+                    if g.autosave(5):
+                        w, c, i = g.save_data()
+                        update_user_data(user_database, username, w, c, i)
                 break
             else:
                 send(conn, 'invalid')
