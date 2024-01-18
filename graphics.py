@@ -1,14 +1,12 @@
 import pygame
-import game as g
+#import game as g
 import village as v
 
-WIDTH = 800
-HEIGHT = 600
 
-BG_COL = (244, 228, 188)    #background color
-BT_COL = (203, 171, 107)    #button color
-BOR_COL = (125, 81, 15)     #border color
-TEXT_COL = (96, 48, 45)     #text color
+#BG_COL = (244, 228, 188)    #background color
+#BT_COL = (203, 171, 107)    #button color
+#BOR_COL = (125, 81, 15)     #border color
+#TEXT_COL = (96, 48, 45)     #text color
 #colorless
 BT_COL2 = (96, 96, 96)      #button color
 BOR_COL2 = (0, 0, 0)        #border color
@@ -17,25 +15,163 @@ TEXT_COL2 = (200, 200, 200) #text color
 TEXT_COL3 = (222, 0,42)     #text color
 
 
-win = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Obelisk')
-pygame.font.init()
 
-#Text alignment
-def drawTextC(win, t, s, c, x, y, w, h):
-    font = pygame.font.SysFont('comicsans', s)
-    text = font.render(str(t), 1, c)
-    win.blit(text, (x + round(w/2)-round(text.get_width()/2), y + round(h/2)-round(text.get_height()/2)))
+
+class Graphics:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.win = pygame.display.set_mode((width, height))
+        pygame.display.set_caption('Obelisk')
+        pygame.font.init()
+
+        self.font = 'comicsans'
+
+        self.background_color = (244, 228, 188)
+        self.border_color = (125, 81, 15)
+        self.button_color = (203, 171, 107)
+        self.text_color = (96, 48, 45)
+
+        self.wood_p = v.calculate_factor(v.TimberCamp(), v.TimberCamp().lv-1)
+        self.clay_p = v.calculate_factor(v.ClayPit(), v.ClayPit().lv-1)
+        self.iron_p = v.calculate_factor(v.IronMine(), v.IronMine().lv-1)
+
+        self.warehouse = v.calculate_factor(v.Warehouse(), v.Warehouse().lv-1)
+
+        self.wood = 0
+        self.clay = 0
+        self.iron = 0
+        self.population = 100
+        
+
+    def update(self, wood, clay, iron):
+        self.wood = wood
+        self.clay = clay
+        self.iron = iron
+
+    #Text alignment
+    def drawTextCenter(self, text, size, color, x, y, width, height):
+        font = pygame.font.SysFont(self.font, size)
+        text = font.render(str(text), 1, color)
+        self.win.blit(text, (x + round(width/2)-round(text.get_width()/2), y + round(height/2)-round(text.get_height()/2)))
+
+    def drawTextLeft(self, text, size, color, x, y, height):
+        font = pygame.font.SysFont(self.font, size)
+        text = font.render(str(text), 1, color)
+        self.win.blit(text, (x, y + round(height/2)-round(text.get_height()/2)))
+
+    def drawTextRight(self, text, size, color, x, y, width, height):
+        font = pygame.font.SysFont(self.font, size)
+        text = font.render(str(text), 1, color)
+        self.win.blit(text, (x + width -round(text.get_width()), y + round(height/2)-round(text.get_height()/2)))
+
+
+    def drawRoundRect(self, x, y, width, height, radius):  
+        pygame.draw.rect(self.win, (self.border_color), (x, y+radius, width, height-2*radius))
+        pygame.draw.rect(self.win, (self.border_color), (x+radius, y, width-2*radius, height))
+        pygame.draw.circle(self.win, self.border_color, (x+radius, y+radius), radius)
+        pygame.draw.circle(self.win, self.border_color, (x+width-radius, y+radius), radius)
+        pygame.draw.circle(self.win, self.border_color, (x+radius, y+height-radius), radius)
+        pygame.draw.circle(self.win, self.border_color, (x+width-radius, y+height-radius), radius)
+        pygame.draw.rect(self.win, (self.button_color), (x+3, y+3+radius, width-6, height-6-2*radius))
+        pygame.draw.rect(self.win, (self.button_color), (x+3+radius, y+3, width-6-2*radius, height-6))
+        pygame.draw.circle(self.win, self.button_color, (x+3+radius, y+3+radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+3+width-6-radius, y+3+radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+3+radius, y+3+height-6-radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+3+width-6-radius, y+3+height-6-radius), radius)
     
-def drawTextL(win, t, s, c, x, y, h):
-    font = pygame.font.SysFont('comicsans', s)
-    text = font.render(str(t), 1, c)
-    win.blit(text, (x, y + round(h/2)-round(text.get_height()/2)))
+    
+    #Dashboards
+    def draw_production(self, x, y, width, radius):
+        columns = 4
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextCenter('PRODUCTION', 20, text_color, x, y+5, width, column_height)
+        self.drawTextLeft('WOOD: ', 20, text_color, x+20, y+column_height*1, column_height)
+        self.drawTextRight(self.wood_p, 20, text_color, x-20, y+column_height*1, width, column_height)
+        self.drawTextLeft('CLAY: ', 20, text_color, x+20, y+column_height*2, height/columns)
+        self.drawTextRight(self.clay_p, 20, text_color, x-20, y+column_height*2, width, column_height)
+        self.drawTextLeft('IRON: ', 20, text_color, x+20, y+column_height*3, height/columns)
+        self.drawTextRight(self.iron_p, 20, text_color, x-20, y+column_height*3, width, column_height)
 
-def drawTextR(win, t, s, c, x, y, w, h):
-    font = pygame.font.SysFont('comicsans', s)
-    text = font.render(str(t), 1, c)
-    win.blit(text, (x + w -round(text.get_width()), y + round(h/2)-round(text.get_height()/2)))
+
+    def draw_warehouse(self, x, y, width, radius):
+        columns = 5
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextCenter('WAREHOUSE', 20, text_color, x, y+5, width, column_height)
+        self.drawTextLeft('CAPACITY: ', 20, text_color, x+20, y+column_height*1 , column_height)
+        self.drawTextRight(self.warehouse, 20, text_color, x-20, y+column_height*1, width, column_height)
+        self.drawTextLeft('WOOD: ', 20, text_color, x+20, y+column_height*2, column_height)
+        self.drawTextRight(self.wood, 20, text_color, x-20, y+column_height*2, width, column_height)
+        self.drawTextLeft('CLAY: ', 20, text_color, x+20, y+column_height*3, column_height)
+        self.drawTextRight(self.clay, 20, text_color, x-20, y+column_height*3, width, column_height)
+        self.drawTextLeft('IRON: ', 20, text_color, x+20, y+column_height*4, column_height)
+        self.drawTextRight(self.iron, 20, text_color, x-20, y+column_height*4, width, column_height)
+
+
+    def draw_populçation(self, x, y, width, radius):
+        columns = 2
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextCenter('FARM', 20, text_color, x, y+5, width, column_height)
+        self.drawTextLeft('POPULATION: ', 20, text_color, x+20, y+column_height*1, column_height)
+        self.drawTextRight(self.population, 20, text_color, x-20, y+column_height*1, width, column_height)
+
+
+    def draw_login_menu(self, choice, input, username, password, password2,  x, y, width, radius):
+        columns = 4
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x-width-50, y, width, height+5, radius)
+        self.drawRoundRect(x+50, y, width, height+5, radius)
+        if choice == 'login':
+            self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, column_height)
+            self.drawTextCenter('LOGIN', 20, text_color, x+50, y+5, width, column_height)
+            self.drawTextLeft('USERNAME: ', 20, text_color, x+50+20, y+column_height*2, column_height)
+            self.drawTextRight(username, 20, text_color, x+50-20, y+column_height*2, width, column_height)
+            self.drawTextLeft('PASSWORD: ', 20, text_color, x+50+20, y+column_height*3, column_height)
+            self.drawTextRight(password, 20, text_color, x+50-20, y+column_height*3, width, column_height)
+            if input == 'username': 
+                self.drawTextRight('<', 20, text_color, x+60-20, y+column_height*2, width, column_height)
+            else: 
+                self.drawTextRight('<', 20, text_color, x+60-20, y+column_height*3, width, column_height)
+        elif choice == 'register': 
+            self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, column_height)
+            self.drawTextCenter('LOGIN', 20, text_color, x-width-50, y+5, width, column_height)
+            self.drawTextLeft('USERNAME: ', 20, text_color, x-width-50+20, y+column_height*1, column_height)
+            self.drawTextRight(username, 20, text_color, x-width-50-20, y+column_height*1, width, column_height)
+            self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+column_height*2, column_height)
+            self.drawTextRight(password, 20, text_color, x-width-50-20, y+column_height*2, width, column_height)
+            self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+column_height*3, column_height)
+            self.drawTextRight(password2, 20, text_color, x-width-50-20, y+column_height*3, width, column_height)
+            if input == 'username': 
+                self.drawTextRight('<', 20, text_color, x-width-40-20, y+column_height*1, width, column_height)
+            elif input == 'password': 
+                self.drawTextRight('<', 20, text_color, x-width-40-20, y+column_height*2, width, column_height)
+            else: 
+                self.drawTextRight('<', 20, text_color, x-width-40-20, y+column_height*3, width, column_height)
+        else:
+            self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, column_height)
+            self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, column_height)
+
+
+
+
+
+
+
+
+'''
+    
+
 
 #Shapes
     
@@ -45,19 +181,6 @@ def drawrectangle(win, x, y, w, h):
 
 
 
-def drawRoundRect(win, x, y, w, h, b):  
-    pygame.draw.rect(win, (BOR_COL), (x, y+b, w, h-2*b))
-    pygame.draw.rect(win, (BOR_COL), (x+b, y, w-2*b, h))
-    pygame.draw.circle(win, BOR_COL, (x+b, y+b), b)
-    pygame.draw.circle(win, BOR_COL, (x+w-b, y+b), b)
-    pygame.draw.circle(win, BOR_COL, (x+b, y+h-b), b)
-    pygame.draw.circle(win, BOR_COL, (x+w-b, y+h-b), b)
-    pygame.draw.rect(win, (BT_COL), (x+3, y+3+b, w-6, h-6-2*b))
-    pygame.draw.rect(win, (BT_COL), (x+3+b, y+3, w-6-2*b, h-6))
-    pygame.draw.circle(win, BT_COL, (x+3+b, y+3+b), b)
-    pygame.draw.circle(win, BT_COL, (x+3+w-6-b, y+3+b), b)
-    pygame.draw.circle(win, BT_COL, (x+3+b, y+3+h-6-b), b)
-    pygame.draw.circle(win, BT_COL, (x+3+w-6-b, y+3+h-6-b), b)
 
 def drawCircle(win, brc, btc, x, y, b):
     pygame.draw.circle(win, brc, (x, y), b)
@@ -67,70 +190,7 @@ def drawCross(win, tc, x, y, b):
     pygame.draw.rect(win, (tc), (x+b/6, y+b/2-2, b/3*2, 4))
     pygame.draw.rect(win, (tc), (x+b/2-2, y+b/6, 4, b/3*2))
 
-#Dashboards
     
-def draw_login_menu(win, c, ai, u, p, p2,  x, y, w, b):
-    col = 4
-    i = 30
-    h = col*i
-    tc= TEXT_COL
-    drawRoundRect(win, x-w-50, y, w, h+5, b)
-    drawRoundRect(win, x+50, y, w, h+5, b)
-    if c == 'login':
-        drawTextC(win, 'REGISTER', 40, tc, x-w-50, y+h/3, w, h/col)
-        drawTextC(win, 'LOGIN', 20, tc, x+50, y+5, w, h/col)
-        drawTextL(win, 'USERNAME: ', 20, tc, x+50+20, y+i*2, h/col)
-        drawTextR(win, u, 20, tc, x+50-20, y+i*2, w, h/col)
-        drawTextL(win, 'PASSWORD: ', 20, tc, x+50+20, y+i*3, h/col)
-        drawTextR(win, p, 20, tc, x+50-20, y+i*3, w, h/col)
-        if ai == 'username': 
-            drawTextR(win, '<', 20, tc, x+60-20, y+i*2, w, h/col)
-        else: 
-            drawTextR(win, '<', 20, tc, x+60-20, y+i*3, w, h/col)
-    elif c == 'register': 
-        drawTextC(win, 'LOGIN', 40, tc, x+50, y+h/3, w, h/col)
-        drawTextC(win, 'LOGIN', 20, tc, x-w-50, y+5, w, h/col)
-        drawTextL(win, 'USERNAME: ', 20, tc, x-w-50+20, y+i*1, h/col)
-        drawTextR(win, u, 20, tc, x-w-50-20, y+i*1, w, h/col)
-        drawTextL(win, 'PASSWORD: ', 20, tc, x-w-50+20, y+i*2, h/col)
-        drawTextR(win, p, 20, tc, x-w-50-20, y+i*2, w, h/col)
-        drawTextL(win, 'PASSWORD: ', 20, tc, x-w-50+20, y+i*3, h/col)
-        drawTextR(win, p2, 20, tc, x-w-50-20, y+i*3, w, h/col)
-        if ai == 'username': 
-            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*1, w, h/col)
-        elif ai == 'password': 
-            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*2, w, h/col)
-        else: 
-            drawTextR(win, '<', 20, tc, x-w-40-20, y+i*3, w, h/col)
-    else:
-        drawTextC(win, 'REGISTER', 40, tc, x-w-50, y+h/3, w, h/col)
-        drawTextC(win, 'LOGIN', 40, tc, x+50, y+h/3, w, h/col)
-
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -154,45 +214,8 @@ def draw_progress(win, x, y, w, b):
     else:
         drawTextL(win, '', 20, tc, x+40, y+i*2, h/c)
 
-def draw_production(win, x, y, w, b):
-    c = 4
-    i = 30
-    h = c*i
-    tc= TEXT_COL
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'PRODUCTION', 20, tc, x, y+5, w, h/c)
-    drawTextL(win, 'WOOD: ', 20, tc, x+20, y+i*1, h/c)
-    drawTextR(win, g.WOOD_P, 20, tc, x-20, y+i*1, w, h/c)
-    drawTextL(win, 'CLAY: ', 20, tc, x+20, y+i*2, h/c)
-    drawTextR(win, g.CLAY_P, 20, tc, x-20, y+i*2, w, h/c)
-    drawTextL(win, 'IRON: ', 20, tc, x+20, y+i*3, h/c)
-    drawTextR(win, g.IRON_P, 20, tc, x-20, y+i*3, w, h/c)
 
-def draw_warehouse(win, x, y, w, b):
-    c = 5
-    i = 30
-    h = c*i
-    tc= TEXT_COL
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'WAREHOUSE', 20, tc, x, y+5, w, h/c)
-    drawTextL(win, 'CAPACITY: ', 20, tc, x+20, y+i*1 , h/c)
-    drawTextR(win, g.WAREHOUSE, 20, tc, x-20, y+i*1, w, h/c)
-    drawTextL(win, 'WOOD: ', 20, tc, x+20, y+i*2, h/c)
-    drawTextR(win, g.WOOD, 20, tc, x-20, y+i*2, w, h/c)
-    drawTextL(win, 'CLAY: ', 20, tc, x+20, y+i*3, h/c)
-    drawTextR(win, g.CLAY, 20, tc, x-20, y+i*3, w, h/c)
-    drawTextL(win, 'IRON: ', 20, tc, x+20, y+i*4, h/c)
-    drawTextR(win, g.IRON, 20, tc, x-20, y+i*4, w, h/c)
 
-def draw_populçation(win, x, y, w, b):
-    c = 2
-    i = 30
-    h = c*i
-    tc= TEXT_COL
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'FARM', 20, tc, x, y+5, w, h/c)
-    drawTextL(win, 'POPULATION: ', 20, tc, x+20, y+i*1, h/c)
-    drawTextR(win, g.POPULATION, 20, tc, x-20, y+i*1, w, h/c)
 
 def draw_requeriments(win, ix, x, y, w, b):
     c = 6
@@ -248,4 +271,4 @@ def draw_village(win, x, y, w, h, b):
             drawCircle(win, BOR_COL2, BT_COL2, x+w+h-7, y*i+40+h/2, h/2+3)
             drawCross(win, TEXT_COL2, x+w+h/2-7, y*i+40, h)
 
-    
+    '''
