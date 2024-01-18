@@ -15,6 +15,13 @@ class Network:
         except socket.error as e:
             print(e)
         
+    def disconnect(self):
+        try:
+            self.client.close()
+
+        except socket.error as e:
+            print(e)
+
     def send(self, msg):
         try:
             # Send a message to the client
@@ -29,3 +36,16 @@ class Network:
         
         except socket.error as e:
             print(e)
+
+    def read_data(self):
+        try:
+            # Receive the message from the client
+            data_pack = self.client.recv(1024).decode()
+            #unpack the data
+            data_unpack = data_pack.split(',')
+            data = tuple(map(int, data_unpack))  
+            return data
+        
+        except socket.error as e:
+            print(e)
+

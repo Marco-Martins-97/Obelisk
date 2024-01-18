@@ -1,46 +1,49 @@
-#v.1.3
+#v.1.4
 import pygame
-import game as g
-import village as v
-import graphics as graph
+#import game as g
+#import village as v
+from graphics import Graphics
 from network import Network
 
 n = Network()
 
+WIDTH = 800
+HEIGHT = 600
 
 
+graph = Graphics(WIDTH, HEIGHT)
+
+# def create_btn():
+#     btns = []
+#     for i in range(len(g.village)):
+#         btns.append([373, 40*i+55])
+#     return btns
 
 
-def create_btn():
-    btns = []
-    for i in range(len(g.village)):
-        btns.append([373, 40*i+55])
-    return btns
-
-
-def game_screen(btn, pos):
-    graph.win.fill(graph.BG_COL)
-    graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
-    graph.draw_production(graph.win, graph.WIDTH-350, 180, 300, 10)
-    graph.draw_warehouse(graph.win, graph.WIDTH-350, 330, 300, 10)
-    graph.draw_populçation(graph.win, graph.WIDTH-350, 510, 300, 10)
-    graph.draw_village(graph.win, 50, 40, 300, 30, 10)
-    mouse_x = pos[0]
-    mouse_y = pos[1]
-    for i, btns in enumerate(btn):
-        x = btns[0]
-        y = btns[1]
-        if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
-            graph.draw_requeriments(graph.win, i, mouse_x, mouse_y, 300, 10)
+def game_screen():
+    graph.win.fill(graph.background_color)
+    #graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
+    graph.draw_production(graph.width-350, 180, 300, 10)
+    graph.draw_warehouse(graph.width-350, 330, 300, 10)
+    graph.draw_populçation(graph.width-350, 510, 300, 10)
+    #graph.draw_village(graph.win, 50, 40, 300, 30, 10)
+    #mouse_x = pos[0]
+    #mouse_y = pos[1]
+    #for i, btns in enumerate(btn):
+    #    x = btns[0]
+    #    y = btns[1]
+    #    if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
+    #        graph.draw_requeriments(graph.win, i, mouse_x, mouse_y, 300, 10)
     pygame.display.update()
 
-def login_screen(c, i, u, p, p2):#btn, pos
-    graph.win.fill(graph.BG_COL)
+def login_screen(choice, input, username, password, password2):#btn, pos
+    graph.win.fill(graph.background_color)
     title = 'OBELISK'
-    graph.drawTextC(graph.win, title, 130, (96, 48, 45), 5, 5, graph.WIDTH, graph.HEIGHT/3)
-    graph.drawTextC(graph.win, title, 130, (125, 81, 15), 0, 0, graph.WIDTH, graph.HEIGHT/3)
+    graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)
+    graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)
 
-    graph.draw_login_menu(graph.win, c, i, u, p, p2, graph.WIDTH/2, graph.HEIGHT/2, 300, 10)
+
+    graph.draw_login_menu(choice, input, username, password, password2, graph.width/2, graph.height/2, 300, 10)
     
     pygame.display.update()
 
@@ -64,12 +67,14 @@ def main():
     while run:
         if logged:
             clock.tick(60)
-            pos = pygame.mouse.get_pos()
+            #pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+
                     run = False
                     pygame.quit()  
-            
+                
+                
                 # if event.type == pygame.MOUSEBUTTONDOWN:
                 #     mouse_x = pos[0]
                 #     mouse_y = pos[1]
@@ -82,9 +87,10 @@ def main():
                 #             if g.can_add_lv(i, l):
                 #                 g.add_to_progress(i)
                 #                 break
-
-
-            #g.run_game()
+            rw,rc,ri = n.read_data()
+            n.send('read')
+            graph.update(rw,rc,ri)
+            game_screen()
             #game_screen(add_btn, pos)
 
 
@@ -103,8 +109,8 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_x = pos[0]
                     mouse_y = pos[1]
-                    x = graph.WIDTH/2
-                    y = graph.HEIGHT/2
+                    x = graph.width/2
+                    y = graph.height/2
                     if x-350 <= mouse_x <= x-50 and y <= mouse_y <= y+150:
                         active_choice = 'register'
                         n.send(active_choice)

@@ -133,13 +133,13 @@ class Warehouse:
         self.lv = 1
 
        
-def calculate_wood(build, l):
+def calculate_wood(build, lvl):
     c = build.wood
     f = build.wood_f   
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((build.lv+lvl)-1):
             c =  c * f
         return int(c)
     
