@@ -1,4 +1,4 @@
-#v.1.4.2
+#v.1.4.3
 import socket
 import threading
 from game import Game
@@ -152,6 +152,7 @@ def client_conn(conn, addr):
                     while logged:
                         if g.delay(1):
                             g.production()
+                            update_user_data(user_database, username, g.get_data())
 
                         if not send_data(conn, g.get_data()):
                             break
@@ -159,8 +160,7 @@ def client_conn(conn, addr):
                         print(g.get_data())
 
                         if g.autosave(5):
-                            #w, c, i = g.save_data()
-                            update_user_data(user_database, username, g.get_data())
+                            save_database(user_database)
                 else:
                     send(conn, 'invalid')
                     print(user_database)

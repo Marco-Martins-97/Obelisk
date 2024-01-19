@@ -63,7 +63,8 @@ class Graphics:
             pop += v.calculate_population(self.village[building], self.village_level[building]-1)
         return pop
     
-    def update(self, wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse):
+    def update(self, data):
+        wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
         self.wood = wood
         self.clay = clay
         self.iron = iron
