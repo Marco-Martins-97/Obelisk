@@ -1,4 +1,4 @@
-# #Obelisk v.1.8.1
+# #Obelisk v.1.8.3
 import time
 import village as v
 
@@ -25,6 +25,7 @@ class Game:
 
         self.start_delay = time.time()
         self.start_autosave = time.time()
+        self.start_progress = time.time()
         
 
 
@@ -51,43 +52,42 @@ class Game:
         data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, self.progress_time, self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
         return data
 
+    def get_population(self):
+        pop = 0
+        for building in range(len(self.village)):
+            pop += v.calculate_population(self.village[building], self.village_level[building]-1)
+        return pop
+    
+    def upgrade_avaliable(self, building_idx, level):
+        population = self.farm - self.get_population()       
+        if self.wood >= v.calculate_wood(self.village[building_idx], level) and self.clay >= v.calculate_clay(self.village[building_idx], level) and self.iron >= v.calculate_iron(self.village[building_idx], level) and population >= v.calculate_population(self.village[building_idx], level) and self.village_level[building_idx] < self.village[building_idx].maxlv and (self.progress1 == -1 or self.progress2 == -1):
+            return True
+        else:
+            return False
+        
+    def sub_resources(self, building_idx, level):
+        self.wood -= v.calculate_wood(self.village[building_idx], self.village_level[building_idx]+level)
+        self.clay -= v.calculate_clay(self.village[building_idx], self.village_level[building_idx]+level)
+        self.iron -= v.calculate_iron(self.village[building_idx], self.village_level[building_idx]+level)
+        print(v.calculate_wood(self.village[building_idx], self.village_level[building_idx]+level), v.calculate_clay(self.village[building_idx], self.village_level[building_idx]+level),v.calculate_iron(self.village[building_idx], self.village_level[building_idx]+level))
+        
+    def add_to_progress(self, building_idx):
+        if self.progress1 == -1:
+            self.sub_resources(building_idx, 0)
+            self.progress1 = building_idx
+            self.start_progress = time.time()
+        elif self.progress2 == -1:
+            self.sub_resources(building_idx, 1)
+            self.progress2 = building_idx
+        else: print('Cant add to progress!')
 
 
 
 
 
 
-# #Resources
-# WOOD = 0
-# CLAY = 0
-# IRON = 0
-# #Factor
-# WOOD_P = 0
-# CLAY_P = 0
-# IRON_P = 0
-# FARM = 0
-# WAREHOUSE = 0
-# POPULATION = 0
-# #Timers
-# S = time.time()
-# SA = time.time()
-# P = time.time()
-
-# #Progress
-# PROGRESS = [-1, -1, 0, 0]
-
-# #Village buildings
-# village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
 
 
-# #Save data to a file
-# def save_database(village, filename='village.txt'):
-#     with open (filename, 'w') as file:
-#         file.write(f'{WOOD},{CLAY},{IRON},{PROGRESS[0]},{PROGRESS[1]},{int(PROGRESS[2])}\n')           #write resources
-
-#         for build in village:
-#             file.write(f'{build.lv}\n')                 #write building levels
-#     print('Database Saved.')
 
 # #Load data from a file
 # def load_database(filename='village.txt'):
@@ -117,20 +117,9 @@ class Game:
 #         return True
 #     PROGRESS[2] = (P + t) - time.time()
 
-# #Production
-# def production():
-#     global WOOD, CLAY, IRON                     #call globar variables
-#     WOOD = min(WOOD + WOOD_P, WAREHOUSE)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
-#     CLAY = min(CLAY + CLAY_P, WAREHOUSE)
-#     IRON = min(IRON + IRON_P, WAREHOUSE)
 
 # #Subtracts the resources needed to increase the lv from resources
-# def sub_resources(b, l):
-#     global WOOD, CLAY, IRON
-#     WOOD -= v.calculate_wood(village[b], l)
-#     CLAY -= v.calculate_clay(village[b], l)
-#     IRON -= v.calculate_iron(village[b], l)
-#     print(v.calculate_wood(village[b], l), v.calculate_clay(village[b], l),v.calculate_iron(village[b], l))
+
 
 # #Add 1 lv to a building
 # def add_lv(b):
@@ -143,13 +132,6 @@ class Game:
 #     t = v.calculate_time(village[b], 0)
 #     return (s/100)*t
 
-# #Return if is possible add a lv to a building
-# def can_add_lv(b, l):
-#     global WOOD, CLAY, IRON 
-#     if WOOD >= v.calculate_wood(village[b], l) and CLAY >= v.calculate_clay(village[b], l) and IRON >= v.calculate_iron(village[b], l) and POPULATION >= v.calculate_pop(village[b], l) and village[b].lv < village[b].maxlv and (PROGRESS[0] == -1 or PROGRESS[1] == -1):
-#         return True
-#     else:
-#         return False
     
 # #Process the progress
 # def progress():
@@ -172,37 +154,3 @@ class Game:
 #         sub_resources(b, 2)
 #         PROGRESS[1] = b
 #     else: print('Cant add to progress!')
-
-# #Return the actual population
-# def get_pop():
-#     pop = 0
-#     for b in range(len(village)):
-#         pop += v.calculate_pop(village[b], 0)
-#     return pop
-
-
-# #Update the factor
-# def update():
-#     global WOOD_P, CLAY_P, IRON_P, FARM, WAREHOUSE, POPULATION
-#     WOOD_P = v.calculate_factor(village[1], 0)
-#     CLAY_P = v.calculate_factor(village[2], 0)
-#     IRON_P = v.calculate_factor(village[3], 0)
-#     FARM = v.calculate_factor(village[4], 0)
-#     WAREHOUSE = v.calculate_factor(village[5], 0)
-#     POPULATION = FARM - get_pop()
-
-
-
-
-
-# #Run the game
-
-# #load_database()                     #Loads the data
-# update()                            #Update
-# def run_game():
-
-#     progress()
-#     if delay(1):                    #Game speed
-#         production()                      
-#     if autosave(5):                 #Save frequency
-#         save_database(village)      #Save the data
