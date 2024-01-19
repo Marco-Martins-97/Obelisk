@@ -5,10 +5,14 @@ import village as v
 
 class Game:
     def __init__(self, data):
-        wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
         self.wood = int(wood)
         self.clay = int(clay)
         self.iron = int(iron)
+
+        self.progress1 = int(progress1)
+        self.progress2 = int(progress2)
+        self.progress_time = int(progress_time)
 
         self.village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
@@ -44,7 +48,7 @@ class Game:
             return True
 
     def get_data(self):
-        data = (self.wood, self.clay, self.iron, self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
+        data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, self.progress_time, self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
         return data
 
 

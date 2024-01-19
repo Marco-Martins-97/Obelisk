@@ -1,4 +1,4 @@
-#v.1.4.3
+#v.1.4.4
 import socket
 import threading
 from game import Game
@@ -57,8 +57,8 @@ def read_data(conn):
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 
 user_database = {
-    #'USERNAME': ['PASSWORD', WOOD, CLAY, IRON, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
-    'user': ['12345', 0, 0, 0, 1, 1, 1, 1, 1, 1]
+    #'USERNAME': ['PASSWORD', WOOD, CLAY, IRON, PROGRESS, PROGRESS2, PROGRESS_TIME, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
+    'user': ['12345', 0, 0, 0, -1, -1, 0, 1, 1, 1, 1, 1, 1]
 }
 
 
@@ -66,8 +66,8 @@ def save_database(database, filename='user_database.txt'):
     try:
         with open(filename, 'w') as file:
             for u, data in database.items():
-                p, w, c, i, hq, tc, cp, im, f, wh = data
-                file.write(f'{u},{p},{w},{c},{i},{hq},{tc},{cp},{im},{f},{wh}\n')
+                p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data
+                file.write(f'{u},{p},{w},{c},{i},{p1},{p2},{pt},{hq},{tc},{cp},{im},{f},{wh}\n')
                 
     except FileNotFoundError:
         pass
@@ -78,8 +78,8 @@ def load_database(filename='user_database.txt'):
     try:
         with open (filename, 'r') as file:
             for line in file:
-                u, p, w, c, i, hq, tc, cp, im, f, wh = line.strip().split(',')
-                database[u] = [p, w, c, i, hq, tc, cp, im, f, wh]
+                u, p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = line.strip().split(',')
+                database[u] = [p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh]
            
     except FileNotFoundError:
         pass
@@ -88,33 +88,39 @@ def load_database(filename='user_database.txt'):
     return database
 
 def add_new_user(database, username, password):
-    database[username] = [password, 0, 0, 0, v.Headquartes().lv, v.TimberCamp().lv, v.ClayPit().lv, v.IronMine().lv, v.Farm().lv, v.Warehouse().lv]
+    database[username] = [password, 0, 0, 0, -1, -1, 0, v.Headquartes().lv, v.TimberCamp().lv, v.ClayPit().lv, v.IronMine().lv, v.Farm().lv, v.Warehouse().lv]
     save_database(database)
 
 def load_user_data(database, username):
     w = database[username][1]
     c = database[username][2]
     i = database[username][3]
-    hq = database[username][4]
-    tc = database[username][5]
-    cp = database[username][6]
-    im = database[username][7]
-    f = database[username][8]
-    wh = database[username][9]
-    data = (w, c, i, hq, tc, cp, im, f, wh)
+    p1 = database[username][4]
+    p2 = database[username][5]
+    pt = database[username][6]
+    hq = database[username][7]
+    tc = database[username][8]
+    cp = database[username][9]
+    im = database[username][10]
+    f = database[username][11]
+    wh = database[username][12]
+    data = (w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh)
     return data
 
 def update_user_data(database, username, data):
-    w, c, i, hq, tc, cp, im, f, wh = data
+    w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data
     database[username][1] = w
     database[username][2] = c
     database[username][3] = i
-    database[username][4] = hq
-    database[username][5] = tc
-    database[username][6] = cp
-    database[username][7] = im
-    database[username][8] = f
-    database[username][9] = wh
+    database[username][4] = p1
+    database[username][5] = p2
+    database[username][6] = pt
+    database[username][7] = hq
+    database[username][8] = tc
+    database[username][9] = cp
+    database[username][10] = im
+    database[username][11] = f
+    database[username][12] = wh
     #save_database(database)
     
 #save_database(user_database)
@@ -157,7 +163,7 @@ def client_conn(conn, addr):
                         if not send_data(conn, g.get_data()):
                             break
 
-                        print(g.get_data())
+                        #print(g.get_data())
 
                         if g.autosave(5):
                             save_database(user_database)

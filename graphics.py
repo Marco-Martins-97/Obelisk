@@ -50,6 +50,10 @@ class Graphics:
         self.clay = 0
         self.iron = 0
         self.population = 0
+
+        self.progress1 = -1
+        self.progress2 = -1
+        self.progress_time = 0
         
     def upgrade_avaliable(self, building_idx, level):       
         if self.wood >= v.calculate_wood(self.village[building_idx], level) and self.clay >= v.calculate_clay(self.village[building_idx], level) and self.iron >= v.calculate_iron(self.village[building_idx], level) and self.population >= v.calculate_population(self.village[building_idx], level) and self.village_level[building_idx] < self.village[building_idx].maxlv:
@@ -64,10 +68,14 @@ class Graphics:
         return pop
     
     def update(self, data):
-        wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
         self.wood = wood
         self.clay = clay
         self.iron = iron
+        self.progress1 = progress1
+        self.progress2 = progress2
+        self.progress_time = progress_time
+
         self.village_level = [headquartes, timbercamp, claypit, ironmine, farm, warehouse]
 
         self.wood_p = v.calculate_factor(v.TimberCamp(), self.village_level[1]-1)
@@ -118,6 +126,22 @@ class Graphics:
         pygame.draw.rect(self.win, (text_color), (x+radius/2-2, y+radius/6, 4, radius/3*2))
     
     #Dashboards
+    def draw_progress(self, x, y, width, radius):
+        columns = 3
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextCenter('PROGRESS', 20, text_color, x, y+5, width, column_height)
+        self.drawTextLeft('1: ', 20, text_color, x+20, y+column_height*1, column_height)
+        if self.progress1 != -1:
+            self.drawTextLeft(self.village[self.progress1].name, 20, text_color, x+40, y+column_height*1, column_height)
+            self.drawTextRight(self.progress_time, 20, text_color, x-20, y+column_height*1, width, column_height)    
+        self.drawTextLeft('2: ', 20, text_color, x+20, y+column_height*2, column_height)
+        if self.progress2 != -1:
+            self.drawTextLeft(self.village[self.progress2].name, 20, text_color, x+40, y+column_height*2, column_height)
+     
+
     def draw_production(self, x, y, width, radius):
         columns = 4
         column_height = 32
@@ -268,94 +292,9 @@ def drawrectangle(win, x, y, w, h):
 
 
 
-
-def drawCircle(win, brc, btc, x, y, b):
-    pygame.draw.circle(win, brc, (x, y), b)
-    pygame.draw.circle(win, btc, (x, y), b-3)
-
-def drawCross(win, tc, x, y, b):
-    pygame.draw.rect(win, (tc), (x+b/6, y+b/2-2, b/3*2, 4))
-    pygame.draw.rect(win, (tc), (x+b/2-2, y+b/6, 4, b/3*2))
-
-    
+   
 
 
 
-def draw_progress(win, x, y, w, b):
-    c = 3
-    i = 30
-    h = c*i
-    tc= TEXT_COL
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'PROGRESS', 20, tc, x, y+5, w, h/c)
-    drawTextL(win, '1: ', 20, tc, x+20, y+i*1, h/c)
-    if g.PROGRESS[0] != -1:
-        drawTextL(win, g.village[g.PROGRESS[0]].name, 20, tc, x+40, y+i*1, h/c)
-        drawTextR(win, int(g.PROGRESS[2]+1), 20, tc, x-20, y+i*1, w, h/c)
-    else:
-        drawTextL(win, '', 20, tc, x+40, y+i*1, h/c)
-    drawTextL(win, '2: ', 20, tc, x+20, y+i*2, h/c)
-    if g.PROGRESS[1] != -1:
-        drawTextL(win, g.village[g.PROGRESS[1]].name, 20, tc, x+40, y+i*2, h/c)
-        drawTextR(win, int(g.PROGRESS[3]+1), 20, tc, x-20, y+i*2, w, h/c)
-    else:
-        drawTextL(win, '', 20, tc, x+40, y+i*2, h/c)
-
-
-
-
-def draw_requeriments(win, ix, x, y, w, b):
-    c = 6
-    i = 30
-    h = c*i
-    if ix == g.PROGRESS[0] and ix == g.PROGRESS[1]: l = 3
-    elif ix == g.PROGRESS[0] or ix == g.PROGRESS[1]: l = 2
-    else: l = 1
-    wood = v.calculate_wood(g.village[ix], l)
-    clay = v.calculate_clay(g.village[ix], l)
-    iron = v.calculate_iron(g.village[ix], l)
-    pop = v.calculate_pop(g.village[ix], l)
-    t = int(g.build_speed(ix)+l)
-
-    drawRoundRect(win, x, y, w, h+5, b)
-    drawTextC(win, 'REQERIMENTS', 20, TEXT_COL, x, y+5, w, h/c)
-    drawTextL(win, 'WOOD: ', 20, TEXT_COL, x+20, y+i*1, h/c)
-    if g.WOOD < wood : tc = TEXT_COL3
-    else: tc = TEXT_COL
-    drawTextR(win, wood, 20, tc, x-20, y+i*1, w, h/c)
-    drawTextL(win, 'CLAY: ', 20, TEXT_COL, x+20, y+i*2, h/c)
-    if g.CLAY < clay : tc = TEXT_COL3
-    else: tc = TEXT_COL
-    drawTextR(win, clay, 20, tc, x-20, y+i*2, w, h/c)
-    drawTextL(win, 'IRON: ', 20, TEXT_COL, x+20, y+i*3, h/c)
-    if g.IRON < iron : tc = TEXT_COL3
-    else: tc = TEXT_COL
-    drawTextR(win, iron, 20, tc, x-20, y+i*3, w, h/c)
-    drawTextL(win, 'POPULATION: ', 20, TEXT_COL, x+20, y+i*4, h/c)
-    if g.POPULATION < pop : tc = TEXT_COL3
-    else: tc = TEXT_COL
-    drawTextR(win, pop, 20, tc, x-20, y+i*4, w, h/c)
-    drawTextL(win, 'TIME: ', 20, TEXT_COL, x+20, y+i*5, h/c)
-    drawTextR(win, t, 20, TEXT_COL, x-20, y+i*5, w, h/c)
-
-def draw_village(win, x, y, w, h, b):
-    tc= TEXT_COL
-    for i in range(len(g.village)):
-        #builds
-        drawRoundRect(win, x, y * i + 40, w, h, b)
-        drawTextC(win, g.village[i].name, 20, tc, x, y*i+40, w, h-6)
-        #lv
-        drawCircle(win, BOR_COL, BT_COL, x-h+7, y*i+40+h/2, h/2+3)
-        drawTextC(win, g.village[i].lv, 20, tc, x-h+7, y*i+38, 0, h)
-        if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
-        else: l = 1
-        if g.can_add_lv(i, l):
-            #add button 
-            drawCircle(win, BOR_COL, BT_COL, x+w+h-7, y*i+40+h/2, h/2+3)
-            drawCross(win, TEXT_COL, x+w+h/2-7, y*i+40, h)
-        else:
-            #add button 
-            drawCircle(win, BOR_COL2, BT_COL2, x+w+h-7, y*i+40+h/2, h/2+3)
-            drawCross(win, TEXT_COL2, x+w+h/2-7, y*i+40, h)
 
     '''
