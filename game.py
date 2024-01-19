@@ -1,17 +1,24 @@
-# #Obelisk v.1.8
+# #Obelisk v.1.8.1
 import time
-# import village as v
+import village as v
 
 
 class Game:
-    def __init__(self, w, c, i):
-        self.wood = int(w)
-        self.clay = int(c)
-        self.iron = int(i)
-        self.wood_p = 30
-        self.clay_p = 30
-        self.iron_p = 30
-        self.warehouse = 10000000
+    def __init__(self, data):
+        wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        self.wood = int(wood)
+        self.clay = int(clay)
+        self.iron = int(iron)
+
+        self.village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
+        self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
+
+        self.wood_p = v.calculate_factor(self.village[1], self.village_level[1]-1)
+        self.clay_p = v.calculate_factor(self.village[2], self.village_level[2]-1)
+        self.iron_p = v.calculate_factor(self.village[3], self.village_level[3]-1)
+        self.farm = v.calculate_factor(self.village[4], self.village_level[4]-1)
+        self.warehouse = v.calculate_factor(self.village[5], self.village_level[5]-1)
+
         self.start_delay = time.time()
         self.start_autosave = time.time()
         
@@ -23,7 +30,7 @@ class Game:
         self.clay = min(self.clay + self.clay_p, self.warehouse)
         self.iron = min(self.iron + self.iron_p, self.warehouse)
         
-        print(f'WOOD:{self.wood}, CLAY:{self.clay},  IRON:{self.iron}')
+        #print(f'WOOD:{self.wood}, CLAY:{self.clay},  IRON:{self.iron}')
 
     def delay(self, t):
         if time.time() > t+self.start_delay:
@@ -36,8 +43,9 @@ class Game:
             self.start_autosave = time.time()
             return True
 
-    def save_data(self):
-        return self.wood, self.clay, self.iron
+    def get_data(self):
+        data = (self.wood, self.clay, self.iron, self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
+        return data
 
 
 

@@ -8,11 +8,11 @@ import village as v
 #BOR_COL = (125, 81, 15)     #border color
 #TEXT_COL = (96, 48, 45)     #text color
 #colorless
-BT_COL2 = (96, 96, 96)      #button color
-BOR_COL2 = (0, 0, 0)        #border color
-TEXT_COL2 = (200, 200, 200) #text color
+#BT_COL2 = (96, 96, 96)      #button color
+#BOR_COL2 = (0, 0, 0)        #border color
+#TEXT_COL2 = (200, 200, 200) #text color
 #others
-TEXT_COL3 = (222, 0,42)     #text color
+#TEXT_COL3 = (222, 0,42)     #text color
 
 
 
@@ -31,23 +31,46 @@ class Graphics:
         self.border_color = (125, 81, 15)
         self.button_color = (203, 171, 107)
         self.text_color = (96, 48, 45)
+        self.border_colorless = (50, 50, 50)
+        self.button_colorless = (96, 96, 96) 
+        self.text_color_white = (200, 200, 200)
+        self.text_color_red = (222, 0,42)
+        
 
-        self.wood_p = v.calculate_factor(v.TimberCamp(), v.TimberCamp().lv-1)
-        self.clay_p = v.calculate_factor(v.ClayPit(), v.ClayPit().lv-1)
-        self.iron_p = v.calculate_factor(v.IronMine(), v.IronMine().lv-1)
+        self.village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
+        self.village_level = []
 
-        self.warehouse = v.calculate_factor(v.Warehouse(), v.Warehouse().lv-1)
+        self.wood_p = 0
+        self.clay_p = 0
+        self.iron_p = 0
+        self.farm = 0
+        self.warehouse = 0
 
         self.wood = 0
         self.clay = 0
         self.iron = 0
-        self.population = 100
+        self.population = 0
         
 
-    def update(self, wood, clay, iron):
+    def get_population(self):
+        pop = 0
+        for building in range(len(self.village)):
+            pop += v.calculate_population(self.village[building], self.village_level[building]-1)
+        return pop
+    
+    def update(self, wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse):
         self.wood = wood
         self.clay = clay
         self.iron = iron
+        self.village_level = [headquartes, timbercamp, claypit, ironmine, farm, warehouse]
+
+        self.wood_p = v.calculate_factor(v.TimberCamp(), self.village_level[1]-1)
+        self.clay_p = v.calculate_factor(v.ClayPit(), self.village_level[2]-1)
+        self.iron_p = v.calculate_factor(v.IronMine(), self.village_level[3]-1)
+        self.farm = v.calculate_factor(v.Farm(), self.village_level[4]-1)
+        self.warehouse = v.calculate_factor(v.Warehouse(), self.village_level[5]-1)
+
+        self.population = self.farm - self.get_population()
 
     #Text alignment
     def drawTextCenter(self, text, size, color, x, y, width, height):
@@ -65,7 +88,7 @@ class Graphics:
         text = font.render(str(text), 1, color)
         self.win.blit(text, (x + width -round(text.get_width()), y + round(height/2)-round(text.get_height()/2)))
 
-
+    #Shapes
     def drawRoundRect(self, x, y, width, height, radius):  
         pygame.draw.rect(self.win, (self.border_color), (x, y+radius, width, height-2*radius))
         pygame.draw.rect(self.win, (self.border_color), (x+radius, y, width-2*radius, height))
@@ -79,7 +102,14 @@ class Graphics:
         pygame.draw.circle(self.win, self.button_color, (x+3+width-6-radius, y+3+radius), radius)
         pygame.draw.circle(self.win, self.button_color, (x+3+radius, y+3+height-6-radius), radius)
         pygame.draw.circle(self.win, self.button_color, (x+3+width-6-radius, y+3+height-6-radius), radius)
+
+    def drawCircle(self, border_color, button_color, x, y, radius):
+        pygame.draw.circle(self.win, border_color, (x, y), radius)
+        pygame.draw.circle(self.win, button_color, (x, y), radius-3)
     
+    def drawCross(self, text_color, x, y, radius):
+        pygame.draw.rect(self.win, (text_color), (x+radius/6, y+radius/2-2, radius/3*2, 4))
+        pygame.draw.rect(self.win, (text_color), (x+radius/2-2, y+radius/6, 4, radius/3*2))
     
     #Dashboards
     def draw_production(self, x, y, width, radius):
@@ -114,7 +144,7 @@ class Graphics:
         self.drawTextRight(self.iron, 20, text_color, x-20, y+column_height*4, width, column_height)
 
 
-    def draw_populçation(self, x, y, width, radius):
+    def draw_population(self, x, y, width, radius):
         columns = 2
         column_height = 32
         height = columns*column_height
@@ -162,8 +192,59 @@ class Graphics:
             self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, column_height)
             self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, column_height)
 
+    def draw_village(self, x, y, width, height, radius):
+        text_color = self.text_color
+        for i in range(len(self.village)):
+            #builds
+            self.drawRoundRect(x, y * i + 40, width, height, radius)
+            self.drawTextCenter(self.village[i].name, 20, text_color, x, y*i+40, width, height-6)
+            #lv
+            self.drawCircle(self.border_color, self.button_color, x-height+7, y*i+40+height/2, height/2+3)
+            self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y*i+38, 0, height)
+            #if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
+            #else: l = 1
+            #if self.upgrade_avaliable(i,self.village_level[i]):
+                #add button 
+            self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
+            self.drawCross(text_color, x+width+height/2-7, y*i+40, height)
+            #else:
+                #add button 
+            #    self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y*i+40+height/2, height/2+3)
+            #    self.drawCross(self.text_color_white, x+width+height/2-7, y*i+40, height)
 
-
+    def draw_requeriments(self, index, x, y, width, radius):
+        columns = 6
+        column_height = 32
+        height = columns*column_height
+        #if ix == g.PROGRESS[0] and ix == g.PROGRESS[1]: l = 3
+        #elif ix == g.PROGRESS[0] or ix == g.PROGRESS[1]: l = 2
+        #else: l = 1
+        wood = v.calculate_wood(self.village[index], self.village_level[index])
+        clay = v.calculate_clay(self.village[index], self.village_level[index])
+        iron = v.calculate_iron(self.village[index], self.village_level[index])
+        population = v.calculate_population(self.village[index], self.village_level[index])
+        time = v.calculate_time(self.village[index], self.village_level[index])
+        #t = int(g.build_speed(ix)+l)
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
+        self.drawTextLeft('WOOD: ', 20, self.text_color, x+20, y+column_height*1, column_height)
+        if self.wood < wood : tc = self.text_color_red
+        else: tc = self.text_color
+        self.drawTextRight(wood, 20, tc, x-20, y+column_height*1, width, column_height)
+        self.drawTextLeft('CLAY: ', 20, self.text_color, x+20, y+column_height*2, column_height)
+        if self.clay < clay : tc = self.text_color_red
+        else: tc = self.text_color
+        self.drawTextRight(clay, 20, tc, x-20, y+column_height*2, width, column_height)
+        self.drawTextLeft('IRON: ', 20, self.text_color, x+20, y+column_height*3, column_height)
+        if self.iron < iron : tc = self.text_color_red
+        else: tc = self.text_color
+        self.drawTextRight(iron, 20, tc, x-20, y+column_height*3, width, column_height)
+        self.drawTextLeft('POPULATION: ', 20, self.text_color, x+20, y+column_height*4, column_height)
+        if self.population < population : tc = self.text_color_red
+        else: tc = self.text_color
+        self.drawTextRight(population, 20, tc, x-20, y+column_height*4, width, column_height)
+        self.drawTextLeft('TIME: ', 20, self.text_color, x+20, y+column_height*5, column_height)
+        self.drawTextRight(time, 20, self.text_color, x-20, y+column_height*5, width, column_height)
 
 
 

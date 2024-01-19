@@ -1,7 +1,8 @@
-#v.1.4.1
+#v.1.4.2
 import socket
 import threading
 from game import Game
+import village as v
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -56,16 +57,20 @@ def read_data(conn):
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 
 user_database = {
-    'user': ['12345', 0, 0, 0]
+    #'USERNAME': ['PASSWORD', WOOD, CLAY, IRON, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
+    'user': ['12345', 0, 0, 0, 1, 1, 1, 1, 1, 1]
 }
 
 
 def save_database(database, filename='user_database.txt'):
-    with open(filename, 'w') as file:
-        for u, data in database.items():
-            p, w, c, i = data
-            file.write(f'{u},{p},{w},{c},{i}\n')
-            
+    try:
+        with open(filename, 'w') as file:
+            for u, data in database.items():
+                p, w, c, i, hq, tc, cp, im, f, wh = data
+                file.write(f'{u},{p},{w},{c},{i},{hq},{tc},{cp},{im},{f},{wh}\n')
+                
+    except FileNotFoundError:
+        pass
     print('database saved.')
 
 def load_database(filename='user_database.txt'):
@@ -73,8 +78,8 @@ def load_database(filename='user_database.txt'):
     try:
         with open (filename, 'r') as file:
             for line in file:
-                u, p, w, c, i = line.strip().split(',')
-                database[u] = [p, w, c, i]
+                u, p, w, c, i, hq, tc, cp, im, f, wh = line.strip().split(',')
+                database[u] = [p, w, c, i, hq, tc, cp, im, f, wh]
            
     except FileNotFoundError:
         pass
@@ -83,20 +88,34 @@ def load_database(filename='user_database.txt'):
     return database
 
 def add_new_user(database, username, password):
-    database[username] = [password, 0, 0, 0]
+    database[username] = [password, 0, 0, 0, v.Headquartes().lv, v.TimberCamp().lv, v.ClayPit().lv, v.IronMine().lv, v.Farm().lv, v.Warehouse().lv]
     save_database(database)
 
 def load_user_data(database, username):
     w = database[username][1]
     c = database[username][2]
     i = database[username][3]
-    return w, c, i
+    hq = database[username][4]
+    tc = database[username][5]
+    cp = database[username][6]
+    im = database[username][7]
+    f = database[username][8]
+    wh = database[username][9]
+    data = (w, c, i, hq, tc, cp, im, f, wh)
+    return data
 
-def update_user_data(database, username, w, c, i):
+def update_user_data(database, username, data):
+    w, c, i, hq, tc, cp, im, f, wh = data
     database[username][1] = w
     database[username][2] = c
     database[username][3] = i
-    save_database(database)
+    database[username][4] = hq
+    database[username][5] = tc
+    database[username][6] = cp
+    database[username][7] = im
+    database[username][8] = f
+    database[username][9] = wh
+    #save_database(database)
     
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
@@ -126,19 +145,22 @@ def client_conn(conn, addr):
 
                 if username in user_database and user_database[username][0] == password:
                     send(conn, 'connected')
-                    w, c, i = load_user_data(user_database, username)
-                    print(w,c,i)
-                    g = Game(w,c,i)
+                    #w, c, i = load_user_data(user_database, username)
+                    #print(w,c,i)
+                    g = Game(load_user_data(user_database, username))
                     logged = True
                     while logged:
                         if g.delay(1):
                             g.production()
-                            if not send_data(conn, g.save_data()):
-                                break
-                            print(g.save_data())
+
+                        if not send_data(conn, g.get_data()):
+                            break
+
+                        print(g.get_data())
+
                         if g.autosave(5):
-                            w, c, i = g.save_data()
-                            update_user_data(user_database, username, w, c, i)
+                            #w, c, i = g.save_data()
+                            update_user_data(user_database, username, g.get_data())
                 else:
                     send(conn, 'invalid')
                     print(user_database)

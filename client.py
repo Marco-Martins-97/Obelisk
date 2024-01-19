@@ -1,4 +1,4 @@
-#v.1.4
+#v.1.4.1
 import pygame
 #import game as g
 #import village as v
@@ -25,8 +25,8 @@ def game_screen():
     #graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
     graph.draw_production(graph.width-350, 180, 300, 10)
     graph.draw_warehouse(graph.width-350, 330, 300, 10)
-    graph.draw_populçation(graph.width-350, 510, 300, 10)
-    #graph.draw_village(graph.win, 50, 40, 300, 30, 10)
+    graph.draw_population(graph.width-350, 510, 300, 10)
+    graph.draw_village(50, 40, 300, 32, 10)
     #mouse_x = pos[0]
     #mouse_y = pos[1]
     #for i, btns in enumerate(btn):
@@ -87,9 +87,9 @@ def main():
                 #             if g.can_add_lv(i, l):
                 #                 g.add_to_progress(i)
                 #                 break
-            rw,rc,ri = n.read_data()
+            wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = n.read_data()
             n.send('read')
-            graph.update(rw,rc,ri)
+            graph.update(wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse)
             game_screen()
             #game_screen(add_btn, pos)
 

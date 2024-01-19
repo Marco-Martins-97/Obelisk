@@ -163,7 +163,7 @@ def calculate_iron(build, l):
             c =  c * f
         return int(c)
     
-def calculate_pop(build, l):
+def calculate_population(build, l):
     c = build.pop
     f = build.pop_f   
     if build.lv == 0:
