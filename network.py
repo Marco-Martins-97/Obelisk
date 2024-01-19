@@ -43,9 +43,15 @@ class Network:
             data_pack = self.client.recv(1024).decode()
             #unpack the data
             data_unpack = data_pack.split(',')
-            data = tuple(map(int, data_unpack))  
+            data = tuple(map(int, data_unpack)) 
+            #self.send('read') 
             return data
+        
+        #except socket.timeout:
+        # Handle timeout (no data received within the specified timeout)
+        #    return None
         
         except socket.error as e:
             print(e)
+            return None
 
