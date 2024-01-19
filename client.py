@@ -1,4 +1,4 @@
-#v.1.4.2
+#v.1.4.3
 import pygame
 #import game as g
 #import village as v
@@ -87,9 +87,9 @@ def main():
                 #             if g.can_add_lv(i, l):
                 #                 g.add_to_progress(i)
                 #                 break
-            wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = n.read_data()
-            n.send('read')
-            graph.update(wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse)
+            #wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = n.read_data()
+            #n.send('read')
+            graph.update(n.read_data())
             game_screen(upgrade_btn, pos)
             #game_screen(add_btn, pos)
 

@@ -44,7 +44,7 @@ class Network:
             #unpack the data
             data_unpack = data_pack.split(',')
             data = tuple(map(int, data_unpack)) 
-            #self.send('read') 
+            self.send('read') 
             return data
         
         #except socket.timeout:
