@@ -1,4 +1,4 @@
-#v.1.4.3
+#v.1.4.4
 import pygame
 #import game as g
 #import village as v
@@ -22,7 +22,7 @@ def create_upgrade_btn():
 
 def game_screen(btn, pos):
     graph.win.fill(graph.background_color)
-    #graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
+    graph.draw_progress(graph.width-350, 60, 300, 10)
     graph.draw_production(graph.width-350, 180, 300, 10)
     graph.draw_warehouse(graph.width-350, 330, 300, 10)
     graph.draw_population(graph.width-350, 510, 300, 10)
