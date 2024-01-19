@@ -1,4 +1,4 @@
-#v.1.4.1
+#v.1.4.2
 import pygame
 #import game as g
 #import village as v
@@ -13,27 +13,27 @@ HEIGHT = 600
 
 graph = Graphics(WIDTH, HEIGHT)
 
-# def create_btn():
-#     btns = []
-#     for i in range(len(g.village)):
-#         btns.append([373, 40*i+55])
-#     return btns
+def create_upgrade_btn():
+    btns = []
+    for i in range(len(graph.village)):
+        btns.append([373, 40*i+55])
+    return btns
 
 
-def game_screen():
+def game_screen(btn, pos):
     graph.win.fill(graph.background_color)
     #graph.draw_progress(graph.win, graph.WIDTH-350, 60, 300, 10)
     graph.draw_production(graph.width-350, 180, 300, 10)
     graph.draw_warehouse(graph.width-350, 330, 300, 10)
     graph.draw_population(graph.width-350, 510, 300, 10)
     graph.draw_village(50, 40, 300, 32, 10)
-    #mouse_x = pos[0]
-    #mouse_y = pos[1]
-    #for i, btns in enumerate(btn):
-    #    x = btns[0]
-    #    y = btns[1]
-    #    if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
-    #        graph.draw_requeriments(graph.win, i, mouse_x, mouse_y, 300, 10)
+    mouse_x = pos[0]
+    mouse_y = pos[1]
+    for index, btns in enumerate(btn):
+        x = btns[0]
+        y = btns[1]
+        if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
+            graph.draw_requeriments(index, mouse_x, mouse_y, 300, 10)
     pygame.display.update()
 
 def login_screen(choice, input, username, password, password2):#btn, pos
@@ -53,7 +53,7 @@ def login_screen(choice, input, username, password, password2):#btn, pos
 
 def main():
     n.connect()                 #connect to the server
-    #add_btn = create_btn()
+    upgrade_btn = create_upgrade_btn()
     clock = pygame.time.Clock()
     run = True
     logged = False
@@ -67,7 +67,7 @@ def main():
     while run:
         if logged:
             clock.tick(60)
-            #pos = pygame.mouse.get_pos()
+            pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
 
@@ -90,7 +90,7 @@ def main():
             wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = n.read_data()
             n.send('read')
             graph.update(wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse)
-            game_screen()
+            game_screen(upgrade_btn, pos)
             #game_screen(add_btn, pos)
 
 

@@ -51,7 +51,12 @@ class Graphics:
         self.iron = 0
         self.population = 0
         
-
+    def upgrade_avaliable(self, building_idx, level):       
+        if self.wood >= v.calculate_wood(self.village[building_idx], level) and self.clay >= v.calculate_clay(self.village[building_idx], level) and self.iron >= v.calculate_iron(self.village[building_idx], level) and self.population >= v.calculate_population(self.village[building_idx], level) and self.village_level[building_idx] < self.village[building_idx].maxlv:
+            return True
+        else:
+            return False
+        
     def get_population(self):
         pop = 0
         for building in range(len(self.village)):
@@ -203,14 +208,14 @@ class Graphics:
             self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y*i+38, 0, height)
             #if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
             #else: l = 1
-            #if self.upgrade_avaliable(i,self.village_level[i]):
+            if self.upgrade_avaliable(i,self.village_level[i]):
                 #add button 
-            self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
-            self.drawCross(text_color, x+width+height/2-7, y*i+40, height)
-            #else:
+                self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
+                self.drawCross(text_color, x+width+height/2-7, y*i+40, height)
+            else:
                 #add button 
-            #    self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y*i+40+height/2, height/2+3)
-            #    self.drawCross(self.text_color_white, x+width+height/2-7, y*i+40, height)
+                self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y*i+40+height/2, height/2+3)
+                self.drawCross(self.text_color_white, x+width+height/2-7, y*i+40, height)
 
     def draw_requeriments(self, index, x, y, width, radius):
         columns = 6
