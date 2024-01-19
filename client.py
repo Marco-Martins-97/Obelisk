@@ -1,4 +1,4 @@
-#v.1.4.5
+#v.1.4.6
 import pygame
 #import game as g
 #import village as v

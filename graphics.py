@@ -56,7 +56,7 @@ class Graphics:
         self.progress_time = 0
         
     def upgrade_avaliable(self, building_idx, level):       
-        if self.wood >= v.calculate_wood(self.village[building_idx], level) and self.clay >= v.calculate_clay(self.village[building_idx], level) and self.iron >= v.calculate_iron(self.village[building_idx], level) and self.population >= v.calculate_population(self.village[building_idx], level) and self.village_level[building_idx] < self.village[building_idx].maxlv:
+        if self.wood >= v.calculate_wood(self.village[building_idx], level) and self.clay >= v.calculate_clay(self.village[building_idx], level) and self.iron >= v.calculate_iron(self.village[building_idx], level) and self.population >= v.calculate_population(self.village[building_idx], level) and self.village_level[building_idx] < self.village[building_idx].maxlv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
@@ -231,9 +231,8 @@ class Graphics:
             #lv
             self.drawCircle(self.border_color, self.button_color, x-height+7, y*i+40+height/2, height/2+3)
             self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y*i+38, 0, height)
-            #if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
-            #else: l = 1
-            if self.upgrade_avaliable(i,self.village_level[i]):
+            #if i == self.progress1 or i == self.progress2: lvl = 1
+            if self.upgrade_avaliable(i, self.village_level[i]):
                 #add button 
                 self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
                 self.drawCross(text_color, x+width+height/2-7, y*i+40, height)
@@ -246,14 +245,14 @@ class Graphics:
         columns = 6
         column_height = 32
         height = columns*column_height
-        #if ix == g.PROGRESS[0] and ix == g.PROGRESS[1]: l = 3
-        #elif ix == g.PROGRESS[0] or ix == g.PROGRESS[1]: l = 2
-        #else: l = 1
-        wood = v.calculate_wood(self.village[index], self.village_level[index])
-        clay = v.calculate_clay(self.village[index], self.village_level[index])
-        iron = v.calculate_iron(self.village[index], self.village_level[index])
-        population = v.calculate_population(self.village[index], self.village_level[index])
-        time = v.calculate_time(self.village[index], self.village_level[index])
+        if index == self.progress1 and index == self.progress2: lvl = 2
+        elif index == self.progress1 or index == self.progress2: lvl = 1
+        else: lvl = 0
+        wood = v.calculate_wood(self.village[index], self.village_level[index]+lvl)
+        clay = v.calculate_clay(self.village[index], self.village_level[index]+lvl)
+        iron = v.calculate_iron(self.village[index], self.village_level[index]+lvl)
+        population = v.calculate_population(self.village[index], self.village_level[index]+lvl)
+        time = v.calculate_time(self.village[index], self.village_level[index]+lvl)
         #t = int(g.build_speed(ix)+l)
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
