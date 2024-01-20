@@ -1,4 +1,4 @@
-#v.1.4.6
+#v.1.4.7
 import pygame
 #import game as g
 import village as v
@@ -47,16 +47,39 @@ def login_screen(choice, input, username, password, password2):#btn, pos
     
     pygame.display.update()
 
+def reconnect_screen():
+    graph.win.fill(graph.background_color)
+    msg = 'Fail to Connect to the Server...'
+    graph.drawTextCenter(msg, 40, (96, 48, 45), 0, 0, graph.width, graph.height/3)
+    graph.drawRoundRect(graph.width/2-125, graph.height/2, 250, 32, 10)
+    graph.drawTextCenter('RECONNECT', 20, graph.text_color, graph.width/2-125, graph.height/2, 250, 32)
+    pygame.display.update()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()  
+                                            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                mouse_x = pos[0]
+                mouse_y = pos[1]            
+                if graph.width/2-125 <= mouse_x <= graph.width/2+125 and graph.height/2-125 <= mouse_y <= graph.height/2+125:
+                    if n.connect(): 
+                        return True
+
+    
+
 
 
 
 
 def main():
-    n.connect()                 #connect to the server
+    connection = n.connect()                 #connect to the server
     upgrade_btn = create_upgrade_btn()
     clock = pygame.time.Clock()
     run = True
     logged = False
+
     
 
     
@@ -65,170 +88,164 @@ def main():
     print(n.read())
     
     while run:
-        if logged:
-            clock.tick(60)
-            pos = pygame.mouse.get_pos()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-
-                    run = False
-                    pygame.quit()  
-                
-                
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x = pos[0]
-                    mouse_y = pos[1]
-                    for index, btns in enumerate(upgrade_btn):
-                        x = btns[0]
-                        y = btns[1]
-                        if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
-                            if graph.upgrade_avaliable(index, graph.village_level[index]):
-                                n.send(str(index))
-                                n.read_data()
-                                break
-                            #if i == g.PROGRESS[0] or i == g.PROGRESS[1]: l = 2
-                            #else: l = 1
-                            #if g.can_add_lv(i, l):
-                                #g.add_to_progress(i)
-                               # break
-                #else:
-            n.send('-1')
-            #wood, clay, iron, headquartes, timbercamp, claypit, ironmine, farm, warehouse = n.read_data()
-            #n.send('read')
-            graph.update(n.read_data())
-            game_screen(upgrade_btn, pos)
-            #game_screen(add_btn, pos)
-
-
-        else:
-            clock.tick(60)
-            username = ''
-            password = ''
-            password2 = ''
-            active_input = 'username'
-            pos = pygame.mouse.get_pos()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                    pygame.quit()
-
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    mouse_x = pos[0]
-                    mouse_y = pos[1]
-                    x = graph.width/2
-                    y = graph.height/2
-                    if x-350 <= mouse_x <= x-50 and y <= mouse_y <= y+150:
-                        active_choice = 'register'
-                        n.send(active_choice)
-                    elif x+50 <= mouse_x <= x+350 and y <= mouse_y <= y+150:
-                        active_choice = 'login'
-                        n.send(active_choice)
-                    print(n.read())
-                
-                if active_choice == 'login':
-                    while True:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
-                                run = False
-                                pygame.quit()
-                            if event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_TAB:
-                                    active_input = 'password' if active_input == 'username' else 'username'
-                                elif event.key == pygame.K_RETURN:
-                                    if active_input == 'username':
-                                        active_input = 'password'
-                                    elif active_input == "password":
-                                        n.send(username)
-                                        print(n.read())
-                                        n.send(password)
-                                        c = n.read()
-                                        if c == 'connected':
-                                            print(c)      
-                                            logged = True
-                                            break
+        if connection:
+            if logged:
+                clock.tick(60)
+                pos = pygame.mouse.get_pos()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                        pygame.quit()  
                     
-                                        else:   
-                                            n.send(active_choice)
-                                            print(n.read())
-                                            active_input = 'username'
-
-                                elif event.key == pygame.K_BACKSPACE:
-                                    if active_input == 'username':
-                                        username = username[:-1]
-                                    elif active_input == "password":
-                                        password = password[:-1]
-                                else:
-                                    if active_input == 'username':
-                                        username += event.unicode
-                                    elif active_input == "password":
-                                        password += event.unicode
-                        if logged: break
-                        login_screen(active_choice, active_input,  username, password, password2)
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_x = pos[0]
+                        mouse_y = pos[1]
+                        for index, btns in enumerate(upgrade_btn):
+                            x = btns[0]
+                            y = btns[1]
+                            if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
+                                if graph.upgrade_avaliable(index, graph.village_level[index]):
+                                    n.send(str(index))
+                                    n.read_data()
+                                    break
+                n.send('-1')
+                graph.update(n.read_data())
+                game_screen(upgrade_btn, pos)
 
 
-                if active_choice == 'register':
-                    created = False
-                    while True:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
-                                run = False
-                                pygame.quit()
-                            if event.type == pygame.KEYDOWN:
-                                if event.key == pygame.K_TAB:
-                                    if active_input == 'username':
-                                        active_input = 'password' 
-                                    elif active_input == 'password':
-                                        active_input = 'password2' 
-                                    else: active_input = 'username'
-                                elif event.key == pygame.K_RETURN:
-                                    if active_input == 'username':
-                                        active_input = 'password'
-                                    elif active_input == "password":
-                                        active_input = 'password2'
-                                    elif active_input == "password2":
-                                        n.send(username)
-                                        print(n.read())
-                                        n.send(password)
-                                        print(n.read())
-                                        n.send(password2)
-                                        c = n.read()
-                                        if c == 'created':
-                                            print(c)      
-                                            created = True
-                                            active_choice = ''
-                                            break
-                                        elif c == 'exists':
-                                            print('username already in use')
-                                            n.send(active_choice)
-                                            print(n.read())
-                                            active_input = 'username'
-                                        else:   
-                                            print('password dont match')
-                                            n.send(active_choice)
-                                            print(n.read())
-                                            active_input = 'username'
-                                        
-                                elif event.key == pygame.K_BACKSPACE:
-                                    if active_input == 'username':
-                                        username = username[:-1]
-                                    elif active_input == "password":
-                                        password = password[:-1]
-                                    elif active_input == "password2":
-                                        password2 = password2[:-1]
-                                else:
-                                    if active_input == 'username':
-                                        username += event.unicode
-                                    elif active_input == "password":
-                                        password += event.unicode
-                                    elif active_input == "password2":
-                                        password2 += event.unicode
 
-                        if created: break
-                        login_screen(active_choice, active_input,  username, password, password2)
+            else:
+                clock.tick(60)
+                username = ''
+                password = ''
+                password2 = ''
+                active_input = 'username'
+                pos = pygame.mouse.get_pos()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                        pygame.quit()
 
-            login_screen(active_choice, active_input, username, password, password2)
-            
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_x = pos[0]
+                        mouse_y = pos[1]
+                        x = graph.width/2
+                        y = graph.height/2
+                        if x-350 <= mouse_x <= x-50 and y <= mouse_y <= y+150:
+                            active_choice = 'register'
+                            n.send(active_choice)
+                        elif x+50 <= mouse_x <= x+350 and y <= mouse_y <= y+150:
+                            active_choice = 'login'
+                            n.send(active_choice)
+                        print(n.read())
+                    
+                    if active_choice == 'login':
+                        while True:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    run = False
+                                    pygame.quit()
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_TAB:
+                                        active_input = 'password' if active_input == 'username' else 'username'
+                                    elif event.key == pygame.K_RETURN:
+                                        if active_input == 'username':
+                                            active_input = 'password'
+                                        elif active_input == "password":
+                                            if username != '' and password != '':
+                                                n.send(username)
+                                                print(n.read())
+                                                n.send(password)
+                                                c = n.read()
+                                                if c == 'connected':
+                                                    print(c)      
+                                                    logged = True
+                                                    break
+                            
+                                                else:   
+                                                    n.send(active_choice)
+                                                    print(n.read())
+                                                    active_input = 'username'
 
+                                    elif event.key == pygame.K_BACKSPACE:
+                                        if active_input == 'username':
+                                            username = username[:-1]
+                                        elif active_input == "password":
+                                            password = password[:-1]
+                                    else:
+                                        if active_input == 'username':
+                                            username += event.unicode
+                                        elif active_input == "password":
+                                            password += event.unicode
+                            if logged: break
+                            login_screen(active_choice, active_input,  username, password, password2)
+
+
+                    if active_choice == 'register':
+                        created = False
+                        while True:
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    run = False
+                                    pygame.quit()
+                                if event.type == pygame.KEYDOWN:
+                                    if event.key == pygame.K_TAB:
+                                        if active_input == 'username':
+                                            active_input = 'password' 
+                                        elif active_input == 'password':
+                                            active_input = 'password2' 
+                                        else: active_input = 'username'
+                                    elif event.key == pygame.K_RETURN:
+                                        if active_input == 'username':
+                                            active_input = 'password'
+                                        elif active_input == "password":
+                                            active_input = 'password2'
+                                        elif active_input == "password2":
+                                            if username != '' and password != '' and password2 != '':
+                                                n.send(username)
+                                                print(n.read())
+                                                n.send(password)
+                                                print(n.read())
+                                                n.send(password2)
+                                                c = n.read()
+                                                if c == 'created':
+                                                    print(c)      
+                                                    created = True
+                                                    active_choice = ''
+                                                    break
+                                                elif c == 'exists':
+                                                    print('username already in use')
+                                                    n.send(active_choice)
+                                                    print(n.read())
+                                                    active_input = 'username'
+                                                else:   
+                                                    print('password dont match')
+                                                    n.send(active_choice)
+                                                    print(n.read())
+                                                    active_input = 'username'
+                                            
+                                    elif event.key == pygame.K_BACKSPACE:
+                                        if active_input == 'username':
+                                            username = username[:-1]
+                                        elif active_input == "password":
+                                            password = password[:-1]
+                                        elif active_input == "password2":
+                                            password2 = password2[:-1]
+                                    else:
+                                        if active_input == 'username':
+                                            username += event.unicode
+                                        elif active_input == "password":
+                                            password += event.unicode
+                                        elif active_input == "password2":
+                                            password2 += event.unicode
+
+                            if created: break
+                            login_screen(active_choice, active_input,  username, password, password2)
+
+                login_screen(active_choice, active_input, username, password, password2)
+                
+        else:
+           connection = reconnect_screen()
 
 
 
