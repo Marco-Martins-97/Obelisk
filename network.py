@@ -11,9 +11,11 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
+            return True
 
         except socket.error as e:
             print(e)
+            return False
         
     def disconnect(self):
         try:
@@ -47,9 +49,6 @@ class Network:
             self.send('read') 
             return data
         
-        #except socket.timeout:
-        # Handle timeout (no data received within the specified timeout)
-        #    return None
         
         except socket.error as e:
             print(e)
