@@ -48,28 +48,31 @@ class Graphics:
         self.clay = 0
         self.iron = 0
         self.population = 0
+        self.points = 0
 
         self.progress1 = -1
         self.progress2 = -1
         self.progress_time = 0
         
     def upgrade_avaliable(self, building_idx, level):       
-        if self.wood >= v.calculate_wood(building_idx, level) and self.clay >= v.calculate_clay(building_idx, level) and self.iron >= v.calculate_iron(building_idx, level) and self.population >= v.calculate_population(building_idx, level) and self.village_level[building_idx] < v.village[building_idx].maxlv and (self.progress1 == -1 or self.progress2 == -1):
+        if self.wood >= v.calculate_wood(building_idx, level) and self.clay >= v.calculate_clay(building_idx, level) and self.iron >= v.calculate_iron(building_idx, level) and self.population >= v.calculate_population(building_idx, level) and self.village_level[building_idx] < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
         
+    def get_points(self):
+        pts = 0
+        for building in range(len(v.village)):
+            pts += v.calculate_points(building, self.village_level[building])
+        return pts
+    
     def get_population(self):
         pop = 0
         for building in range(len(v.village)):
             pop += v.calculate_population(building, self.village_level[building])
         return pop
-    
-    def build_speed(self, building_idx):
-        speed = v.calculate_factor(0, self.village_level[0])
-        _time = v.calculate_time(building_idx, self.village_level[building_idx])
-        return int((speed/100)*_time)
-    
+
+
     def update(self, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
         self.wood = wood
@@ -88,6 +91,7 @@ class Graphics:
         self.warehouse = v.calculate_factor(5, self.village_level[5])
 
         self.population = self.farm - self.get_population()
+        self.points = self.get_points()
 
     #Text alignment
     def drawTextCenter(self, text, size, color, x, y, width, height):
@@ -129,6 +133,16 @@ class Graphics:
         pygame.draw.rect(self.win, (text_color), (x+radius/2-2, y+radius/6, 4, radius/3*2))
     
     #Dashboards
+    def draw_points(self, x, y, width, radius):
+        columns = 1
+        column_height = 32
+        height = columns*column_height
+        text_color = self.text_color
+        self.drawRoundRect(x, y, width, height+5, radius)
+        self.drawTextLeft('POINTS: ', 20, text_color, x+20, y, column_height)
+        self.drawTextRight(self.points, 20, text_color, x-20, y, width, column_height)
+
+
     def draw_progress(self, x, y, width, radius):
         columns = 3
         column_height = 32
@@ -234,7 +248,7 @@ class Graphics:
             #lv
             self.drawCircle(self.border_color, self.button_color, x-height+7, y*i+40+height/2, height/2+3)
             self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y*i+38, 0, height)
-            #if i == self.progress1 or i == self.progress2: lvl = 1
+
             if self.upgrade_avaliable(i, self.village_level[i]):
                 #add button 
                 self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
@@ -255,7 +269,7 @@ class Graphics:
         clay = v.calculate_clay(index, self.village_level[index]+lvl)
         iron = v.calculate_iron(index, self.village_level[index]+lvl)
         population = v.calculate_population(index, self.village_level[index]+lvl)
-        time = self.build_speed(index)
+        time = v.calculate_time(index, self.village_level[index], self.village_level[0])
         #t = int(g.build_speed(ix)+l)
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
@@ -282,21 +296,9 @@ class Graphics:
 
 
 
-'''
-    
-
-
-#Shapes
-    
+'''   
 def drawrectangle(win, x, y, w, h):
     pygame.draw.rect(win, ((0,0,0)), (x, y, w, h))
     pygame.draw.rect(win, ((255,255,255)), (x+3, y+3, w-6, h-6))
-
-
-
-   
-
-
-
 
     '''

@@ -1,4 +1,4 @@
-#v.1.4.6
+#v.1.5
 import socket
 import threading
 from game import Game
@@ -88,7 +88,7 @@ def load_database(filename='user_database.txt'):
     return database
 
 def add_new_user(database, username, password):
-    database[username] = [password, 0, 0, 0, -1, -1, 0, v.Headquartes().lv, v.TimberCamp().lv, v.ClayPit().lv, v.IronMine().lv, v.Farm().lv, v.Warehouse().lv]
+    database[username] = [password, 0, 0, 0, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
     save_database(database)
 
 def load_user_data(database, username):
@@ -121,7 +121,6 @@ def update_user_data(database, username, data):
     database[username][10] = im
     database[username][11] = f
     database[username][12] = wh
-    #save_database(database)
     
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
