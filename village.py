@@ -139,7 +139,7 @@ def calculate_wood(build, lvl):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+lvl)-1):
+        for _ in range((lvl)-1):
             c =  c * f
         return int(c)
     
@@ -149,7 +149,7 @@ def calculate_clay(build, l):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
     
@@ -159,7 +159,7 @@ def calculate_iron(build, l):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
     
@@ -169,7 +169,7 @@ def calculate_population(build, l):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
     
@@ -189,7 +189,7 @@ def calculate_factor(build, l):
     if build.lv == 0:
         return 0
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
     
@@ -199,7 +199,7 @@ def calculate_time(build, l):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
     
@@ -209,7 +209,7 @@ def calculate_points(build, l):
     if build.lv == 0:
         return int(c)
     else:
-        for _ in range((build.lv+l)-1):
+        for _ in range((l)-1):
             c =  c * f
         return int(c)
 
