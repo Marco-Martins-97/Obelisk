@@ -156,16 +156,17 @@ def client_conn(conn, addr):
                     while logged:
                         upgrade_index = int(read(conn))
 
-                        g.progress_countdown()
-                        if g.delay(1):
-                            g.production()
-                            update_user_data(user_database, username, g.get_data())
-
                         if upgrade_index != -1:
                             print(upgrade_index)
                             if g.upgrade_avaliable(upgrade_index, g.village_level[upgrade_index]):      #the client do te same thing
                                 g.add_to_progress(upgrade_index)
+                        
+                        g.progress_countdown()
 
+                        if g.delay(1):
+                            g.production()
+
+                        update_user_data(user_database, username, g.get_data())
 
 
                         if not send_data(conn, g.get_data()):

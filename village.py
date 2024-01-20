@@ -4,6 +4,8 @@ class Headquartes:
     def __init__(self):
         self.name = 'Headquartes'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 90
         self.clay = 80
         self.iron = 70
@@ -20,12 +22,13 @@ class Headquartes:
         self.build_tf = 1.2
         self.points_f = 1.1555
 
-        self.lv = 1
 
 class TimberCamp:
     def __init__(self):
         self.name = 'Timber Camp'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 50
         self.clay = 60
         self.iron = 40
@@ -42,12 +45,13 @@ class TimberCamp:
         self.build_tf = 1.2
         self.points_f = 1.2
 
-        self.lv = 1
-
+        
 class ClayPit:
     def __init__(self):
         self.name = 'Clay Pit'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 65
         self.clay = 50
         self.iron = 40
@@ -64,12 +68,13 @@ class ClayPit:
         self.build_tf = 1.2
         self.points_f = 1.2
 
-        self.lv = 1
-
+        
 class IronMine:
     def __init__(self):
         self.name = 'Iron Mine'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 75
         self.clay = 65
         self.iron = 70
@@ -86,12 +91,13 @@ class IronMine:
         self.build_tf = 1.2
         self.points_f = 1.2
 
-        self.lv = 1
 
 class Farm:
     def __init__(self):
         self.name = 'Farm'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 45
         self.clay = 40
         self.iron = 30
@@ -108,12 +114,13 @@ class Farm:
         self.build_tf = 1.2
         self.points_f = 1.1925
 
-        self.lv = 1
-
+        
 class Warehouse:
     def __init__(self):
         self.name = 'Warehouse'
         self.maxlv = 30
+        self.lv = 1
+
         self.wood = 60
         self.clay = 50
         self.iron = 40
@@ -130,88 +137,78 @@ class Warehouse:
         self.build_tf = 1.2
         self.points_f = 1.2
 
-        self.lv = 1
 
+village = [Headquartes(), TimberCamp(), ClayPit(), IronMine(), Farm(), Warehouse()]
        
-def calculate_wood(build, lvl):
-    c = build.wood
-    f = build.wood_f   
-    if build.lv == 0:
-        return int(c)
+def calculate_wood(building_idx, lvl):
+    cost = village[building_idx].wood
+    factor = village[building_idx].wood_f   
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((lvl)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
     
-def calculate_clay(build, l):
-    c = build.clay
-    f = build.clay_f   
-    if build.lv == 0:
-        return int(c)
+def calculate_clay(building_idx, lvl):
+    cost = village[building_idx].clay
+    factor = village[building_idx].clay_f   
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
     
-def calculate_iron(build, l):
-    c = build.iron
-    f = build.iron_f   
-    if build.lv == 0:
-        return int(c)
+def calculate_iron(building_idx, lvl):
+    cost = village[building_idx].iron
+    factor = village[building_idx].iron_f   
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
     
-def calculate_population(build, l):
-    c = build.pop
-    f = build.pop_f   
-    if build.lv == 0:
-        return int(c)
+def calculate_population(building_idx, lvl):
+    cost = village[building_idx].pop
+    factor = village[building_idx].pop_f   
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
-    
-#def calculate_next_pop(build):
-#    c = build.pop
-#    f = build.pop_f   
-#    if build.lv == 0:
-#        return int(c)
-#    else:
-#        for _ in range(build.lv):
-#            c =  c * f
-#        return int(c)
-    
-def calculate_factor(build, l):
-    c = build.factor
-    f = build.factor_f   
-    if build.lv == 0:
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
+        
+def calculate_factor(building_idx, lvl):
+    cost = village[building_idx].factor
+    factor = village[building_idx].factor_f   
+    if village[building_idx].lv == 0:
         return 0
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
     
-def calculate_time(build, l):
-    c = build.build_t
-    f = build.build_tf
-    if build.lv == 0:
-        return int(c)
+def calculate_time(building_idx, lvl):
+    cost = village[building_idx].build_t
+    factor = village[building_idx].build_tf
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
     
-def calculate_points(build, l):
-    c = build.points
-    f = build.points_f 
-    if build.lv == 0:
-        return int(c)
+def calculate_points(building_idx, lvl):
+    cost = village[building_idx].points
+    factor = village[building_idx].points_f 
+    if village[building_idx].lv == 0:
+        return int(cost)
     else:
-        for _ in range((l)-1):
-            c =  c * f
-        return int(c)
+        for _ in range(lvl-1):
+            cost =  cost * factor
+        return int(cost)
 
 
 # build = Headquartes()

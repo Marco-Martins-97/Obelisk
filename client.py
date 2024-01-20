@@ -1,7 +1,7 @@
 #v.1.4.6
 import pygame
 #import game as g
-#import village as v
+import village as v
 from graphics import Graphics
 from network import Network
 
@@ -15,7 +15,7 @@ graph = Graphics(WIDTH, HEIGHT)
 
 def create_upgrade_btn():
     btns = []
-    for i in range(len(graph.village)):
+    for i in range(len(v.village)):
         btns.append([373, 40*i+55])
     return btns
 

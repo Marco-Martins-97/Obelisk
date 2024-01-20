@@ -14,14 +14,15 @@ class Game:
         self.progress2 = int(progress2)
         self.progress_time = int(progress_time)
 
-        self.village = [v.Headquartes(), v.TimberCamp(), v.ClayPit(), v.IronMine(), v.Farm(), v.Warehouse()]
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
-        self.wood_p = v.calculate_factor(self.village[1], self.village_level[1])
-        self.clay_p = v.calculate_factor(self.village[2], self.village_level[2])
-        self.iron_p = v.calculate_factor(self.village[3], self.village_level[3])
-        self.farm = v.calculate_factor(self.village[4], self.village_level[4])
-        self.warehouse = v.calculate_factor(self.village[5], self.village_level[5])
+        self.wood_p = v.calculate_factor(1, self.village_level[1])
+        self.clay_p = v.calculate_factor(2, self.village_level[2])
+        self.iron_p = v.calculate_factor(3, self.village_level[3])
+        self.farm = v.calculate_factor(4, self.village_level[4])
+        self.warehouse = v.calculate_factor(5, self.village_level[5])
+
+        print(self.warehouse)
 
         self.start_delay = time.time()
         self.start_autosave = time.time()
@@ -30,6 +31,12 @@ class Game:
         self.start_progress = (self.progress_time - self.build_speed(self.progress1)) + time.time()
         
 
+    def update(self):
+        self.wood_p = v.calculate_factor(1, self.village_level[1])
+        self.clay_p = v.calculate_factor(2, self.village_level[2])
+        self.iron_p = v.calculate_factor(3, self.village_level[3])
+        self.farm = v.calculate_factor(4, self.village_level[4])
+        self.warehouse = v.calculate_factor(5, self.village_level[5])
 
     #Production
     def production(self):
@@ -63,28 +70,28 @@ class Game:
 
     def get_population(self):
         pop = 0
-        for building in range(len(self.village)):
-            pop += v.calculate_population(self.village[building], self.village_level[building])
+        for building in range(len(v.village)):
+            pop += v.calculate_population(building, self.village_level[building])
             #print(pop)
         return pop
     
     def upgrade_avaliable(self, building_idx, level):
         population = self.farm - self.get_population()       
-        if self.wood >= v.calculate_wood(self.village[building_idx], level+1) and self.clay >= v.calculate_clay(self.village[building_idx], level+1) and self.iron >= v.calculate_iron(self.village[building_idx], level+1) and population >= v.calculate_population(self.village[building_idx], level+1) and self.village_level[building_idx] < self.village[building_idx].maxlv and (self.progress1 == -1 or self.progress2 == -1):
+        if self.wood >= v.calculate_wood(building_idx, level+1) and self.clay >= v.calculate_clay(building_idx, level+1) and self.iron >= v.calculate_iron(building_idx, level+1) and population >= v.calculate_population(building_idx, level+1) and self.village_level[building_idx] < v.village[building_idx].maxlv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
         
     def sub_resources(self, building_idx, level):
-        self.wood -= v.calculate_wood(self.village[building_idx], self.village_level[building_idx]+level)
-        self.clay -= v.calculate_clay(self.village[building_idx], self.village_level[building_idx]+level)
-        self.iron -= v.calculate_iron(self.village[building_idx], self.village_level[building_idx]+level)
-        print(building_idx, level, v.calculate_wood(self.village[building_idx], self.village_level[building_idx]+level), v.calculate_clay(self.village[building_idx], self.village_level[building_idx]+level),v.calculate_iron(self.village[building_idx], self.village_level[building_idx]+level))
+        self.wood -= v.calculate_wood(building_idx, self.village_level[building_idx]+level)
+        self.clay -= v.calculate_clay(building_idx, self.village_level[building_idx]+level)
+        self.iron -= v.calculate_iron(building_idx, self.village_level[building_idx]+level)
+        #print(building_idx, level, v.calculate_wood(self.village[building_idx], self.village_level[building_idx]+level), v.calculate_clay(self.village[building_idx], self.village_level[building_idx]+level),v.calculate_iron(self.village[building_idx], self.village_level[building_idx]+level))
 
     #Calculate the building speed
     def build_speed(self, building_idx):
-        speed = v.calculate_factor(self.village[0], self.village_level[0])
-        _time = v.calculate_time(self.village[building_idx], self.village_level[building_idx])
+        speed = v.calculate_factor(0, self.village_level[0])
+        _time = v.calculate_time(building_idx, self.village_level[building_idx])
         return int((speed/100)*_time)
           
     def add_to_progress(self, building_idx):
@@ -102,6 +109,7 @@ class Game:
         if self.progress1 != -1:
             if self.progress_timer(self.build_speed(self.progress1)):
                 self.village_level[self.progress1] += 1
+                self.update()
                 self.progress1 = self.progress2
                 self.progress2 = -1
 
