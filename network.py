@@ -11,9 +11,11 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
+            return True
 
         except socket.error as e:
             print(e)
+            return False
         
     def disconnect(self):
         try:
