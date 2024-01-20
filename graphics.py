@@ -64,8 +64,13 @@ class Graphics:
     def get_population(self):
         pop = 0
         for building in range(len(self.village)):
-            pop += v.calculate_population(self.village[building], self.village_level[building]-1)
+            pop += v.calculate_population(self.village[building], self.village_level[building])
         return pop
+    
+    def build_speed(self, building_idx):
+        speed = v.calculate_factor(self.village[0], self.village_level[0])
+        _time = v.calculate_time(self.village[building_idx], self.village_level[building_idx])
+        return int((speed/100)*_time)
     
     def update(self, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
@@ -78,11 +83,11 @@ class Graphics:
 
         self.village_level = [headquartes, timbercamp, claypit, ironmine, farm, warehouse]
 
-        self.wood_p = v.calculate_factor(v.TimberCamp(), self.village_level[1]-1)
-        self.clay_p = v.calculate_factor(v.ClayPit(), self.village_level[2]-1)
-        self.iron_p = v.calculate_factor(v.IronMine(), self.village_level[3]-1)
-        self.farm = v.calculate_factor(v.Farm(), self.village_level[4]-1)
-        self.warehouse = v.calculate_factor(v.Warehouse(), self.village_level[5]-1)
+        self.wood_p = v.calculate_factor(v.TimberCamp(), self.village_level[1])
+        self.clay_p = v.calculate_factor(v.ClayPit(), self.village_level[2])
+        self.iron_p = v.calculate_factor(v.IronMine(), self.village_level[3])
+        self.farm = v.calculate_factor(v.Farm(), self.village_level[4])
+        self.warehouse = v.calculate_factor(v.Warehouse(), self.village_level[5])
 
         self.population = self.farm - self.get_population()
 
@@ -245,14 +250,14 @@ class Graphics:
         columns = 6
         column_height = 32
         height = columns*column_height
-        if index == self.progress1 and index == self.progress2: lvl = 2
-        elif index == self.progress1 or index == self.progress2: lvl = 1
-        else: lvl = 0
+        if index == self.progress1 and index == self.progress2: lvl = 3
+        elif index == self.progress1 or index == self.progress2: lvl = 2
+        else: lvl = 1
         wood = v.calculate_wood(self.village[index], self.village_level[index]+lvl)
         clay = v.calculate_clay(self.village[index], self.village_level[index]+lvl)
         iron = v.calculate_iron(self.village[index], self.village_level[index]+lvl)
         population = v.calculate_population(self.village[index], self.village_level[index]+lvl)
-        time = v.calculate_time(self.village[index], self.village_level[index]+lvl)
+        time = self.build_speed(index)
         #t = int(g.build_speed(ix)+l)
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
