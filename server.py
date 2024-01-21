@@ -1,4 +1,4 @@
-#v.1.5
+#v.1.5.1
 import socket
 import threading
 from game import Game
@@ -43,17 +43,17 @@ def send_data(conn, data):
     except socket.error as e:
             print(e)
 
-def read_data(conn):
-    try:
-        # Receive the message from the client
-        data_pack = conn.recv(1024).decode()
-        #unpack the data
-        data_unpack = data_pack.split(',')
-        data = tuple(map(int, data_unpack))
+# def read_data(conn):
+#     try:
+#         # Receive the message from the client
+#         data_pack = conn.recv(1024).decode()
+#         #unpack the data
+#         data_unpack = data_pack.split(',')
+#         data = tuple(map(int, data_unpack))
         
-        return data
-    except socket.error as e:
-        print(e)
+#         return data
+#     except socket.error as e:
+#         print(e)
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 
 user_database = {
@@ -88,13 +88,13 @@ def load_database(filename='user_database.txt'):
     return database
 
 def add_new_user(database, username, password):
-    database[username] = [password, 0, 0, 0, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
+    database[username] = [password, 500, 500, 500, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
     save_database(database)
 
 def load_user_data(database, username):
-    w = database[username][1]
-    c = database[username][2]
-    i = database[username][3]
+    w = float(database[username][1])
+    c = float(database[username][2])
+    i = float(database[username][3])
     p1 = database[username][4]
     p2 = database[username][5]
     pt = database[username][6]

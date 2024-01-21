@@ -1,4 +1,4 @@
-#v.1.5
+#v.1.5.1
 import pygame
 import village as v
 from graphics import Graphics
@@ -21,10 +21,10 @@ def create_upgrade_btn():
 def game_screen(btn, pos):
     graph.win.fill(graph.background_color)
     graph.draw_points(graph.width-350, 10, 300, 10)
-    graph.draw_progress(graph.width-350, 60, 300, 10)
-    graph.draw_production(graph.width-350, 180, 300, 10)
-    graph.draw_warehouse(graph.width-350, 330, 300, 10)
-    graph.draw_population(graph.width-350, 510, 300, 10)
+    graph.draw_progress(graph.width-350, 65, 300, 10)
+    graph.draw_production(graph.width-350, 185, 300, 10)
+    graph.draw_warehouse(graph.width-350, 335, 300, 10)
+    graph.draw_population(graph.width-350, 515, 300, 10)
     graph.draw_village(50, 40, 300, 32, 10)
     mouse_x = pos[0]
     mouse_y = pos[1]
