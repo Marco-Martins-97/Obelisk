@@ -1,18 +1,7 @@
 import pygame
-#import game as g
+import configurations as config
 import village as v
 
-
-#BG_COL = (244, 228, 188)    #background color
-#BT_COL = (203, 171, 107)    #button color
-#BOR_COL = (125, 81, 15)     #border color
-#TEXT_COL = (96, 48, 45)     #text color
-#colorless
-#BT_COL2 = (96, 96, 96)      #button color
-#BOR_COL2 = (0, 0, 0)        #border color
-#TEXT_COL2 = (200, 200, 200) #text color
-#others
-#TEXT_COL3 = (222, 0,42)     #text color
 
 
 
@@ -53,9 +42,11 @@ class Graphics:
         self.progress1 = -1
         self.progress2 = -1
         self.progress_time = 0
+
+        self.game_speed = config.game_speed
         
     def upgrade_avaliable(self, building_idx, level):       
-        if self.wood >= v.calculate_wood(building_idx, level) and self.clay >= v.calculate_clay(building_idx, level) and self.iron >= v.calculate_iron(building_idx, level) and self.population >= v.calculate_population(building_idx, level) and self.village_level[building_idx] < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
+        if self.wood >= v.calculate_wood(building_idx, level+1) and self.clay >= v.calculate_clay(building_idx, level+1) and self.iron >= v.calculate_iron(building_idx, level+1) and self.population >= v.calculate_population(building_idx, level+1) and self.village_level[building_idx] < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
@@ -84,9 +75,9 @@ class Graphics:
 
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
-        self.wood_p = v.calculate_factor(1, self.village_level[1])
-        self.clay_p = v.calculate_factor(2, self.village_level[2])
-        self.iron_p = v.calculate_factor(3, self.village_level[3])
+        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
+        self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
+        self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
         self.farm = v.calculate_factor(4, self.village_level[4])
         self.warehouse = v.calculate_factor(5, self.village_level[5])
 
@@ -245,20 +236,20 @@ class Graphics:
         text_color = self.text_color
         for i in range(len(v.village)):
             #builds
-            self.drawRoundRect(x, y * i + 40, width, height, radius)
-            self.drawTextCenter(v.village[i].name, 20, text_color, x, y*i+40, width, height-6)
+            self.drawRoundRect(x, y + i * 40, width, height, radius)
+            self.drawTextCenter(v.village[i].name, 20, text_color, x, y+i*40, width, height-6)
             #lv
-            self.drawCircle(self.border_color, self.button_color, x-height+7, y*i+40+height/2, height/2+3)
-            self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y*i+38, 0, height)
+            self.drawCircle(self.border_color, self.button_color, x-height+7, y+i*40+height/2, height/2+3)
+            self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y-1+i*40, 0, height)
 
             if self.upgrade_avaliable(i, self.village_level[i]):
                 #add button 
-                self.drawCircle(self.border_color, self.button_color, x+width+height-7, y*i+40+height/2, height/2+3)
-                self.drawCross(text_color, x+width+height/2-7, y*i+40, height)
+                self.drawCircle(self.border_color, self.button_color, x+width+height-7, y+i*40+height/2, height/2+3)
+                self.drawCross(text_color, x+width+height/2-7, y+i*40, height)
             else:
                 #add button 
-                self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y*i+40+height/2, height/2+3)
-                self.drawCross(self.text_color_white, x+width+height/2-7, y*i+40, height)
+                self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y+i*40+height/2, height/2+3)
+                self.drawCross(self.text_color_white, x+width+height/2-7, y+i*40, height)
 
     def draw_requeriments(self, index, x, y, width, radius):
         columns = 6
@@ -271,9 +262,10 @@ class Graphics:
         clay = v.calculate_clay(index, self.village_level[index]+lvl)
         iron = v.calculate_iron(index, self.village_level[index]+lvl)
         population = v.calculate_population(index, self.village_level[index]+lvl)
-        time = v.calculate_time(index, self.village_level[index]+lvl, self.village_level[0])
-        mins, secs = divmod(time, 60)
-        time = '{:02d}:{:02d}'.format(mins, secs)
+        _time = int(v.calculate_time(index, self.village_level[index]+lvl, self.village_level[0])/self.game_speed)
+        print(_time)
+        mins, secs = divmod(_time, 60)
+        _time = '{:02d}:{:02d}'.format(mins, secs)
         
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
@@ -294,7 +286,7 @@ class Graphics:
         else: tc = self.text_color
         self.drawTextRight(population, 20, tc, x-20, y+column_height*4, width, column_height)
         self.drawTextLeft('TIME: ', 20, self.text_color, x+20, y+column_height*5, column_height)
-        self.drawTextRight(time, 20, self.text_color, x-20, y+column_height*5, width, column_height)
+        self.drawTextRight(_time, 20, self.text_color, x-20, y+column_height*5, width, column_height)
 
 
 

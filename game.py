@@ -1,11 +1,11 @@
-# #Obelisk v.1.9.1
+# #Obelisk v.1.9.2
 import time
 import village as v
-
+import configurations as config
 
 class Game:
     def __init__(self, data):
-        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data           #unpack the data
         self.wood = float(wood)
         self.clay = float(clay)
         self.iron = float(iron)
@@ -16,53 +16,55 @@ class Game:
 
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
-        self.wood_p = v.calculate_factor(1, self.village_level[1])
-        self.clay_p = v.calculate_factor(2, self.village_level[2])
-        self.iron_p = v.calculate_factor(3, self.village_level[3])
-        self.farm = v.calculate_factor(4, self.village_level[4])
-        self.warehouse = v.calculate_factor(5, self.village_level[5])
+        self.wood_p = 0          #calculate the production factor
+        self.clay_p = 0
+        self.iron_p = 0
+        self.farm = 0
+        self.warehouse = 0
 
-        print(self.warehouse)
-
-        self.start_delay = time.time()
+        self.start_delay = time.time()                                      #start the timers
         self.start_autosave = time.time()
         self.start_progress = time.time()
 
-        self.start_progress = (self.progress_time - v.calculate_time(self.progress1, self.village_level[self.progress1], self.village_level[0])) + time.time()
-        
+        self.game_speed = config.game_speed
 
+        self.start_progress = (self.progress_time - v.calculate_time(self.progress1, self.village_level[self.progress1], self.village_level[0])/self.game_speed) + time.time()          #load the remain time from database and apply it to progress
+        self.update()
+        
+    #Update the calculated values
     def update(self):
-        self.wood_p = v.calculate_factor(1, self.village_level[1])
-        self.clay_p = v.calculate_factor(2, self.village_level[2])
-        self.iron_p = v.calculate_factor(3, self.village_level[3])
+        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
+        self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
+        self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
         self.farm = v.calculate_factor(4, self.village_level[4])
         self.warehouse = v.calculate_factor(5, self.village_level[5])
 
-    #Production
+    #Resources Production
     def production(self):
         self.wood = min(self.wood + self.wood_p/3600, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
         self.clay = min(self.clay + self.clay_p/3600, self.warehouse)
         self.iron = min(self.iron + self.iron_p/3600, self.warehouse)
+        print(self.wood_p)
         
-        print(f'WOOD:{self.wood}, CLAY:{self.clay},  IRON:{self.iron}')
-
-    def delay(self, t):
-        if time.time() > t+self.start_delay:
+    #Game ticks
+    def delay(self, _time):
+        if time.time() > _time + self.start_delay:
             self.start_delay = time.time()
             return True
 
-    # #Autosave timer
-    def autosave(self, t):
-        if time.time() > t+self.start_autosave:
+    #Autosave timer
+    def autosave(self, _time):
+        if time.time() > _time+self.start_autosave:
             self.start_autosave = time.time()
             return True
         
     #Progress1 timer
     def progress_timer(self, _time):
-        if time.time() > _time+self.start_progress:
+        if time.time() > _time + self.start_progress:
             self.start_progress = time.time()
             return True
         self.progress_time = (self.start_progress + _time) - time.time()
+        print(self.progress_time)
 
     def get_data(self):
         data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, int(self.progress_time), self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
@@ -101,7 +103,7 @@ class Game:
     # #Process the progress
     def progress_countdown(self):
         if self.progress1 != -1:
-            if self.progress_timer(v.calculate_time(self.progress1, self.village_level[self.progress1], self.village_level[0])):
+            if self.progress_timer(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed):
                 self.village_level[self.progress1] += 1
                 self.update()
                 self.progress1 = self.progress2
