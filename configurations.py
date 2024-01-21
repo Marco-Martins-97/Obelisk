@@ -1,1 +1,1 @@
-game_speed = 3600
+game_speed = 1          #The speed game runs
