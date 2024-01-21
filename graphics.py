@@ -75,14 +75,14 @@ class Graphics:
 
     def update(self, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        self.wood = wood
-        self.clay = clay
-        self.iron = iron
-        self.progress1 = progress1
-        self.progress2 = progress2
-        self.progress_time = progress_time
+        self.wood = round(wood, 3)
+        self.clay = round(clay, 3)
+        self.iron = round(iron, 3)
+        self.progress1 = int(progress1)
+        self.progress2 = int(progress2)
+        self.progress_time = int(progress_time)
 
-        self.village_level = [headquartes, timbercamp, claypit, ironmine, farm, warehouse]
+        self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
         self.wood_p = v.calculate_factor(1, self.village_level[1])
         self.clay_p = v.calculate_factor(2, self.village_level[2])
@@ -148,12 +148,14 @@ class Graphics:
         column_height = 32
         height = columns*column_height
         text_color = self.text_color
+        mins, secs = divmod(self.progress_time, 60)
+        progress_timer = '{:02d}:{:02d}'.format(mins, secs)
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('PROGRESS', 20, text_color, x, y+5, width, column_height)
         self.drawTextLeft('1: ', 20, text_color, x+20, y+column_height*1, column_height)
         if self.progress1 != -1:
             self.drawTextLeft(v.village[self.progress1].name, 20, text_color, x+40, y+column_height*1, column_height)
-            self.drawTextRight(self.progress_time, 20, text_color, x-20, y+column_height*1, width, column_height)    
+            self.drawTextRight(progress_timer, 20, text_color, x-20, y+column_height*1, width, column_height)    
         self.drawTextLeft('2: ', 20, text_color, x+20, y+column_height*2, column_height)
         if self.progress2 != -1:
             self.drawTextLeft(v.village[self.progress2].name, 20, text_color, x+40, y+column_height*2, column_height)
@@ -269,8 +271,10 @@ class Graphics:
         clay = v.calculate_clay(index, self.village_level[index]+lvl)
         iron = v.calculate_iron(index, self.village_level[index]+lvl)
         population = v.calculate_population(index, self.village_level[index]+lvl)
-        time = v.calculate_time(index, self.village_level[index], self.village_level[0])
-        #t = int(g.build_speed(ix)+l)
+        time = v.calculate_time(index, self.village_level[index]+lvl, self.village_level[0])
+        mins, secs = divmod(time, 60)
+        time = '{:02d}:{:02d}'.format(mins, secs)
+        
         self.drawRoundRect(x, y, width, height+5, radius)
         self.drawTextCenter('REQERIMENTS', 20, self.text_color, x, y+5, width, column_height)
         self.drawTextLeft('WOOD: ', 20, self.text_color, x+20, y+column_height*1, column_height)

@@ -1,4 +1,4 @@
-# #Obelisk v.1.9
+# #Obelisk v.1.9.1
 import time
 import village as v
 
@@ -6,9 +6,9 @@ import village as v
 class Game:
     def __init__(self, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        self.wood = int(wood)
-        self.clay = int(clay)
-        self.iron = int(iron)
+        self.wood = float(wood)
+        self.clay = float(clay)
+        self.iron = float(iron)
 
         self.progress1 = int(progress1)
         self.progress2 = int(progress2)
@@ -40,11 +40,11 @@ class Game:
 
     #Production
     def production(self):
-        self.wood = min(self.wood + self.wood_p, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
-        self.clay = min(self.clay + self.clay_p, self.warehouse)
-        self.iron = min(self.iron + self.iron_p, self.warehouse)
+        self.wood = min(self.wood + self.wood_p/3600, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
+        self.clay = min(self.clay + self.clay_p/3600, self.warehouse)
+        self.iron = min(self.iron + self.iron_p/3600, self.warehouse)
         
-        #print(f'WOOD:{self.wood}, CLAY:{self.clay},  IRON:{self.iron}')
+        print(f'WOOD:{self.wood}, CLAY:{self.clay},  IRON:{self.iron}')
 
     def delay(self, t):
         if time.time() > t+self.start_delay:
