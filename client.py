@@ -1,4 +1,4 @@
-#v.1.5.2
+#v.1.5.3
 import pygame
 import village as v
 from graphics import Graphics
