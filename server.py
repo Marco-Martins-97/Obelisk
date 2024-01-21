@@ -156,7 +156,6 @@ def client_conn(conn, addr):
                         upgrade_index = int(read(conn))
 
                         if upgrade_index != -1:
-                            print(upgrade_index)
                             if g.upgrade_avaliable(upgrade_index, g.village_level[upgrade_index]):      #the client do te same thing
                                 g.add_to_progress(upgrade_index)
                         

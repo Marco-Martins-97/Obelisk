@@ -45,8 +45,10 @@ class Graphics:
 
         self.game_speed = config.game_speed
         
-    def upgrade_avaliable(self, building_idx, level):       
-        if self.wood >= v.calculate_wood(building_idx, level+1) and self.clay >= v.calculate_clay(building_idx, level+1) and self.iron >= v.calculate_iron(building_idx, level+1) and self.population >= v.calculate_population(building_idx, level+1) and self.village_level[building_idx] < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
+    def upgrade_avaliable(self, building_idx, level):    
+        if building_idx == self.progress1 or building_idx == self.progress2: lvl = 2
+        else: lvl = 1   
+        if self.wood >= v.calculate_wood(building_idx, level+lvl) and self.clay >= v.calculate_clay(building_idx, level+lvl) and self.iron >= v.calculate_iron(building_idx, level+lvl) and self.population >= (v.calculate_population(building_idx, level+lvl)-v.calculate_population(building_idx, level+lvl-1)) and self.village_level[building_idx]+lvl-1 < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
@@ -60,7 +62,10 @@ class Graphics:
     def get_population(self):
         pop = 0
         for building in range(len(v.village)):
-            pop += v.calculate_population(building, self.village_level[building])
+            if building == self.progress1 and building == self.progress2: lvl = 2
+            elif building == self.progress1 or building == self.progress2: lvl = 1
+            else: lvl = 0
+            pop += v.calculate_population(building, self.village_level[building]+lvl)
         return pop
 
 
@@ -261,9 +266,8 @@ class Graphics:
         wood = v.calculate_wood(index, self.village_level[index]+lvl)
         clay = v.calculate_clay(index, self.village_level[index]+lvl)
         iron = v.calculate_iron(index, self.village_level[index]+lvl)
-        population = v.calculate_population(index, self.village_level[index]+lvl)
+        population = v.calculate_population(index, self.village_level[index]+lvl) - v.calculate_population(index, self.village_level[index]+lvl-1)
         _time = int(v.calculate_time(index, self.village_level[index]+lvl, self.village_level[0])/self.game_speed)
-        print(_time)
         mins, secs = divmod(_time, 60)
         _time = '{:02d}:{:02d}'.format(mins, secs)
         

@@ -1,4 +1,4 @@
-# #Obelisk v.1.9.2
+# #Obelisk v.1.9.3
 import time
 import village as v
 import configurations as config
@@ -44,7 +44,6 @@ class Game:
         self.wood = min(self.wood + self.wood_p/3600, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
         self.clay = min(self.clay + self.clay_p/3600, self.warehouse)
         self.iron = min(self.iron + self.iron_p/3600, self.warehouse)
-        print(self.wood_p)
         
     #Game ticks
     def delay(self, _time):
@@ -64,22 +63,29 @@ class Game:
             self.start_progress = time.time()
             return True
         self.progress_time = (self.start_progress + _time) - time.time()
-        print(self.progress_time)
 
     def get_data(self):
-        data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, int(self.progress_time), self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[1], self.village_level[5])
+        data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, int(self.progress_time), self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[4], self.village_level[5])
         return data
 
     def get_population(self):
         pop = 0
         for building in range(len(v.village)):
-            pop += v.calculate_population(building, self.village_level[building])
-            #print(pop)
+            if building == self.progress1 and building == self.progress2: lvl = 2
+            elif building == self.progress1 or building == self.progress2: lvl = 1
+            else: lvl = 0
+            pop += v.calculate_population(building, self.village_level[building]+lvl)
+            #print(f'{building}: {pop}')
         return pop
     
+    
+
+
     def upgrade_avaliable(self, building_idx, level):
-        population = self.farm - self.get_population()       
-        if self.wood >= v.calculate_wood(building_idx, level+1) and self.clay >= v.calculate_clay(building_idx, level+1) and self.iron >= v.calculate_iron(building_idx, level+1) and population >= v.calculate_population(building_idx, level+1) and self.village_level[building_idx] < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
+        population = self.farm - self.get_population()     
+        if building_idx == self.progress1 or building_idx == self.progress2: lvl = 2
+        else: lvl = 1   
+        if self.wood >= v.calculate_wood(building_idx, level+lvl) and self.clay >= v.calculate_clay(building_idx, level+lvl) and self.iron >= v.calculate_iron(building_idx, level+lvl) and population >= (v.calculate_population(building_idx, level+lvl)-v.calculate_population(building_idx, level+lvl-1)) and self.village_level[building_idx]+lvl-1 < v.village[building_idx].max_lv and (self.progress1 == -1 or self.progress2 == -1):
             return True
         else:
             return False
@@ -105,6 +111,10 @@ class Game:
         if self.progress1 != -1:
             if self.progress_timer(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed):
                 self.village_level[self.progress1] += 1
-                self.update()
                 self.progress1 = self.progress2
                 self.progress2 = -1
+                self.update()
+
+
+#data = (0, 0, 0, -1, -1, 0, 30, 1, 2, 1, 1, 1)
+#Game(data).get_population()
