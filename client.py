@@ -1,4 +1,4 @@
-#v.1.5.1
+#v.1.5.2
 import pygame
 import village as v
 from graphics import Graphics
@@ -14,7 +14,7 @@ graph = Graphics(WIDTH, HEIGHT)
 def create_upgrade_btn():
     btns = []
     for i in range(len(v.village)):
-        btns.append([373, 40*i+55])
+        btns.append([373, 65+16+i*40])
     return btns
 
 
@@ -25,13 +25,13 @@ def game_screen(btn, pos):
     graph.draw_production(graph.width-350, 185, 300, 10)
     graph.draw_warehouse(graph.width-350, 335, 300, 10)
     graph.draw_population(graph.width-350, 515, 300, 10)
-    graph.draw_village(50, 40, 300, 32, 10)
+    graph.draw_village(50, 65, 300, 32, 10)
     mouse_x = pos[0]
     mouse_y = pos[1]
     for index, btns in enumerate(btn):
         x = btns[0]
         y = btns[1]
-        if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:
+        if x-16 <= mouse_x <= x+16 and y-16 <= mouse_y <= y+16:
             graph.draw_requeriments(index, mouse_x, mouse_y, 300, 10)
     pygame.display.update()
 
