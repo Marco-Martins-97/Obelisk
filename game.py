@@ -1,4 +1,4 @@
-# #Obelisk v.1.9.4
+#Obelisk v.1.9.4
 import time
 import village as v
 import configurations as config
