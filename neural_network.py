@@ -1,4 +1,4 @@
-#v.1.0
+#v.1.1
 import numpy as np
 
 #Layer
@@ -21,6 +21,7 @@ class Dense(Layer):  #output = weight*input+bias
 
     def forward(self, input):
         self.input = input
+        #print(input)
         return np.dot(self.weights, self.input) + self.biases
 
     def backward(self, output_gradient, learning_rate):
@@ -37,6 +38,7 @@ class Activation(Layer):
 
     def forward(self, input):
         self.input = input
+        #print(input)
         return self.activation(self.input)
 
     def backward(self, output_gradient, learning_rate):
@@ -49,14 +51,55 @@ class Tanh(Activation):
         tanh_prime = lambda x: 1- np.tanh(x) ** 2
         super().__init__(tanh, tanh_prime)
 
+
+class ReLU(Activation):
+    def __init__(self):
+        relu = lambda x: np.maximum(0, x)
+        relu_prime = lambda x: np.where(x > 0, 1, 0)
+        super().__init__(relu, relu_prime)
+
+
+# class SoftMax(Activation):
+#     def __init__(self):
+#         #softmax = lambda x: np.exp(x - np.max(x, axis=0, keepdims=True)) / np.sum(np.exp(x - np.max(x, axis=0, keepdims=True)), axis=0, keepdims=True)
+#         softmax = lambda x: np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
+#         softmax_prime = lambda x: np.ones_like(x)
+#         super().__init__(softmax, softmax_prime)
+        
+class SoftMax(Activation):
+    def __init__(self):
+        super().__init__(self.softmax, self.softmax_prime)
+
+    def softmax(self, x):
+        max_val = np.max(x, axis=0, keepdims=True)
+        exp_values = np.exp(x - max_val)
+        probabilities = exp_values / np.sum(exp_values, axis=0, keepdims=True)
+        return probabilities
+
+    def softmax_prime(self, x):
+        # Adjust as needed
+        return np.ones_like(x)
+
 #Error
-def mse(y_true, y_pred):    #Mean Squared Error
+#Mean Squared Error
+def mse(y_true, y_pred):    
     return np.mean(np.power(y_true - y_pred, 2))
 
+#Mean Squared Error Derivative
 def mse_prime(y_true, y_pred):
     return 2 * (y_pred - y_true) / np.size(y_true)
 
+# Cross-Entropy Loss
+def cross_entropy(y_true, y_pred):
+    epsilon = 1e-7
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+    return -np.sum(y_true * np.log(y_pred)) / len(y_true)
 
+# Cross-Entropy Loss Derivative
+def cross_entropy_prime(y_true, y_pred):
+    epsilon = 1e-7
+    y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+    return -(y_true / y_pred) / len(y_true)
 
 '''
 def solve_XOR():

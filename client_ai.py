@@ -1,4 +1,4 @@
-#v.1.0
+#v.1.1
 import pygame
 import village as v
 from graphics import Graphics
@@ -64,12 +64,12 @@ def process_data(data):
         elif building == progress1 or building == progress2: lvl = 2
         else: lvl = 1
 
-        remain_wood = wood - v.calculate_wood(building, village_level[building]+lvl) 
-        remain_clay = clay - v.calculate_clay(building, village_level[building]+lvl)
-        remain_iron = iron - v.calculate_iron(building, village_level[building]+lvl) 
-        remain_population = population - (v.calculate_population(building,village_level[building]+lvl) - v.calculate_population(building, village_level[building]+lvl-1))
-        _time = int(v.calculate_time(building, village_level[building]+lvl, village_level[0])/config.game_speed)
-        remain_lv = v.village[building].max_lv - village_level[building]
+        remain_wood = 0.000001*(wood - v.calculate_wood(building, village_level[building]+lvl)) 
+        remain_clay = 0.000001*(clay - v.calculate_clay(building, village_level[building]+lvl))
+        remain_iron = 0.000001*(iron - v.calculate_iron(building, village_level[building]+lvl))
+        remain_population = 0.000001*(population - (v.calculate_population(building,village_level[building]+lvl) - v.calculate_population(building, village_level[building]+lvl-1)))
+        _time = 0.000001*(int(v.calculate_time(building, village_level[building]+lvl, village_level[0])/config.game_speed))
+        remain_lv = 0.000001*(v.village[building].max_lv - village_level[building])
  
         data.append([remain_wood, remain_clay, remain_iron, remain_population, _time, remain_lv]) #building
 
@@ -78,7 +78,7 @@ def process_data(data):
 class Neural_Network:
     def __init__(self):
         #self.X = np.reshape(np.array(data), (6, 6, 1))
-        self.Y = np.reshape([[0], [1], [2], [3], [4], [5]], (6, 1, 1))
+        self.Y = np.reshape([[0.000001*0], [0.000001*1], [0.000001*2], [0.000001*3], [0.000001*4], [0.000001*5]], (6, 1, 1))
 
         self.learning_rate = 0.1
         self.epochs = 0
@@ -86,13 +86,14 @@ class Neural_Network:
         
         self.network = [
             nn.Dense(6,256),
-            nn.Tanh(),
+            nn.ReLU(),
             nn.Dense(256,6),
-            nn.Tanh()
+            nn.SoftMax()
         ]
 
     def train(self, data):
         X = np.reshape(np.array(data), (6, 6, 1))
+        #print(X)
         for x, y in zip(X, self.Y):
             #forward
             output = x
@@ -100,16 +101,20 @@ class Neural_Network:
                 output = layer.forward(output)
 
             #error
-            self.error = nn.mse(y, output)
+            #self.error = nn.mse(y, output)
+            self.error = nn.cross_entropy(y, output)
 
             #backward
-            grad = nn.mse_prime(y, output)
+            #grad = nn.mse_prime(y, output)
+            grad = nn.cross_entropy_prime(y, output)
+            
             for layer in reversed(self.network):
                 grad = layer.backward(grad, self.learning_rate)
         self.error /= len(x)
         self.epochs += 1     
-        print('%d, error=%f >%d' %(self.epochs+1, self.error, np.argmax(output)))
+        print('%d, error=%f >%d' %(self.epochs+1, self.error*100000, np.argmax(output)))
         return np.argmax(output)
+        #return self.epochs
 
 
 def main():
@@ -141,10 +146,12 @@ def main():
                 
                 
                 upgrade = neural_network.train(process_data(data))
-                #if graph.upgrade_avaliable(upgrade, graph.village_level[upgrade]):      #check is is possible upgrade
-                #    n.send(str(upgrade))                                              #send an istruction to the server
-                #    n.read_data()                                                   #read the return
+                if graph.upgrade_avaliable(upgrade, graph.village_level[upgrade]):      #check is is possible upgrade
+                    n.send(str(upgrade))                                              #send an istruction to the server
+                    n.read_data()                                                   #read the return
                 #print(upgrade)
+                #if upgrade == 2:
+                    #run = False
 
                 game_screen(upgrade_btn, pos)                                                       #update the game display
             

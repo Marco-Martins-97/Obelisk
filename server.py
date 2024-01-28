@@ -1,8 +1,9 @@
-#v.1.5.2
+#v.1.6
 import socket
 import threading
 from game import Game
 import village as v
+import configurations as config
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -128,7 +129,10 @@ def update_user_data(database, username, data):
     
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
-
+def reset(database, username):
+    data = (0, 0, 0, -1, -1, 0, 1, 1, 1, 1, 1, 1)
+    update_user_data(database, username, data)
+    return Game(load_user_data(database, username))
 
 
 #Client Thread
@@ -171,7 +175,11 @@ def client_conn(conn, addr):
                             g.production()
 
                         update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game 
-
+                        #village reset for training
+                        pts = g.get_points()
+                        if pts >= config.reset:
+                            print(pts)
+                            g = reset(user_database, username) 
 
                         if not send_data(conn, g.get_data()):                                           #if cannot send data to client
                             break                                                                       #close connection
