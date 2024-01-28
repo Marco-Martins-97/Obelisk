@@ -1,4 +1,4 @@
-#v.1.1
+#v.1.2
 import pygame
 import village as v
 from graphics import Graphics
@@ -6,6 +6,7 @@ from network import Network
 import configurations as config
 import neural_network as nn
 import numpy as np
+import pickle
 
 n = Network()                               #Start network
 
@@ -115,6 +116,20 @@ class Neural_Network:
         print('%d, error=%f >%d' %(self.epochs+1, self.error*100000, np.argmax(output)))
         return np.argmax(output)
         #return self.epochs
+    
+    def save(self, filename='model.pkl'):
+        with open(filename, 'wb') as file:
+            pickle.dump(self, file)
+            print('Model Saved')
+
+    def load(self, filename='model.pkl'):
+        with open(filename, 'rb') as file:
+            try:
+                model = pickle.load(file)
+                print('Model Loaded')
+                return model
+            except FileNotFoundError:
+                pass
 
 
 def main():
@@ -153,6 +168,7 @@ def main():
                 #if upgrade == 2:
                     #run = False
 
+                neural_network.save()       #save the model
                 game_screen(upgrade_btn, pos)                                                       #update the game display
             
             
@@ -174,7 +190,10 @@ def main():
                     print(c)      
                     logged = True 
 
-                    neural_network = Neural_Network()       #Inicialize the neural network
+                    neural_network = Neural_Network()           #Inicialize the neural network
+
+                    neural_network = neural_network.load()      # load the model
+                    
 
 
 

@@ -1,4 +1,4 @@
-#v.1.1
+#v.1.2
 import numpy as np
 
 #Layer
@@ -47,36 +47,41 @@ class Activation(Layer):
 #Tanh Activation Layer
 class Tanh(Activation):
     def __init__(self):
-        tanh = lambda x: np.tanh(x)
-        tanh_prime = lambda x: 1- np.tanh(x) ** 2
-        super().__init__(tanh, tanh_prime)
+        super().__init__(self.tanh, self.tanh_prime)
+
+    @staticmethod
+    def tanh(x):
+        return np.tanh(x)
+
+    @staticmethod
+    def tanh_prime(x):
+        return 1 - np.tanh(x) ** 2
 
 
 class ReLU(Activation):
     def __init__(self):
-        relu = lambda x: np.maximum(0, x)
-        relu_prime = lambda x: np.where(x > 0, 1, 0)
-        super().__init__(relu, relu_prime)
+        super().__init__(self.relu, self.relu_prime)
 
+    @staticmethod
+    def relu(x):
+        return np.maximum(0, x)
 
-# class SoftMax(Activation):
-#     def __init__(self):
-#         #softmax = lambda x: np.exp(x - np.max(x, axis=0, keepdims=True)) / np.sum(np.exp(x - np.max(x, axis=0, keepdims=True)), axis=0, keepdims=True)
-#         softmax = lambda x: np.exp(x - np.max(x)) / np.sum(np.exp(x - np.max(x)))
-#         softmax_prime = lambda x: np.ones_like(x)
-#         super().__init__(softmax, softmax_prime)
+    @staticmethod
+    def relu_prime(x):
+        return np.where(x > 0, 1, 0)
+
         
 class SoftMax(Activation):
     def __init__(self):
         super().__init__(self.softmax, self.softmax_prime)
-
-    def softmax(self, x):
+    @staticmethod
+    def softmax(x):
         max_val = np.max(x, axis=0, keepdims=True)
         exp_values = np.exp(x - max_val)
         probabilities = exp_values / np.sum(exp_values, axis=0, keepdims=True)
         return probabilities
-
-    def softmax_prime(self, x):
+    @staticmethod
+    def softmax_prime(x):
         # Adjust as needed
         return np.ones_like(x)
 
@@ -101,40 +106,3 @@ def cross_entropy_prime(y_true, y_pred):
     y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
     return -(y_true / y_pred) / len(y_true)
 
-'''
-def solve_XOR():
-    X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
-    Y = np.reshape([[0], [1], [1], [0]], (4, 1, 1))
-    
-    network = [
-        Dense(2,3),
-        Tanh(),
-        Dense(3,1),
-        Tanh()
-    ]
-    epochs = 3000
-    learning_rate = 0.1
-
-    #train
-    for e in range(epochs):
-        error = 0
-        for x, y in zip(X, Y):
-            #forward
-            output = x
-            for layer in network:
-                output = layer.forward(output)
-
-            #error
-            error = mse(y, output)
-
-            #backward
-            grad = mse_prime(y, output)
-            for layer in reversed(network):
-                grad = layer.backward(grad, learning_rate)
-        error /= len(x)
-        print('%d/%d, error=%f' %(e+1, epochs, error))
-
-
-
-#solve_XOR()
-'''
