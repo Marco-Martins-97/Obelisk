@@ -170,7 +170,7 @@ def client_conn(conn, addr):
                         if g.delay(1):                                                                  #after a X time execute production
                             g.production()
 
-                        update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game
+                        update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game 
 
 
                         if not send_data(conn, g.get_data()):                                           #if cannot send data to client

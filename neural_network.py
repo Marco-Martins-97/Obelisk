@@ -1,62 +1,97 @@
 #v.1.0
 import numpy as np
 
-class layer_Dense:
-    def __init__(self, n_inputs, n_neurons):
-        self.weights = 0.001*np.random.randn(n_inputs, n_neurons)
-        self.biases = np.zeros((1, n_neurons))
+#Layer
+class Layer:
+    def __init__(self):
+        self.input = None
+        self.output = None
+
+    def forward(self, input):
+        pass
+
+    def backward(self, output, learning_rate):
+        pass
+
+#Dense Layer
+class Dense(Layer):  #output = weight*input+bias
+    def __init__(self, n_inputs, n_outputs): #n_outouts is number of neurons
+        self.weights = 0.000001*np.random.randn(n_outputs, n_inputs)
+        self.biases = np.random.randn(n_outputs, 1)
+
+    def forward(self, input):
+        self.input = input
+        return np.dot(self.weights, self.input) + self.biases
+
+    def backward(self, output_gradient, learning_rate):
+        weights_gradient = np.dot(output_gradient, self.input.T)
+        self.weights -= learning_rate * weights_gradient
+        self.biases -= learning_rate * output_gradient
+        return np.dot(self.weights.T, output_gradient)
+
+#Activation Layer
+class Activation(Layer):
+    def __init__(self, activation, activation_prime):
+        self.activation = activation
+        self.activation_prime = activation_prime
+
+    def forward(self, input):
+        self.input = input
+        return self.activation(self.input)
+
+    def backward(self, output_gradient, learning_rate):
+        return np.multiply(output_gradient, self.activation_prime(self.input))
+
+#Tanh Activation Layer
+class Tanh(Activation):
+    def __init__(self):
+        tanh = lambda x: np.tanh(x)
+        tanh_prime = lambda x: 1- np.tanh(x) ** 2
+        super().__init__(tanh, tanh_prime)
+
+#Error
+def mse(y_true, y_pred):    #Mean Squared Error
+    return np.mean(np.power(y_true - y_pred, 2))
+
+def mse_prime(y_true, y_pred):
+    return 2 * (y_pred - y_true) / np.size(y_true)
+
+
+
+'''
+def solve_XOR():
+    X = np.reshape([[0, 0], [0, 1], [1, 0], [1, 1]], (4, 2, 1))
+    Y = np.reshape([[0], [1], [1], [0]], (4, 1, 1))
     
-    def forward(self, inputs):
-        self.output = np.dot(inputs, self.weights)+self.biases
-    
-class Activation_ReLU:
-    def forward(self, inputs):
-        self.output = np.maximum(0, inputs)
+    network = [
+        Dense(2,3),
+        Tanh(),
+        Dense(3,1),
+        Tanh()
+    ]
+    epochs = 3000
+    learning_rate = 0.1
 
-class Activation_Softmax:
-    def forward(self, inputs):
-        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
-        probabilities = exp_values / np.sum(exp_values, axis=1, keepdims=True)
-        self.output = probabilities
+    #train
+    for e in range(epochs):
+        error = 0
+        for x, y in zip(X, Y):
+            #forward
+            output = x
+            for layer in network:
+                output = layer.forward(output)
 
-class Loss:
-    def calculate(self, output, y):
-        sample_losses = self.forward(output, y)
-        data_loss = np.mean(sample_losses)
-        return data_loss
-    
-class Loss_CategoricalCrossentropy(Loss):
-    def forward(self, y_pred, y_true):
-        samples = len(y_pred)
-        y_pred_clipped = np.clip(y_pred, 1e-7, 1-1e-7)
+            #error
+            error = mse(y, output)
 
-        #if len(y_true.shape) == 1:
-        #    correct_confidences = y_pred_clipped[range(samples, y_true)]
+            #backward
+            grad = mse_prime(y, output)
+            for layer in reversed(network):
+                grad = layer.backward(grad, learning_rate)
+        error /= len(x)
+        print('%d/%d, error=%f' %(e+1, epochs, error))
 
-        #elif len(y_true.shape) == 2:
-        correct_confidences = np.sum(y_pred_clipped*y_true, axis=1)
-        
-        negative_log_likelihoods = -np.log(correct_confidences)
-        return negative_log_likelihoods
-    
 
-def ai_processing(data):
-    X, y = data, 6
-    dense1 = layer_Dense(6, 256)
-    activation1 = Activation_ReLU()
 
-    dense2 = layer_Dense(256, 6)
-    activation2 = Activation_Softmax()
-
-    dense1.forward(X)
-    activation1.forward(dense1.output)
-
-    dense2.forward(activation1.output)
-    activation2.forward(dense2.output)
-
-    loss_function = Loss_CategoricalCrossentropy()
-    loss = loss_function.calculate(activation2.output, y)
-
-    predict =  np.argmax(activation2.output, axis=1)
-    #print(predict[0])
-    return predict[0]
+#solve_XOR()
+'''
