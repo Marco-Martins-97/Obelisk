@@ -1,4 +1,4 @@
-#Obelisk v.1.9.4
+#Obelisk v.1.9.5
 import time
 import village as v
 import configurations as config
@@ -63,7 +63,7 @@ class Game:
             self.start_progress = time.time()
             return True
         self.progress_time = (self.start_progress + _time) - time.time()        #save the time left
-    
+
     #Pack the data
     def get_data(self):
         data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, int(self.progress_time), self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[4], self.village_level[5])
@@ -79,6 +79,13 @@ class Game:
             pop += v.calculate_population(building, self.village_level[building]+lvl)   #calculate and add the population of ea building to a varaiable
             #print(f'{building}: {pop}')
         return pop
+    
+    #Calculate Points
+    def get_points(self):
+        pts = 0
+        for building in range(len(v.village)):                                              #Go Through all buildings
+            pts += v.calculate_points(building, self.village_level[building])               #calculate and add the points of ea building to a varaiable
+        return pts
     
     #Check if can upgrade the building
     def upgrade_avaliable(self, building_idx, level):
