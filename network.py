@@ -15,13 +15,7 @@ class Network:
         except socket.error as e:
             print(e)
             return False
-        
-    # def disconnect(self):
-    #     try:
-    #         self.client.close()
 
-    #     except socket.error as e:
-    #         print(e)
 
     def send(self, msg):
         try:
@@ -45,11 +39,17 @@ class Network:
             data_pack = self.client.recv(1024).decode()
             #unpack the data
             data_unpack = data_pack.split(',')
-            data = tuple(map(float, data_unpack)) 
+            data_state = tuple(map(float, data_unpack)) 
             self.send('read') 
-            return data
+            data, state = get_state(data_state)
+            return data, state
               
         except socket.error as e:
             print(e)
             return None
-
+        
+#get and remove the last value from data
+def get_state(data_state):
+    state = int(data_state[-1])     #get the value and convet to and integer
+    data = data_state[:-1]          #remove the value
+    return data, state
