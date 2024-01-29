@@ -1,4 +1,4 @@
-#v.1.5.4
+#v.1.5.5
 import pygame
 import village as v
 from graphics import Graphics
@@ -77,6 +77,7 @@ def main():
     clock = pygame.time.Clock()             #start game clock
     run = True
     logged = False
+    last_state = 0
 
     
 
@@ -94,7 +95,7 @@ def main():
                     if event.type == pygame.QUIT:                                                   #close the game
                         run = False
                         pygame.quit()  
-                    
+                  
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         mouse_x = pos[0]
                         mouse_y = pos[1]
@@ -107,8 +108,14 @@ def main():
                                     n.read_data()                                                   #read the return
                                     break
                 n.send('-1')                                                                        #send a msg with no instructions
-                graph.update(n.read_data())                                                         #read data from server and update client data
+                data, state = n.read_data()                                                         #read data from server
+
+                if last_state != state:                                                             #update in the same speed the game run
+                    last_state = state
+                    
+                graph.update(data)                                                                  #update client data
                 game_screen(upgrade_btn, pos)                                                       #update the game display
+
             else:                                                                                   #if not logged show the login/regist menu
                 clock.tick(60)
                 username = ''

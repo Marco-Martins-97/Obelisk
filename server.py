@@ -1,9 +1,8 @@
-#v.1.6
+#v.1.5.3
 import socket
 import threading
 from game import Game
 import village as v
-import configurations as config
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -34,27 +33,22 @@ def read(conn):
     except socket.error as e:
             print(e)
 #Send a datapack to the client
-def send_data(conn, data):
+def send_data(conn, data, state):
     try:
+        data_state = add_state(data, state)
         #pack the data
-        data_pack = ','.join(map(str, data))
+        data_pack = ','.join(map(str, data_state))
         # Send a message to the client
         conn.send(data_pack.encode())
         return read(conn)   #read the return
     except socket.error as e:
             print(e)
-#Read a datapack from the client
-# def read_data(conn):
-#     try:
-#         # Receive the message from the client
-#         data_pack = conn.recv(1024).decode()
-#         #unpack the data
-#         data_unpack = data_pack.split(',')
-#         data = tuple(map(int, data_unpack))
-        
-#         return data
-#     except socket.error as e:
-#         print(e)
+
+#Add a state var to the data
+def add_state(data, state):
+    data = data + (state,)
+    return data
+
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 #Create a dictionary used as database
 user_database = {
@@ -129,10 +123,7 @@ def update_user_data(database, username, data):
     
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
-def reset(database, username):
-    data = (0, 0, 0, -1, -1, 0, 1, 1, 1, 1, 1, 1)
-    update_user_data(database, username, data)
-    return Game(load_user_data(database, username))
+
 
 
 #Client Thread
@@ -162,6 +153,7 @@ def client_conn(conn, addr):
                     send(conn, 'connected')
                     g = Game(load_user_data(user_database, username))                                   #load the data from the user in dictionary database in the game
                     logged = True
+                    state = 0
                     while logged:                                                                       #while client logged in the game
                         upgrade_index = int(read(conn))                                                 #read Instructions from the client
 
@@ -173,16 +165,15 @@ def client_conn(conn, addr):
 
                         if g.delay(1):                                                                  #after a X time execute production
                             g.production()
+                            state = 1 if state == 0 else 0                                              #update the game state
 
-                        update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game 
-                        #village reset for training
-                        pts = g.get_points()
-                        if pts >= config.reset:
-                            print(pts)
-                            g = reset(user_database, username) 
+                        #data = g.get_data()
+                        update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game
 
-                        if not send_data(conn, g.get_data()):                                           #if cannot send data to client
-                            break                                                                       #close connection
+                        if not send_data(conn, g.get_data(), state):                                    #if cannot send data to client
+                            break                                                                       #close connection                                     #update and add the state to data
+                            
+                        
 
                         if g.autosave(5):                                                               #save the game after X time
                             save_database(user_database)
