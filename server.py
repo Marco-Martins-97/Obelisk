@@ -176,7 +176,9 @@ def client_conn(conn, addr):
                         
 
                         if g.autosave(5):                                                               #save the game after X time
-                            save_database(user_database)
+                            pass
+                            #save_database(user_database)
+                        
                 #if fail login
                 else:
                     send(conn, 'invalid')

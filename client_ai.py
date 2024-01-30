@@ -1,8 +1,11 @@
-#v.1.0
+#v.1.1
 import pygame
+import numpy as np
+
 import village as v
 from graphics import Graphics
 from network import Network
+
 
 n = Network()                               #Start network
 
@@ -35,39 +38,33 @@ def game_screen(btn, pos):
             graph.draw_requeriments(index, mouse_x, mouse_y, 300, 10)
     pygame.display.update()                                                                                                 #update the screen
 
-#Draw the login screen
-def login_screen(choice, input, username, password, password2):
-    graph.win.fill(graph.background_color)                                                                                                                     
-    title = 'OBELISK'                                                                                                           #title
-    graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
-    graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
-    graph.draw_login_menu(choice, input, username, password, password2, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
-    pygame.display.update()                                                                                                     #update the screen
+#Process the data to be input in the neural network
+def process_data(data):
+    wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data   #unpack the data
+    processed_data = []
 
-#Draw the reconnect screen
-def reconnect_screen():
-    graph.win.fill(graph.background_color)
-    msg = 'Fail to Connect to the Server...'
-    graph.drawTextCenter(msg, 40, (96, 48, 45), 0, 0, graph.width, graph.height/3)                                              #draw msg
-    graph.drawRoundRect(graph.width/2-125, graph.height/2, 250, 32, 10)                                                         #draw a button
-    graph.drawTextCenter('RECONNECT', 20, graph.text_color, graph.width/2-125, graph.height/2, 250, 32)                         #button text
-    pygame.display.update()
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:                                                                                       #close the game
-                pygame.quit()  
-                                            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                mouse_x = pos[0]
-                mouse_y = pos[1]            
-                if graph.width/2-125 <= mouse_x <= graph.width/2+125 and graph.height/2-125 <= mouse_y <= graph.height/2+125:   #try connect if press the button
-                    if n.connect():
-                        return True
-
+    processed_data.append([wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse]) #add the data to and array
+     
+    return processed_data
     
+class Neural_Network:
+    def __init__(self, data):
+        self.X = np.reshape(np.array(data),(12,1))
+        self.label = np.reshape(np.array([[0], [1], [2], [3], [4], [5]]),(6,1))
+        print(self.X)
+        print(self.label)
 
+    def train(self):
+        pass
 
+    def normalize(self):
+        pass
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass
 
 
 
@@ -78,11 +75,6 @@ def main():
     run = True
     logged = False
     last_state = 0
-
-    
-
-    
-    active_choice = ''
 
     print(n.read())                                                                                 #read msg from server
     
@@ -96,22 +88,19 @@ def main():
                         run = False
                         pygame.quit()  
                   
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_x = pos[0]
-                        mouse_y = pos[1]
-                        for index, btns in enumerate(upgrade_btn):
-                            x = btns[0]
-                            y = btns[1]
-                            if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:                 #if a upgrade button is pressed
-                                if graph.upgrade_avaliable(index, graph.village_level[index]):      #check is is possible upgrade
-                                    n.send(str(index))                                              #send an istruction to the server
-                                    n.read_data()                                                   #read the return
-                                    break
+                                #if graph.upgrade_avaliable(index, graph.village_level[index]):      #check is is possible upgrade
+                                #    n.send(str(index))                                              #send an istruction to the server
+                                #    n.read_data()                                                   #read the return
+                                #    break
                 n.send('-1')                                                                        #send a msg with no instructions
                 data, state = n.read_data()                                                         #read data from server
 
                 if last_state != state:                                                             #update in the same speed the game run
                     last_state = state
+                    #print(data)
+                    #print(process_data(data))
+                    Neural_Network(process_data(data))
+
                     
                 graph.update(data)                                                                  #update client data
                 game_screen(upgrade_btn, pos)                                                       #update the game display
