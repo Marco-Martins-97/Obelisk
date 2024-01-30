@@ -1,12 +1,8 @@
-#v.1.2
+#v.1.0
 import pygame
 import village as v
 from graphics import Graphics
 from network import Network
-import configurations as config
-import neural_network as nn
-import numpy as np
-import pickle
 
 n = Network()                               #Start network
 
@@ -39,106 +35,51 @@ def game_screen(btn, pos):
             graph.draw_requeriments(index, mouse_x, mouse_y, 300, 10)
     pygame.display.update()                                                                                                 #update the screen
 
-#process and compile data recieved from server to the neural network work
-def process_data(data):
-    wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+#Draw the login screen
+def login_screen(choice, input, username, password, password2):
+    graph.win.fill(graph.background_color)                                                                                                                     
+    title = 'OBELISK'                                                                                                           #title
+    graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
+    graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
+    graph.draw_login_menu(choice, input, username, password, password2, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    pygame.display.update()                                                                                                     #update the screen
+
+#Draw the reconnect screen
+def reconnect_screen():
+    graph.win.fill(graph.background_color)
+    msg = 'Fail to Connect to the Server...'
+    graph.drawTextCenter(msg, 40, (96, 48, 45), 0, 0, graph.width, graph.height/3)                                              #draw msg
+    graph.drawRoundRect(graph.width/2-125, graph.height/2, 250, 32, 10)                                                         #draw a button
+    graph.drawTextCenter('RECONNECT', 20, graph.text_color, graph.width/2-125, graph.height/2, 250, 32)                         #button text
+    pygame.display.update()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:                                                                                       #close the game
+                pygame.quit()  
+                                            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                mouse_x = pos[0]
+                mouse_y = pos[1]            
+                if graph.width/2-125 <= mouse_x <= graph.width/2+125 and graph.height/2-125 <= mouse_y <= graph.height/2+125:   #try connect if press the button
+                    if n.connect():
+                        return True
+
     
-    wood = round(wood, 3)
-    clay = round(clay, 3)
-    iron = round(iron, 3)
-    village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
-    data = []
-    pop = 0
-    farm_f = v.calculate_factor(4, int(farm))
 
-    for building in range(len(v.village)):                                              #Go Through all buildings
-        if building == progress1 and building == progress2: lvl = 2           #check if they are in progress
-        elif building == progress1 or building == progress2: lvl = 1
-        else: lvl = 0
-        pop += v.calculate_population(building, int(farm)+lvl)       #calculate and add the population of ea building to a varaiable
-        
-    population = farm_f - pop
 
-    #compile data
-    for building in range(len(v.village)):
-        if building == progress1 and building == progress2: lvl = 3
-        elif building == progress1 or building == progress2: lvl = 2
-        else: lvl = 1
 
-        remain_wood = 0.000001*(wood - v.calculate_wood(building, village_level[building]+lvl)) 
-        remain_clay = 0.000001*(clay - v.calculate_clay(building, village_level[building]+lvl))
-        remain_iron = 0.000001*(iron - v.calculate_iron(building, village_level[building]+lvl))
-        remain_population = 0.000001*(population - (v.calculate_population(building,village_level[building]+lvl) - v.calculate_population(building, village_level[building]+lvl-1)))
-        _time = 0.000001*(int(v.calculate_time(building, village_level[building]+lvl, village_level[0])/config.game_speed))
-        remain_lv = 0.000001*(v.village[building].max_lv - village_level[building])
- 
-        data.append([remain_wood, remain_clay, remain_iron, remain_population, _time, remain_lv]) #building
-
-    return data
-
-class Neural_Network:
-    def __init__(self):
-        #self.X = np.reshape(np.array(data), (6, 6, 1))
-        self.Y = np.reshape([[0.000001*0], [0.000001*1], [0.000001*2], [0.000001*3], [0.000001*4], [0.000001*5]], (6, 1, 1))
-
-        self.learning_rate = 0.1
-        self.epochs = 0
-        self.error = 0
-        
-        self.network = [
-            nn.Dense(6,256),
-            nn.ReLU(),
-            nn.Dense(256,6),
-            nn.SoftMax()
-        ]
-
-    def train(self, data):
-        X = np.reshape(np.array(data), (6, 6, 1))
-        #print(X)
-        for x, y in zip(X, self.Y):
-            #forward
-            output = x
-            for layer in self.network:
-                output = layer.forward(output)
-
-            #error
-            #self.error = nn.mse(y, output)
-            self.error = nn.cross_entropy(y, output)
-
-            #backward
-            #grad = nn.mse_prime(y, output)
-            grad = nn.cross_entropy_prime(y, output)
-            
-            for layer in reversed(self.network):
-                grad = layer.backward(grad, self.learning_rate)
-        self.error /= len(x)
-        self.epochs += 1     
-        print('%d, error=%f >%d' %(self.epochs+1, self.error*100000, np.argmax(output)))
-        return np.argmax(output)
-        #return self.epochs
-    
-    def save(self, filename='model.pkl'):
-        with open(filename, 'wb') as file:
-            pickle.dump(self, file)
-            print('Model Saved')
-
-    def load(self, filename='model.pkl'):
-        with open(filename, 'rb') as file:
-            try:
-                model = pickle.load(file)
-                print('Model Loaded')
-                return model
-            except FileNotFoundError:
-                pass
 
 
 def main():
-
     connection = n.connect()                #connect to the server
     upgrade_btn = create_upgrade_btn()      #create the upgrade buttons
     clock = pygame.time.Clock()             #start game clock
     run = True
     logged = False
+    last_state = 0
+
+    
 
     
     active_choice = ''
@@ -154,25 +95,27 @@ def main():
                     if event.type == pygame.QUIT:                                                   #close the game
                         run = False
                         pygame.quit()  
-
+                  
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        mouse_x = pos[0]
+                        mouse_y = pos[1]
+                        for index, btns in enumerate(upgrade_btn):
+                            x = btns[0]
+                            y = btns[1]
+                            if x-15 <= mouse_x <= x+15 and y-15 <= mouse_y <= y+15:                 #if a upgrade button is pressed
+                                if graph.upgrade_avaliable(index, graph.village_level[index]):      #check is is possible upgrade
+                                    n.send(str(index))                                              #send an istruction to the server
+                                    n.read_data()                                                   #read the return
+                                    break
                 n.send('-1')                                                                        #send a msg with no instructions
-                data = n.read_data()        #data from the server
-                graph.update(data)                                                         #read data from server and update client data
-                
-                
-                upgrade = neural_network.train(process_data(data))
-                if graph.upgrade_avaliable(upgrade, graph.village_level[upgrade]):      #check is is possible upgrade
-                    n.send(str(upgrade))                                              #send an istruction to the server
-                    n.read_data()                                                   #read the return
-                #print(upgrade)
-                #if upgrade == 2:
-                    #run = False
+                data, state = n.read_data()                                                         #read data from server
 
-                neural_network.save()       #save the model
+                if last_state != state:                                                             #update in the same speed the game run
+                    last_state = state
+                    
+                graph.update(data)                                                                  #update client data
                 game_screen(upgrade_btn, pos)                                                       #update the game display
-            
-            
-            
+
             else:                                                                                   #if not logged show the login/regist menu
                 username = 'ai'
                 password = '123'
@@ -188,12 +131,12 @@ def main():
                 c = n.read()                                                        #read the return 
                 if c == 'connected':                                                #if is connected, is logged in
                     print(c)      
-                    logged = True 
+                    logged = True                                                                                   #if not logged show the login/regist menu
+                
 
-                    neural_network = Neural_Network()           #Inicialize the neural network
 
-                    neural_network = neural_network.load()      # load the model
-                    
+
+
 
 
 
