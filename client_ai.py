@@ -40,10 +40,10 @@ def game_screen(btn, pos):
 
 #Process the data to be input in the neural network
 def process_data(data):
-    wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data   #unpack the data
     processed_data = []
+    for d in data:
 
-    processed_data.append([wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse]) #add the data to and array
+        processed_data.append(d) #add the data to and array
      
     return processed_data
     
@@ -52,7 +52,9 @@ class Neural_Network:
         self.X = np.reshape(np.array(data),(12,1))
         self.label = np.reshape(np.array([[0], [1], [2], [3], [4], [5]]),(6,1))
         print(self.X)
+        print(self.X.shape)
         print(self.label)
+        print(self.label.shape)
 
     def train(self):
         pass
@@ -100,6 +102,7 @@ def main():
                     #print(data)
                     #print(process_data(data))
                     Neural_Network(process_data(data))
+                    break
 
                     
                 graph.update(data)                                                                  #update client data
