@@ -1,4 +1,4 @@
-#v.1.2
+#v.1.0
 import pygame
 
 import village as v
@@ -81,9 +81,7 @@ def main():
 
                 if last_state != state:                                                             #update in the same speed the game run
                     last_state = state
-                    nn = Neural_Network(process_data(data))
-                    nn.train()
-                    break
+                    
 
                     
                 graph.update(data)                                                                  #update client data
