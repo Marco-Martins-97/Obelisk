@@ -1,10 +1,10 @@
-#v.1.1
+#v.1.2
 import pygame
-import numpy as np
 
 import village as v
 from graphics import Graphics
 from network import Network
+from neural_network import Neural_Network
 
 
 n = Network()                               #Start network
@@ -47,26 +47,8 @@ def process_data(data):
      
     return processed_data
     
-class Neural_Network:
-    def __init__(self, data):
-        self.X = np.reshape(np.array(data),(12,1))
-        self.label = np.reshape(np.array([[0], [1], [2], [3], [4], [5]]),(6,1))
-        print(self.X)
-        print(self.X.shape)
-        print(self.label)
-        print(self.label.shape)
 
-    def train(self):
-        pass
 
-    def normalize(self):
-        pass
-
-    def save(self):
-        pass
-
-    def load(self):
-        pass
 
 
 
@@ -99,9 +81,8 @@ def main():
 
                 if last_state != state:                                                             #update in the same speed the game run
                     last_state = state
-                    #print(data)
-                    #print(process_data(data))
-                    Neural_Network(process_data(data))
+                    nn = Neural_Network(process_data(data))
+                    nn.train()
                     break
 
                     
