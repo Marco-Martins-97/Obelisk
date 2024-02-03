@@ -1,15 +1,16 @@
-#v.1.5.3
+#v.1.6
 import socket
 import threading
 from game import Game
 import village as v
+from datetime import datetime
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 #Bind the socket to a specific IP and Port
-server_ip = '127.0.0.1'
+server_ip = '0.0.0.0'
 server_port = 5555
 server_socket.bind((server_ip, server_port))
 
@@ -51,18 +52,15 @@ def add_state(data, state):
 
 '---------------------------------------------------DATABASE--------------------------------------------------------'
 #Create a dictionary used as database
-user_database = {
-    #'USERNAME': ['PASSWORD', WOOD, CLAY, IRON, PROGRESS, PROGRESS2, PROGRESS_TIME, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
-    'user': ['12345', 0, 0, 0, -1, -1, 0, 1, 1, 1, 1, 1, 1]
-}
+user_database = {}
 
 #Save the database in a file
 def save_database(database, filename='user_database.txt'):
     try:
         with open(filename, 'w') as file:   #Open the file
             for u, data in database.items():
-                p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data
-                file.write(f'{u},{p},{w},{c},{i},{p1},{p2},{pt},{hq},{tc},{cp},{im},{f},{wh}\n')    #write the values
+                p, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data
+                file.write(f'{u},{p},{lt},{w},{c},{i},{p1},{p2},{pt},{hq},{tc},{cp},{im},{f},{wh}\n')    #write the values
                 
     except FileNotFoundError:
         pass
@@ -74,8 +72,8 @@ def load_database(filename='user_database.txt'):
     try:
         with open (filename, 'r') as file:  #open the file
             for line in file:
-                u, p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = line.strip().split(',')  #Read a line and split the values
-                database[u] = [p, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh]               #save the values in the dictionary
+                u, p, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = line.strip().split(',')  #Read a line and split the values
+                database[u] = [p, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh]               #save the values in the dictionary
            
     except FileNotFoundError:
         pass
@@ -85,42 +83,51 @@ def load_database(filename='user_database.txt'):
 
 #Add a new user to database dictionary
 def add_new_user(database, username, password):
-    database[username] = [password, 500, 500, 500, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
+    #'USERNAME': ['PASSWORD', LOGOUT_DATATIME, WOOD, CLAY, IRON, PROGRESS, PROGRESS2, PROGRESS_TIME, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
+    database[username] = [password, datetime.now(), 500, 500, 500, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
     save_database(database)
 
 #Load the user data from the dictionary database
 def load_user_data(database, username):
-    w = float(database[username][1])        #WOOD
-    c = float(database[username][2])        #CLAY
-    i = float(database[username][3])        #IRON
-    p1 = database[username][4]              #PROGRESS1
-    p2 = database[username][5]              #PROGRESS2
-    pt = database[username][6]              #PROGRESS TIME
-    hq = database[username][7]              #HEADQUARTES
-    tc = database[username][8]              #TIMBER CAMP
-    cp = database[username][9]              #CLAY PIT
-    im = database[username][10]             #ITON MINE
-    f = database[username][11]              #FARM
-    wh = database[username][12]             #WAREHOUSE 
-    data = (w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh)     #pack the data in a tuple
+    logout_time = datetime.strptime((database[username][1]), "%Y-%m-%d %H:%M:%S.%f")       #LOGOUT TIME    
+    w = float(database[username][2])            #WOOD
+    c = float(database[username][3])            #CLAY
+    i = float(database[username][4])            #IRON
+    p1 = database[username][5]                  #PROGRESS1
+    p2 = database[username][6]                  #PROGRESS2
+    pt = database[username][7]                  #PROGRESS TIME
+    hq = database[username][8]                  #HEADQUARTES
+    tc = database[username][9]                  #TIMBER CAMP
+    cp = database[username][10]                  #CLAY PIT
+    im = database[username][11]                 #ITON MINE
+    f = database[username][12]                  #FARM
+    wh = database[username][13]                 #WAREHOUSE 
+    data = (logout_time, (w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh))     #pack the data in a tuple
     return data
 
 #save the data in the dictionary database
-def update_user_data(database, username, data):
+def update_user_data(database, username, current_time, data):
     w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data       #unpack the data
-    database[username][1] = w
-    database[username][2] = c
-    database[username][3] = i
-    database[username][4] = p1
-    database[username][5] = p2
-    database[username][6] = pt
-    database[username][7] = hq
-    database[username][8] = tc
-    database[username][9] = cp
-    database[username][10] = im
-    database[username][11] = f
-    database[username][12] = wh
-    
+    database[username][1] = current_time
+    database[username][2] = w
+    database[username][3] = c
+    database[username][4] = i
+    database[username][5] = p1
+    database[username][6] = p2
+    database[username][7] = pt
+    database[username][8] = hq
+    database[username][9] = tc
+    database[username][10] = cp
+    database[username][11] = im
+    database[username][12] = f
+    database[username][13] = wh
+
+
+#Autosave timer
+#def autosave(_time):
+#    if datetime.now() > _time + start_autosave:
+#        start_autosave = datetime.now()
+#        return True
 #save_database(user_database)
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
@@ -151,10 +158,18 @@ def client_conn(conn, addr):
                 #if the username exists and the password match
                 if username in user_database and user_database[username][0] == password:
                     send(conn, 'connected')
-                    g = Game(load_user_data(user_database, username))                                   #load the data from the user in dictionary database in the game
+
+                    logout_time, data = load_user_data(user_database, username)
+                    offline_time = datetime.now() - logout_time
+                    offline_seconds = offline_time.total_seconds()
+                    print(f'OFLINE: {offline_time}')
+                    print(f'OFLINE_S: {offline_seconds}')
+
+                    g = Game(data)                                   #load the data from the user in dictionary database in the game
                     logged = True
                     state = 0
                     while logged:                                                                       #while client logged in the game
+                        current_time = datetime.now()
                         upgrade_index = int(read(conn))                                                 #read Instructions from the client
 
                         if upgrade_index != -1:                                                         #check if is a valid instruction
@@ -167,17 +182,11 @@ def client_conn(conn, addr):
                             g.production()
                             state = 1 if state == 0 else 0                                              #update the game state
 
-                        #data = g.get_data()
-                        update_user_data(user_database, username, g.get_data())                         #update the dictionary database with values from game
+                        update_user_data(user_database, username, current_time, g.get_data())                         #update the dictionary database with values from game
 
                         if not send_data(conn, g.get_data(), state):                                    #if cannot send data to client
                             break                                                                       #close connection                                     #update and add the state to data
-                            
-                        
-
-                        if g.autosave(5):                                                               #save the game after X time
-                            pass
-                            #save_database(user_database)
+                                         
                         
                 #if fail login
                 else:
@@ -205,9 +214,12 @@ def client_conn(conn, addr):
         print(f"Error with client {addr}: {e}")
     finally:
         print('Disconnected from: ', addr)
+        #logout_time = datetime.now()
+        save_database(user_database)                                #save the database when client logout
         conn.close()    #close the connection withe the client
 
 '-----------------------------------------------------------------------------------------------------------'
+#start_autosave = datetime.now()
 
 while True:                                
     conn, addr = server_socket.accept()     # Wait for a connection   
@@ -215,4 +227,6 @@ while True:
     # Create a new thread to handle the client
     conn_client = threading.Thread(target=client_conn, args=(conn, addr))
     conn_client.start() #start the thread
-    
+
+    #if autosave(5):                                                               #save the game after X time
+    #    save_database(user_database)
