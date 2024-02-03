@@ -84,7 +84,7 @@ def load_database(filename='user_database.txt'):
 #Add a new user to database dictionary
 def add_new_user(database, username, password):
     #'USERNAME': ['PASSWORD', LOGOUT_DATATIME, WOOD, CLAY, IRON, PROGRESS, PROGRESS2, PROGRESS_TIME, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
-    database[username] = [password, datetime.now(), 500, 500, 500, -1, -1, 0, v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
+    database[username] = [password, datetime.now(), 500, 500, 500, -1, -1, datetime.now(), v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
     save_database(database)
 
 #Load the user data from the dictionary database
@@ -95,7 +95,7 @@ def load_user_data(database, username):
     i = float(database[username][4])            #IRON
     p1 = database[username][5]                  #PROGRESS1
     p2 = database[username][6]                  #PROGRESS2
-    pt = database[username][7]                  #PROGRESS TIME
+    pt = datetime.strptime((database[username][7]), "%Y-%m-%d %H:%M:%S.%f")                  #PROGRESS TIME
     hq = database[username][8]                  #HEADQUARTES
     tc = database[username][9]                  #TIMBER CAMP
     cp = database[username][10]                  #CLAY PIT

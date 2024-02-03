@@ -39,7 +39,7 @@ class Network:
             data_pack = self.client.recv(1024).decode()
             #unpack the data
             data_unpack = data_pack.split(',')
-            data_state = tuple(map(float, data_unpack)) 
+            data_state = tuple(map(str, data_unpack)) 
             self.send('read') 
             data, state = get_state(data_state)
             return data, state
