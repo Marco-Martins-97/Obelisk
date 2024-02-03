@@ -177,7 +177,7 @@ def client_conn(conn, addr):
                                 g.add_to_progress(upgrade_index)    
 
 
-                        #g.progress_countdown()                                                          #execute the progress
+                        g.progress_countdown()                                                          #execute the progress
 
                         if g.delay(1):                                                                  #after a X time execute production
                             g.production()
