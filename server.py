@@ -1,9 +1,9 @@
-#v.1.6
+#v.1.6.1
 import socket
 import threading
+from datetime import datetime
 from game import Game
 import village as v
-from datetime import datetime
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -159,13 +159,13 @@ def client_conn(conn, addr):
                 if username in user_database and user_database[username][0] == password:
                     send(conn, 'connected')
 
-                    logout_time, data = load_user_data(user_database, username)
-                    offline_time = datetime.now() - logout_time
-                    offline_seconds = offline_time.total_seconds()
-                    print(f'OFLINE: {offline_time}')
-                    print(f'OFLINE_S: {offline_seconds}')
+                    #logout_time, data = load_user_data(user_database, username)
+                    #offline_time = datetime.now() - logout_time
+                    #offline_seconds = offline_time.total_seconds()
+                    #print(f'OFLINE: {offline_time}')
+                    #print(f'OFLINE_S: {offline_seconds}')
 
-                    g = Game(data)                                   #load the data from the user in dictionary database in the game
+                    g = Game(load_user_data(user_database, username))                                   #load the data from the user in dictionary database in the game
                     logged = True
                     state = 0
                     while logged:                                                                       #while client logged in the game
@@ -174,9 +174,10 @@ def client_conn(conn, addr):
 
                         if upgrade_index != -1:                                                         #check if is a valid instruction
                             if g.upgrade_avaliable(upgrade_index, g.village_level[upgrade_index]):      #if can upgrade
-                                g.add_to_progress(upgrade_index)                                        #add to progress
-                        
-                        g.progress_countdown()                                                          #execute the progress
+                                g.add_to_progress(upgrade_index)    
+
+
+                        #g.progress_countdown()                                                          #execute the progress
 
                         if g.delay(1):                                                                  #after a X time execute production
                             g.production()
