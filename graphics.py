@@ -1,4 +1,5 @@
 import pygame
+from datetime import datetime
 import configurations as config
 import village as v
 
@@ -79,14 +80,16 @@ class Graphics:
     #Update the calculated values
     def update(self, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        self.wood = round(wood, 3)
-        self.clay = round(clay, 3)
-        self.iron = round(iron, 3)
-        self.progress1 = int(progress1)
-        self.progress2 = int(progress2)
-        self.progress_time = int(progress_time)
+        self.wood = round(float(wood), 3)
+        self.clay = round(float(clay), 3)
+        self.iron = round(float(iron), 3)
 
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
+
+        self.progress1 = int(progress1)
+        self.progress2 = int(progress2)
+        self.start_progress = datetime.strptime((progress_time), "%Y-%m-%d %H:%M:%S.%f")
+        self.progress_time = int(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds())
 
         self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
         self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
