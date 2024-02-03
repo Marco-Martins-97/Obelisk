@@ -1,1 +1,1 @@
-game_speed = 1          #The speed game runs
+game_speed = 100          #The speed game runs

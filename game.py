@@ -1,4 +1,4 @@
-# #Obelisk v.1.10.1
+# #Obelisk v.1.10.2
 from datetime import datetime, timedelta
 import village as v
 import configurations as config
@@ -20,7 +20,7 @@ class Game:
         
         self.progress1 = int(progress1)
         self.progress2 = int(progress2)
-        self.progress_time = int(progress_time)
+        self.progress_time = progress_time
 
 
         #calculate offline time
@@ -69,15 +69,15 @@ class Game:
 
         
     #Progress1 timer
-    def progress_timer(self, _time):
-        if datetime.now() > _time + self.start_progress:
-            self.start_progress = datetime.now()
-            return True
-        self.progress_time = (self.start_progress + _time) - datetime.now()        #save the time left
+    #def progress_timer(self, time):
+        #if datetime.now() > self.start_progress:
+        #    self.start_progress = datetime.now()
+        #    return True
+        #self.progress_time = (self.start_progress + _time) - datetime.now()        #save the time left
     
     #Pack the data
     def get_data(self):
-        data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, int(self.progress_time), self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[4], self.village_level[5])
+        data = (self.wood, self.clay, self.iron, self.progress1, self.progress2, self.progress_time, self.village_level[0], self.village_level[1], self.village_level[2], self.village_level[3], self.village_level[4], self.village_level[5])
         return data
 
     #Calculate the population used
@@ -126,8 +126,12 @@ class Game:
     #Process the progress
     def progress_countdown(self):
         if self.progress1 != -1:
-            if self.progress_timer(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed):  #Checks if progress has ended
+            if (datetime.now() - self.start_progress).total_seconds() > (v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed):  #Checks if progress has ended
                 self.village_level[self.progress1] += 1     #Increases level by 1
                 self.progress1 = self.progress2             #Put the progress2 in the progress1
+                self.start_progress = datetime.now()
                 self.progress2 = -1                         #remove from progress2
                 self.update()                               #upfate the values
+                #print(datetime.now() - self.start_progress, v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed)
+            else:
+                self.progress_time = v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds()
