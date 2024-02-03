@@ -1,4 +1,4 @@
-# #Obelisk v.1.9.4
+# #Obelisk v.1.10
 import time
 import village as v
 import configurations as config
@@ -23,7 +23,7 @@ class Game:
         self.warehouse = 0
 
         self.start_delay = time.time()                  #start the timers
-        self.start_autosave = time.time()
+        
         self.start_progress = time.time()
 
         self.game_speed = config.game_speed             #Get the game speed
@@ -51,11 +51,6 @@ class Game:
             self.start_delay = time.time()
             return True
 
-    #Autosave timer
-    def autosave(self, _time):
-        if time.time() > _time+self.start_autosave:
-            self.start_autosave = time.time()
-            return True
         
     #Progress1 timer
     def progress_timer(self, _time):
