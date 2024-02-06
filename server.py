@@ -180,7 +180,7 @@ def client_conn(conn, addr):
                         g.progress_countdown()                                                          #execute the progress
 
                         if g.delay(1):                                                                  #after a X time execute production
-                            g.production()
+                            g.production(1)
                             state = 1 if state == 0 else 0                                              #update the game state
 
                         update_user_data(user_database, username, current_time, g.get_data())                         #update the dictionary database with values from game
