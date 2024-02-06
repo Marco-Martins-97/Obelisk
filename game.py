@@ -1,4 +1,4 @@
-# #Obelisk v.1.10.3
+#Obelisk v.1.10.4
 from datetime import datetime, timedelta
 import village as v
 import configurations as config
@@ -11,44 +11,63 @@ class Game:
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
         self.game_speed = config.game_speed             #Get the game speed
         
-        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
+        self.wood = wood
+        self.clay = clay
+        self.iron = iron
+
+        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed    #calculate the building factors
         self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
         self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
         self.farm = v.calculate_factor(4, self.village_level[4])
         self.warehouse = v.calculate_factor(5, self.village_level[5])
 
+        self.start_delay = datetime.now()                  #start the timers  
         
         self.progress1 = int(progress1)
         self.progress2 = int(progress2)
         
-        self.progress_time = datetime.now()
+        self.progress_time = datetime.now()                     #if is any building in progress , get the time it stated else get the atual time
         if self.progress1 != -1:
             self.progress_time = progress_time
 
+        #PROPGRESS AND RESOURCES IN OFFLINE TIME
 
         #calculate offline time
-
         offline_time = datetime.now() - logout_time             #time from the last logout to login
         offline_seconds = offline_time.total_seconds()          #offline time in seconds
-        print(f'OFLINE: {offline_time}')
-        print(f'OFLINE_S: {offline_seconds}')
 
-        #add offline resources
-        self.wood = min(wood + (self.wood_p/3600) * offline_seconds, self.warehouse)
-        self.clay = min(clay + (self.wood_p/3600) * offline_seconds, self.warehouse)
-        self.iron = min(iron + (self.wood_p/3600) * offline_seconds, self.warehouse)
+        if self.progress1 != -1:    #in case of one building in progress
+            #building time - time beetween start and the login
+            progress1_time_left_seconds = v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - ((datetime.now() - self.progress_time).total_seconds() - offline_seconds)
 
+            if progress1_time_left_seconds < offline_seconds:                                       #in case the build is complete
+                time_after_progress1_finish = offline_seconds - progress1_time_left_seconds         #the time left after the building is finished
 
+                self.production(progress1_time_left_seconds)                                        #add the resources until the first build finish contruct
+                self.progress_countdown()                                                           #update the buildings
 
+                if self.progress1 != -1:  #in case of one building in progress
+                    self.progress_time = progress_time + timedelta(seconds=progress1_time_left_seconds) #update progress time //start progress time + first building time
+                    #building time - time beetween start and the login
+                    progress2_time_left_seconds = v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - ((datetime.now() - self.progress_time).total_seconds() - time_after_progress1_finish)
+                    
+                    if progress2_time_left_seconds < time_after_progress1_finish:                                   #in case the build is complete  
+                        time_after_progress2_finish = time_after_progress1_finish - progress2_time_left_seconds     #the time left after the building is finished
 
-        ###################################################################################################################################################
+                        self.production(progress2_time_left_seconds)                                                #add the resources until the second build finish contruct
+                        self.progress_countdown()                                                                   #update the buildings
+                        self.production(time_after_progress2_finish)                                                #add the resources after the second build finish contruct
 
+                    else:
+                        self.production(time_after_progress1_finish)        #add the resources after the first building finish contruct and the second isnt finished
+                else:
+                    self.production(time_after_progress1_finish)            #add the resources after the first building finish contruct and there is no second     
+            else:
+                self.production(offline_seconds)                            #add the resources if the first building isnt finished
+        else:
+            self.production(offline_seconds)                                #add the resources if there isnt any building in progress
 
-        self.start_delay = datetime.now()                  #start the timers  
-
-
-        #self.start_progress = (self.progress_time - v.calculate_time(self.progress1, self.village_level[self.progress1], self.village_level[0])/self.game_speed) + datetime.now()          #load the remain time from database and apply it to progress
-        
+  
     #Update the calculated values
     def update(self):
         self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
@@ -58,24 +77,22 @@ class Game:
         self.warehouse = v.calculate_factor(5, self.village_level[5])
 
     #Resources Production
-    def production(self):
-        self.wood = min(self.wood + self.wood_p/3600, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION if is smaller than WAREHOUSE
-        self.clay = min(self.clay + self.clay_p/3600, self.warehouse)
-        self.iron = min(self.iron + self.iron_p/3600, self.warehouse)
-        
+    def production(self, time):
+        sw,sc,si = self.wood, self.clay, self.iron 
+        self.wood = min(self.wood + (self.wood_p/3600) * time, self.warehouse)        #Assigns too WOOD the WOOD+PRODUCTION*TIME if is smaller than WAREHOUSE
+        self.clay = min(self.clay + (self.clay_p/3600) * time, self.warehouse)
+        self.iron = min(self.iron + (self.iron_p/3600) * time, self.warehouse)
+        fw,fc,fi = self.wood, self.clay, self.iron
+        print(f'WOOD: {sw} + {self.wood_p/3600:.3f} x {time} ({(self.wood_p/3600)*time}) = {fw}')
+        print(f'CLAY: {sc} + {self.clay_p/3600:.3f} x {time} ({(self.clay_p/3600)*time}) = {fc}')
+        print(f'IRON: {si} + {self.iron_p/3600:.3f} x {time} ({(self.iron_p/3600)*time}) = {fi}')
+
+
     #Game ticks
     def delay(self, time):
         if datetime.now() - self.start_delay > timedelta(seconds=time):
             self.start_delay = datetime.now()
             return True
-
-        
-    #Progress1 timer
-    #def progress_timer(self, time):
-        #if datetime.now() > self.start_progress:
-        #    self.start_progress = datetime.now()
-        #    return True
-        #self.progress_time = (self.start_progress + _time) - datetime.now()        #save the time left
     
     #Pack the data
     def get_data(self):
@@ -134,6 +151,3 @@ class Game:
                 self.progress_time = datetime.now()
                 self.progress2 = -1                         #remove from progress2
                 self.update()                               #upfate the values
-                #print(datetime.now() - self.start_progress, v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed)
-            #else:
-                #self.progress_time = v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds()
