@@ -1,7 +1,7 @@
-#v.1.6
+#v.1.6.1
 import pygame
 import village as v
-from graphics import Graphics
+from graphics import Graphics, Button
 from network import Network
 
 n = Network()                               #Start network
@@ -38,26 +38,28 @@ def login_screen(choice, input, username, password, password2):
     graph.draw_login_menu(choice, input, username, password, password2, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
     pygame.display.update()                                                                                                     #update the screen
 
-#Draw the reconnect screen
-def reconnect_screen():
+#Reconnect Menu
+def reconnect_menu():
     graph.win.fill(graph.background_color)
     msg = 'Fail to Connect to the Server...'
     graph.drawTextCenter(msg, 40, (96, 48, 45), 0, 0, graph.width, graph.height/3)                                              #draw msg
     graph.drawRoundRect(graph.width/2-125, graph.height/2, 250, 32, 10)                                                         #draw a button
     graph.drawTextCenter('RECONNECT', 20, graph.text_color, graph.width/2-125, graph.height/2, 250, 32)                         #button text
     pygame.display.update()
+
+    reconnect_button = Button(graph.width/2-125, graph.height/2, 150, 32)                                                       #Create the button
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                                                       #close the game
                 pygame.quit()  
                                             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                mouse_x = pos[0]
-                mouse_y = pos[1]            
-                if graph.width/2-125 <= mouse_x <= graph.width/2+125 and graph.height/2-125 <= mouse_y <= graph.height/2+125:   #try connect if press the button
+                if reconnect_button.pressed(event):
+                    print('Trying Reconnect...')
                     if n.connect():
                         return True
+                    else:
+                        print('Reconnect Fail!!')   
 
     
 
@@ -233,7 +235,7 @@ def main():
                 login_screen(active_choice, active_input, username, password, password2)                            #update the login menu
                 
         else:
-           connection = reconnect_screen()
+           connection = reconnect_menu()
 
 
 
