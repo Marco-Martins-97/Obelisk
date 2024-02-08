@@ -2,7 +2,7 @@ import pygame
 from datetime import datetime
 import configurations as config
 import village as v
-
+ 
 
 
 
@@ -251,25 +251,36 @@ class Graphics:
             self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
             self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
 
-    #draw the village, levels, and upgrade buttons
-    def draw_village(self, x, y, width, height, radius):
+    #draw the village buildings
+    def draw_village_buildings(self, x, y, width, height, radius):
         text_color = self.text_color
         for i in range(len(v.village)):
             #builds
             self.drawRoundRect(x, y + i * 40, width, height, radius)                                                            #draw a rectangle with the building name
             self.drawTextCenter(v.village[i].name, 20, text_color, x, y+i*40, width, height-6)
-            #lv
-            self.drawCircle(self.border_color, self.button_color, x-height+7, y+i*40+height/2, height/2+3)                      #draw a circle with the lever at left of the rectangle
-            self.drawTextCenter(self.village_level[i], 20, text_color, x-height+7, y-1+i*40, 0, height)
 
+    #draw the village levels
+    def draw_village_levels(self, x, y, radius):
+        text_color = self.text_color
+        alignment = radius-16
+        for i in range(len(v.village)):
+            self.drawCircle(self.border_color, self.button_color, x, y+radius+i*40, radius)                      #draw a circle with the lever at left of the rectangle
+            self.drawTextCenter(self.village_level[i], 20, text_color, x-radius/2, y+radius/2-1+i*40, radius, radius)
+
+
+    #draw the village upgrade buttons
+    def draw_village_upgrade_btns(self, x, y, radius):
+        text_color = self.text_color
+        alignment = radius-16
+        for i in range(len(v.village)):
             if self.upgrade_avaliable(i, self.village_level[i]):                                                                #if can upgrade, draw a circle at right of the rectangle with a cross in
                 #add button 
-                self.drawCircle(self.border_color, self.button_color, x+width+height-7, y+i*40+height/2, height/2+3)      
-                self.drawCross(text_color, x+width+height/2-7, y+i*40, height)
+                self.drawCircle(self.border_color, self.button_color, x+radius, y+radius+i*40, radius)      
+                self.drawCross(text_color, x, y+i*40, radius*2)
             else:                                                                                                               #if cant upgrade, draw a circle at right of the rectangle with a cross in, with no colors
                 #add button 
-                self.drawCircle(self.border_colorless, self.button_colorless, x+width+height-7, y+i*40+height/2, height/2+3)
-                self.drawCross(self.text_color_white, x+width+height/2-7, y+i*40, height)
+                self.drawCircle(self.border_colorless, self.button_colorless, x+radius, y+radius+i*40, radius)
+                self.drawCross(self.text_color_white, x, y+i*40, radius*2)
 
     #draw the resources, population and time needed to upgrade the building to the next level
     def draw_requeriments(self, index, x, y, width, radius):
@@ -307,3 +318,28 @@ class Graphics:
         self.drawTextRight(population, 20, tc, x-20, y+row_height*4, width, row_height)
         self.drawTextLeft('TIME: ', 20, self.text_color, x+20, y+row_height*5, row_height)
         self.drawTextRight(_time, 20, self.text_color, x-20, y+row_height*5, width, row_height)
+
+    #Create Buttons
+    def buttons_village(self, x, y, width, height):
+        btns = []
+        for i in range(len(v.village)):
+            btns.append(Button(x, y + i * 40, width, height ))
+        return btns
+
+
+class Button:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+    def at_button(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if self.x <= mouse_x <= self.x+self.width and self.y <= mouse_y <= self.y+self.height:
+            return True
+    
+    def pressed(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.at_button():
+                return True
