@@ -1,4 +1,4 @@
-#v.1.6.1
+#v.1.6.2
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -22,21 +22,149 @@ def game_screen(upgrade_btn):
     graph.draw_village_buildings(50, 65, 300, 32, 10)
     graph.draw_village_levels(23, 63, 18)
     graph.draw_village_upgrade_btns(356, 63, 18)
-
     for index, btn in enumerate(upgrade_btn):
         if btn.at_button():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             graph.draw_requeriments(index, mouse_x, mouse_y, 300, 10)
     pygame.display.update()                                                                                                 #update the screen
 
-#Draw the login screen
-def login_screen(choice, input, username, password, password2):
+#Draw the connect screen
+def connect_screen():
     graph.win.fill(graph.background_color)                                                                                                                     
     title = 'OBELISK'                                                                                                           #title
     graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
     graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
-    graph.draw_login_menu(choice, input, username, password, password2, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    graph.draw_connect_menu(graph.width/2, graph.height/2, 300, 10)                 #draw the menu
     pygame.display.update()                                                                                                     #update the screen
+
+#Draw the regist screen
+def regist_screen(input, username, password, password2):
+    graph.win.fill(graph.background_color)                                                                                                                     
+    title = 'OBELISK'                                                                                                           #title
+    graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
+    graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
+    graph.draw_regist_menu(input, username, password, password2, graph.width/2, graph.height/2, 300, 10)               #draw the menu
+    pygame.display.update()                                                                                                     #update the screen
+
+#Draw the login screen
+def login_screen(input, username, password):
+    graph.win.fill(graph.background_color)                                                                                                                     
+    title = 'OBELISK'                                                                                                           #title
+    graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
+    graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
+    graph.draw_login_menu(input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    pygame.display.update()                                                                                                     #update the screen
+
+def login_menu():
+    active_choice = 'login'
+    logged = False
+    username = ''
+    password = ''
+    active_input = 'username'
+    while True:
+        for event in pygame.event.get():                                        #wait for inputs
+            if event.type == pygame.QUIT:                                       #close the game
+                pygame.quit()
+                break
+            if event.type == pygame.KEYDOWN:                                                   
+                if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password 
+                    active_input = 'password' if active_input == 'username' else 'username'
+                elif event.key == pygame.K_RETURN:                                              #if the return key is pressed, and active choise is username, switch to password
+                    if active_input == 'username':                                            
+                        active_input = 'password'
+                    elif active_input == "password":                                            #if the active choise is password and is not empty
+                        if username != '' and password != '':
+                            n.send(username)                                                    #send the username and password
+                            print(n.read())
+                            n.send(password)
+                            c = n.read()                                                        #read the return 
+                            if c == 'connected':                                                #if is connected, is logged in
+                                print(c)      
+                                logged = True 
+                                break
+                            
+                            else:                                                               #if not connectd , switch active choise to username, and repeat the prosess
+                                n.send(active_choice)
+                                print(n.read())
+                                active_input = 'username'
+
+                elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and password
+                    if active_input == 'username':
+                        username = username[:-1]
+                    elif active_input == "password":
+                        password = password[:-1]
+                else:                                                                           #write character in username and password
+                    if active_input == 'username':  
+                        username += event.unicode
+                    elif active_input == "password":
+                        password += event.unicode
+        if logged: return logged                                                                       #if logged exit the login menu
+        login_screen(active_input, username, password)               #update the login menu
+
+def regist_menu():
+    active_choice = 'register'
+    created = False
+    username = ''
+    password = ''
+    password2 = ''
+    active_input = 'username'
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                break
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password and password2
+                    if active_input == 'username':
+                        active_input = 'password' 
+                    elif active_input == 'password':
+                        active_input = 'password2' 
+                    else: active_input = 'username'
+                elif event.key == pygame.K_RETURN:                                              #if the return key is pressed, and active choise is username, switch to password, is password switch to password2
+                    if active_input == 'username':
+                        active_input = 'password'
+                    elif active_input == "password":
+                        active_input = 'password2'
+                    elif active_input == "password2":
+                        if username != '' and password != '' and password2 != '':               #if the active choise is password2 and none choise is empty
+                            n.send(username)                                                    #send the username and password and password2
+                            print(n.read()) 
+                            n.send(password)
+                            print(n.read())
+                            n.send(password2)
+                            c = n.read()                                                        #read the return 
+                            if c == 'created':                                                  #if the return is created, exit the regist menu
+                                print(c)      
+                                created = True
+                                break
+                            elif c == 'exists':                                                 #if the username already exists, repeat
+                                print('username already in use')            
+                                n.send(active_choice)
+                                print(n.read())
+                                active_input = 'username'
+                            else:                                                               #if the password and password2 dont match, repeat
+                                print('password dont match')
+                                n.send(active_choice)
+                                print(n.read())
+                                active_input = 'username'
+                                            
+                elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and passwords
+                    if active_input == 'username':
+                        username = username[:-1]
+                    elif active_input == "password":
+                        password = password[:-1]
+                    elif active_input == "password2":
+                        password2 = password2[:-1]
+                else:                                                                           #write character in username and passwords
+                    if active_input == 'username':
+                        username += event.unicode
+                    elif active_input == "password":
+                        password += event.unicode
+                    elif active_input == "password2":
+                        password2 += event.unicode
+
+        if created: return created                                                                       #if account created exit the regist menu
+        regist_screen(active_input,  username, password, password2)               #update the login menu
 
 #Reconnect Menu
 def reconnect_menu():
@@ -52,14 +180,13 @@ def reconnect_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                                                       #close the game
                 pygame.quit()  
-                                            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if reconnect_button.pressed(event):
-                    print('Trying Reconnect...')
-                    if n.connect():
-                        return True
-                    else:
-                        print('Reconnect Fail!!')   
+
+            if reconnect_button.pressed(event):
+                print('Trying Reconnect...')
+                if n.connect():
+                    return True
+                else:
+                    print('Reconnect Fail!!')   
 
     
 
@@ -69,24 +196,24 @@ def reconnect_menu():
 
 def main():
     connection = n.connect()                #connect to the server
-    upgrade_btn = graph.buttons_village(356, 63, 36, 36)      #create the upgrade buttons
     clock = pygame.time.Clock()             #start game clock
-    run = True
     logged = False
     last_state = 0
- 
-    active_choice = ''
-
+    
+    upgrade_btn = graph.buttons_village(356, 63, 36, 36)                             #create the upgrade buttons
+    regist_button = Button(graph.width/2-350, graph.height/2, 300, 150)   
+    login_button = Button(graph.width/2+50, graph.height/2, 300, 150)   
+    
     print(n.read())                                                                                 #read msg from server
     
-    while run:
+    while True:
+        clock.tick(60)                                                                      #game fps
         if connection:                                                                              #execute if connected
             if logged:                                                                              #if logged run the game
-                clock.tick(60)                                                                      #game fps
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:                                                   #close the game
-                        run = False
                         pygame.quit()  
+                        break
                   
                     for index, btn in enumerate(upgrade_btn):
                         if btn.pressed(event):
@@ -105,134 +232,34 @@ def main():
                 game_screen(upgrade_btn)                                                       #update the game display
 
             else:                                                                                   #if not logged show the login/regist menu
-                clock.tick(60)
-                username = ''
-                password = ''
-                password2 = ''
-                active_input = 'username'
-                pos = pygame.mouse.get_pos()
+                active_choice = ''
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:                                                   #close the game
-                        run = False
                         pygame.quit()
+                        break
 
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        mouse_x = pos[0]
-                        mouse_y = pos[1]
-                        x = graph.width/2
-                        y = graph.height/2
-                        if x-350 <= mouse_x <= x-50 and y <= mouse_y <= y+150:                      #if the regist buttos is pressed
-                            active_choice = 'register'
-                            n.send(active_choice)                                                   #send a msg with the choise to the server
-                        elif x+50 <= mouse_x <= x+350 and y <= mouse_y <= y+150:                    #if the login button is presses
-                            active_choice = 'login'     
-                            n.send(active_choice)                                                   #send a msg with the choise to the server
+                    if regist_button.pressed(event):                    #if the regist buttos is pressed
+                        active_choice = 'register'
+                        n.send(active_choice)                                                   #send a msg with the choise to the server
+
+                        print(n.read())
+                    elif login_button.pressed(event):                    #if the login button is presses
+                        active_choice = 'login'     
+                        n.send(active_choice)                                                   #send a msg with the choise to the server
                         print(n.read())                                                             #read the return
                     
                     if active_choice == 'login':                                                    #if the login button was pressed 
-                        while True:
-                            for event in pygame.event.get():                                        #wait for inputs
-                                if event.type == pygame.QUIT:                                       #close the game
-                                    run = False
-                                    pygame.quit()
-                                if event.type == pygame.KEYDOWN:                                                   
-                                    if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password 
-                                        active_input = 'password' if active_input == 'username' else 'username'
-                                    elif event.key == pygame.K_RETURN:                                              #if the return key is pressed, and active choise is username, switch to password
-                                        if active_input == 'username':                                            
-                                            active_input = 'password'
-                                        elif active_input == "password":                                            #if the active choise is password and is not empty
-                                            if username != '' and password != '':
-                                                n.send(username)                                                    #send the username and password
-                                                print(n.read())
-                                                n.send(password)
-                                                c = n.read()                                                        #read the return 
-                                                if c == 'connected':                                                #if is connected, is logged in
-                                                    print(c)      
-                                                    logged = True 
-                                                    break
-                            
-                                                else:                                                               #if not connectd , switch active choise to username, and repeat the prosess
-                                                    n.send(active_choice)
-                                                    print(n.read())
-                                                    active_input = 'username'
-
-                                    elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and password
-                                        if active_input == 'username':
-                                            username = username[:-1]
-                                        elif active_input == "password":
-                                            password = password[:-1]
-                                    else:                                                                           #write character in username and password
-                                        if active_input == 'username':  
-                                            username += event.unicode
-                                        elif active_input == "password":
-                                            password += event.unicode
-                            if logged: break                                                                        #if logged exit the login menu
-                            login_screen(active_choice, active_input,  username, password, password2)               #update the login menu
-
+                        logged = login_menu()
+                        if logged: break
+                        
 
                     if active_choice == 'register':
-                        created = False
-                        while True:
-                            for event in pygame.event.get():
-                                if event.type == pygame.QUIT:
-                                    run = False
-                                    pygame.quit()
-                                if event.type == pygame.KEYDOWN:
-                                    if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password and password2
-                                        if active_input == 'username':
-                                            active_input = 'password' 
-                                        elif active_input == 'password':
-                                            active_input = 'password2' 
-                                        else: active_input = 'username'
-                                    elif event.key == pygame.K_RETURN:                                              #if the return key is pressed, and active choise is username, switch to password, is password switch to password2
-                                        if active_input == 'username':
-                                            active_input = 'password'
-                                        elif active_input == "password":
-                                            active_input = 'password2'
-                                        elif active_input == "password2":
-                                            if username != '' and password != '' and password2 != '':               #if the active choise is password2 and none choise is empty
-                                                n.send(username)                                                    #send the username and password and password2
-                                                print(n.read()) 
-                                                n.send(password)
-                                                print(n.read())
-                                                n.send(password2)
-                                                c = n.read()                                                        #read the return 
-                                                if c == 'created':                                                  #if the return is created, exit the regist menu
-                                                    print(c)      
-                                                    created = True
-                                                    active_choice = ''
-                                                    break
-                                                elif c == 'exists':                                                 #if the username already exists, repeat
-                                                    print('username already in use')            
-                                                    n.send(active_choice)
-                                                    print(n.read())
-                                                    active_input = 'username'
-                                                else:                                                               #if the password and password2 dont match, repeat
-                                                    print('password dont match')
-                                                    n.send(active_choice)
-                                                    print(n.read())
-                                                    active_input = 'username'
-                                            
-                                    elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and passwords
-                                        if active_input == 'username':
-                                            username = username[:-1]
-                                        elif active_input == "password":
-                                            password = password[:-1]
-                                        elif active_input == "password2":
-                                            password2 = password2[:-1]
-                                    else:                                                                           #write character in username and passwords
-                                        if active_input == 'username':
-                                            username += event.unicode
-                                        elif active_input == "password":
-                                            password += event.unicode
-                                        elif active_input == "password2":
-                                            password2 += event.unicode
-
-                            if created: break                                                                       #if account created exit the regist menu
-                            login_screen(active_choice, active_input,  username, password, password2)               #update the login menu
-
-                login_screen(active_choice, active_input, username, password, password2)                            #update the login menu
+                        created = regist_menu()
+                        if created: 
+                            active_choice = ''
+                            break     
+                        
+                connect_screen()                            #update the login menu
                 
         else:
            connection = reconnect_menu()
