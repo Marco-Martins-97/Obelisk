@@ -4,7 +4,25 @@ import configurations as config
 import village as v
  
 
+class Button:
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
 
+    def at_button(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if self.x <= mouse_x <= self.x+self.width and self.y <= mouse_y <= self.y+self.height:
+            return True
+    
+    def pressed(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.at_button():
+                return True
+    
+    def draw(self, win):
+        pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
 
 
 class Graphics:
@@ -213,43 +231,65 @@ class Graphics:
         self.drawTextLeft('POPULATION: ', 20, text_color, x+20, y+row_height*1, row_height)
         self.drawTextRight(self.population, 20, text_color, x-20, y+row_height*1, width, row_height)
 
-    #draw the login menu
-    def draw_login_menu(self, choice, input, username, password, password2,  x, y, width, radius):
+    #draw the connect menu
+    def draw_connect_menu(self, x, y, width, radius):
         rows = 4
         row_height = 32
         height = rows*row_height
         text_color = self.text_color
         self.drawRoundRect(x-width-50, y, width, height+5, radius)
         self.drawRoundRect(x+50, y, width, height+5, radius)
-        if choice == 'login':
-            self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
-            self.drawTextCenter('LOGIN', 20, text_color, x+50, y+5, width, row_height)
-            self.drawTextLeft('USERNAME: ', 20, text_color, x+50+20, y+row_height*2, row_height)
-            self.drawTextRight(username, 20, text_color, x+50-20, y+row_height*2, width, row_height)
-            self.drawTextLeft('PASSWORD: ', 20, text_color, x+50+20, y+row_height*3, row_height)
-            self.drawTextRight(password, 20, text_color, x+50-20, y+row_height*3, width, row_height)
-            if input == 'username': 
-                self.drawTextRight('<', 20, text_color, x+60-20, y+row_height*2, width, row_height)
-            else: 
-                self.drawTextRight('<', 20, text_color, x+60-20, y+row_height*3, width, row_height)
-        elif choice == 'register': 
-            self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
-            self.drawTextCenter('LOGIN', 20, text_color, x-width-50, y+5, width, row_height)
-            self.drawTextLeft('USERNAME: ', 20, text_color, x-width-50+20, y+row_height*1, row_height)
-            self.drawTextRight(username, 20, text_color, x-width-50-20, y+row_height*1, width, row_height)
-            self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+row_height*2, row_height)
-            self.drawTextRight(password, 20, text_color, x-width-50-20, y+row_height*2, width, row_height)
-            self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+row_height*3, row_height)
-            self.drawTextRight(password2, 20, text_color, x-width-50-20, y+row_height*3, width, row_height)
-            if input == 'username': 
-                self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*1, width, row_height)
-            elif input == 'password':
-                self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*2, width, row_height)
-            else: 
-                self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*3, width, row_height)
-        else:
-            self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
-            self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
+
+        self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
+        self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
+
+    #draw the regist menu
+    def draw_regist_menu(self, input, username, password, password2,  x, y, width, radius):
+        rows = 4
+        row_height = 32
+        height = rows*row_height
+        text_color = self.text_color
+        self.drawRoundRect(x-width-50, y, width, height+5, radius)
+        self.drawRoundRect(x+50, y, width, height+5, radius)
+
+        self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
+
+        self.drawTextCenter('REGISTER', 20, text_color, x-width-50, y+5, width, row_height)
+        self.drawTextLeft('USERNAME: ', 20, text_color, x-width-50+20, y+row_height*1, row_height)
+        self.drawTextRight(username, 20, text_color, x-width-50-20, y+row_height*1, width, row_height)
+        self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+row_height*2, row_height)
+        self.drawTextRight(password, 20, text_color, x-width-50-20, y+row_height*2, width, row_height)
+        self.drawTextLeft('PASSWORD: ', 20, text_color, x-width-50+20, y+row_height*3, row_height)
+        self.drawTextRight(password2, 20, text_color, x-width-50-20, y+row_height*3, width, row_height)
+        if input == 'username': 
+            self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*1, width, row_height)
+        elif input == 'password':
+            self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*2, width, row_height)
+        else: 
+            self.drawTextRight('<', 20, text_color, x-width-40-20, y+row_height*3, width, row_height)
+
+
+    #draw the login menu
+    def draw_login_menu(self, input, username, password,  x, y, width, radius):
+        rows = 4
+        row_height = 32
+        height = rows*row_height
+        text_color = self.text_color
+        self.drawRoundRect(x-width-50, y, width, height+5, radius)
+        self.drawRoundRect(x+50, y, width, height+5, radius)
+
+        self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
+
+        self.drawTextCenter('LOGIN', 20, text_color, x+50, y+5, width, row_height)
+        self.drawTextLeft('USERNAME: ', 20, text_color, x+50+20, y+row_height*2, row_height)
+        self.drawTextRight(username, 20, text_color, x+50-20, y+row_height*2, width, row_height)
+        self.drawTextLeft('PASSWORD: ', 20, text_color, x+50+20, y+row_height*3, row_height)
+        self.drawTextRight(password, 20, text_color, x+50-20, y+row_height*3, width, row_height)
+        if input == 'username': 
+            self.drawTextRight('<', 20, text_color, x+60-20, y+row_height*2, width, row_height)
+        else: 
+            self.drawTextRight('<', 20, text_color, x+60-20, y+row_height*3, width, row_height)
+
 
     #draw the village buildings
     def draw_village_buildings(self, x, y, width, height, radius):
@@ -262,7 +302,6 @@ class Graphics:
     #draw the village levels
     def draw_village_levels(self, x, y, radius):
         text_color = self.text_color
-        alignment = radius-16
         for i in range(len(v.village)):
             self.drawCircle(self.border_color, self.button_color, x, y+radius+i*40, radius)                      #draw a circle with the lever at left of the rectangle
             self.drawTextCenter(self.village_level[i], 20, text_color, x-radius/2, y+radius/2-1+i*40, radius, radius)
@@ -271,7 +310,6 @@ class Graphics:
     #draw the village upgrade buttons
     def draw_village_upgrade_btns(self, x, y, radius):
         text_color = self.text_color
-        alignment = radius-16
         for i in range(len(v.village)):
             if self.upgrade_avaliable(i, self.village_level[i]):                                                                #if can upgrade, draw a circle at right of the rectangle with a cross in
                 #add button 
@@ -327,19 +365,3 @@ class Graphics:
         return btns
 
 
-class Button:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-    def at_button(self):
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        if self.x <= mouse_x <= self.x+self.width and self.y <= mouse_y <= self.y+self.height:
-            return True
-    
-    def pressed(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.at_button():
-                return True
