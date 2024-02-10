@@ -1,4 +1,4 @@
-#v.1.6.3
+#v.1.6.4
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -11,15 +11,16 @@ n = Network()                               #Start network
 
 
 #configs = [Width, Height, Auto-login]
-default_configs = [800, 600, False, 'username', 'password']
+default_configs = [0, False, 'username', 'password']
 
-
+win_size = [[800, 600], [1280, 720], [1600, 900], [1920, 1080]]
 
 
 def save_configs(configs, filename='client_configs.txt'):   #save the client configs in a file
     with open(filename, 'w') as file:
         for c in configs:
             file.write(f'{c}\n')
+            print(f'saved: {c}')
             
     print('configs saved.')
 
@@ -28,7 +29,6 @@ def load_configs(filename='client_configs.txt'):            #load the client con
     try:
         with open (filename, 'r') as file:
             for line in file:
-                #_, c = line.strip().split(':')
                 configs.append(line.strip())
                 
     except FileNotFoundError:
@@ -40,8 +40,10 @@ def load_configs(filename='client_configs.txt'):            #load the client con
 #save_configs(default_configs)
 configs = load_configs()
 
+width = int(win_size[int(configs[0])][0])
+height = int(win_size[int(configs[0])][1])
 
-graph = Graphics(int(configs[0]), int(configs[1]))             #start graphics
+graph = Graphics(width, height)             #start graphics
 
 #draw the game screen
 def game_screen(upgrade_btn):
@@ -84,19 +86,14 @@ def login_screen(input, username, password):
     title = 'OBELISK'                                                                                                           #title
     graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
     graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
-    graph.draw_login_menu(configs[2], input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    graph.draw_login_menu(configs[1], input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
     pygame.display.update()                                                                                                     #update the screen
-
-def config_screen():
-    graph.win.fill(graph.background_color) 
-    graph.draw_config_menu()
-    pygame.display.update()  
 
 #Menus
 def autologin():
     active_choice = 'login'
-    username = configs[3]
-    password = configs[4]
+    username = configs[2]
+    password = configs[3]
 
     while True:
         n.send(username)                                                    #send the username and password
@@ -125,10 +122,10 @@ def login_menu():
                 break
 
             if autologin_button.pressed(event):
-                if configs[2] == 'true':
-                    configs[2] = 'false'
+                if configs[1] == 'true':
+                    configs[1] = 'false'
                 else:
-                    configs[2] = 'true'
+                    configs[1] = 'true'
 
             if event.type == pygame.KEYDOWN:                                                   
                 if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password 
@@ -163,9 +160,9 @@ def login_menu():
                     elif active_input == "password":
                         password += event.unicode
         if logged: 
-            if configs[2] == 'true':
-                configs[3] = username
-                configs[4] = password
+            if configs[1] == 'true':
+                configs[2] = username
+                configs[3] = password
                 save_configs(configs)
             return logged                                                                       #if logged exit the login menu
         login_screen(active_input, username, password)               #update the login menu
@@ -257,29 +254,91 @@ def reconnect_menu():
                     print('Reconnect Fail!!')   
 
 def config_menu():
-    conf_menu = True
+    menu = True
+    size_choise = int(configs[0])
+    autologin = configs[1]
     #btn = Button(x, y, w, h)
     exit_button = Button(graph.width-105, graph.height-40, 100, 35)
-    save_button = Button(graph.width-110, graph.height-40, 100, 35)
-    restore_button = Button(graph.width-115, graph.height-40, 100, 35)
+    save_button = Button(graph.width-210, graph.height-40, 100, 35)
+    restore_button = Button(graph.width-315, graph.height-40, 100, 35)
+
+    x, y, width, height, margin = 20, 20, 200, 32, 40
+
+    win_size_btns = graph.create_buttons(x, y, width, height, margin, 4)
+    autologin_btn = Button(graph.width-50, y, 32, 32)  
 
 
-    while conf_menu:
+    while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                   #close the game
                 pygame.quit()  
                 break
             
+            #buttons
             if exit_button.pressed(event):
-                conf_menu = False
-            
+                print('exit')
+                menu = False
+
+
             if save_button.pressed(event):
+                print('save')
+                configs[0] = size_choise
+                configs[1] = autologin
                 save_configs(configs)
+
             
             if restore_button.pressed(event):
+                print('default')
                 save_configs(default_configs)
 
-        config_screen()
+
+            #windown size (width x height)
+            for idx, btn in enumerate(win_size_btns):
+                if btn.pressed(event):
+                    size_choise = idx
+                    break
+            
+            #auto-login (on/off)
+            if autologin_btn.pressed(event):
+                if autologin == 'true':
+                    autologin = 'false'
+                else:
+                    autologin = 'true'
+
+
+
+
+
+        graph.win.fill(graph.background_color) 
+        graph.draw_config_menu(size_choise, autologin)
+        pygame.display.update()
+
+def map_menu():
+    menu = True
+    logout_button = Button(graph.width-105, 5, 100, 35)                             
+    config_button = Button(graph.width-210, 5, 100, 35)
+    village_button = Button(graph.width-315, 5, 100, 35)
+
+    while menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:                                                   #close the game
+                pygame.quit()  
+                break
+            
+            #buttons
+            if village_button.pressed(event):
+                menu = False
+
+            if config_button.pressed(event):
+                config_menu()
+                    
+            if logout_button.pressed(event):
+                menu = False
+
+
+        graph.win.fill(graph.map_background_color) 
+        graph.draw_map()
+        pygame.display.update()
     
 
 
@@ -292,12 +351,14 @@ def main():
     logged = False
     last_state = 0
     
-    upgrade_button = graph.buttons_village(356, 63, 36, 36)                             #create the upgrade buttons
+    upgrade_button = graph.create_buttons(356, 63, 36, 36, 40, len(v.village))                             #create the upgrade buttons
+    #menu buttons
     logout_button = Button(graph.width-105, 5, 100, 35)                             
-    config_button = Button(graph.width-210, 5, 100, 35)                             
-
+    config_button = Button(graph.width-210, 5, 100, 35)
+    map_button = Button(graph.width-315, 5, 100, 35)
+    #connection buttons
     regist_button = Button(graph.width/2-350, graph.height/2, 300, 133)   
-    login_button = Button(graph.width/2+50, graph.height/2, 300, 133)    
+    login_button = Button(graph.width/2+50, graph.height/2, 300, 133)
     
     print(n.read())                                                                                 #read msg from server
     
@@ -317,11 +378,16 @@ def main():
                                 n.read_data()                                                   #read the return
                                 break
                     
+                    if map_button.pressed(event):
+                        map_menu()
+
                     if config_button.pressed(event):
                         config_menu()
                     
                     if logout_button.pressed(event):
                         print('logout')
+                        configs[1] = 'false'
+                        save_configs(configs)
                         logged = False
 
 
@@ -352,7 +418,7 @@ def main():
                         print(n.read())                                                             #read the return
                     
                     if active_choice == 'login':                                                    #if the login button was pressed 
-                        if configs[2] == 'true':
+                        if configs[1] == 'true':
                             logged = autologin()
                         else:    
                             logged = login_menu()
