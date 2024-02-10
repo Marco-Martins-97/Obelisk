@@ -1,4 +1,4 @@
-#v.1.6.2
+#v.1.6.3
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -6,15 +6,47 @@ from network import Network
 
 n = Network()                               #Start network
 
-WIDTH = 800                                 #window width
-HEIGHT = 600                                #windown height
+#WIDTH = 800                                 #window width
+#HEIGHT = 600                                #windown height
 
-graph = Graphics(WIDTH, HEIGHT)             #start graphics
+
+#configs = [Width, Height, Auto-login]
+default_configs = [800, 600, False, 'username', 'password']
+
+
+
+
+def save_configs(configs, filename='client_configs.txt'):   #save the client configs in a file
+    with open(filename, 'w') as file:
+        for c in configs:
+            file.write(f'{c}\n')
+            
+    print('configs saved.')
+
+def load_configs(filename='client_configs.txt'):            #load the client configs from a file
+    configs = []
+    try:
+        with open (filename, 'r') as file:
+            for line in file:
+                #_, c = line.strip().split(':')
+                configs.append(line.strip())
+                
+    except FileNotFoundError:
+        save_configs(default_configs)
+
+    print('configs loaded.')
+    return configs
+
+#save_configs(default_configs)
+configs = load_configs()
+
+
+graph = Graphics(int(configs[0]), int(configs[1]))             #start graphics
 
 #draw the game screen
 def game_screen(upgrade_btn):
     graph.win.fill(graph.background_color)                                                                                  #backgroud color
-    graph.draw_points(graph.width-350, 10, 300, 10)                                                                         #draw the info
+    graph.draw_top_bar()                                                                         #draw the info
     graph.draw_progress(graph.width-350, 65, 300, 10)
     graph.draw_production(graph.width-350, 185, 300, 10)
     graph.draw_warehouse(graph.width-350, 335, 300, 10)
@@ -34,7 +66,7 @@ def connect_screen():
     title = 'OBELISK'                                                                                                           #title
     graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
     graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
-    graph.draw_connect_menu(graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    graph.draw_connect_menu(graph.width/2, graph.height/2, 300, 10)                                                             #draw the menu
     pygame.display.update()                                                                                                     #update the screen
 
 #Draw the regist screen
@@ -52,8 +84,32 @@ def login_screen(input, username, password):
     title = 'OBELISK'                                                                                                           #title
     graph.drawTextCenter(title, 130, (96, 48, 45), 5, 5, graph.width, graph.height/3)                                           #draw title shadow
     graph.drawTextCenter(title, 130, (125, 81, 15), 0, 0, graph.width, graph.height/3)                                          #draw title
-    graph.draw_login_menu(input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
+    graph.draw_login_menu(configs[2], input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
     pygame.display.update()                                                                                                     #update the screen
+
+def config_screen():
+    graph.win.fill(graph.background_color) 
+    graph.draw_config_menu()
+    pygame.display.update()  
+
+#Menus
+def autologin():
+    active_choice = 'login'
+    username = configs[3]
+    password = configs[4]
+
+    while True:
+        n.send(username)                                                    #send the username and password
+        print(n.read())
+        n.send(password)
+        c = n.read()                                                        #read the return 
+        if c == 'connected':                                                #if is connected, is logged in
+            print(c)      
+            return  True
+                            
+        else:                                                               #if not connectd , switch active choise to username, and repeat the prosess
+            n.send(active_choice)
+            print(n.read())
 
 def login_menu():
     active_choice = 'login'
@@ -61,11 +117,19 @@ def login_menu():
     username = ''
     password = ''
     active_input = 'username'
+    autologin_button = Button(graph.width/2+300, (graph.height/2)+96, 32, 32)  
     while True:
         for event in pygame.event.get():                                        #wait for inputs
             if event.type == pygame.QUIT:                                       #close the game
                 pygame.quit()
                 break
+
+            if autologin_button.pressed(event):
+                if configs[2] == 'true':
+                    configs[2] = 'false'
+                else:
+                    configs[2] = 'true'
+
             if event.type == pygame.KEYDOWN:                                                   
                 if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password 
                     active_input = 'password' if active_input == 'username' else 'username'
@@ -98,7 +162,12 @@ def login_menu():
                         username += event.unicode
                     elif active_input == "password":
                         password += event.unicode
-        if logged: return logged                                                                       #if logged exit the login menu
+        if logged: 
+            if configs[2] == 'true':
+                configs[3] = username
+                configs[4] = password
+                save_configs(configs)
+            return logged                                                                       #if logged exit the login menu
         login_screen(active_input, username, password)               #update the login menu
 
 def regist_menu():
@@ -166,7 +235,6 @@ def regist_menu():
         if created: return created                                                                       #if account created exit the regist menu
         regist_screen(active_input,  username, password, password2)               #update the login menu
 
-#Reconnect Menu
 def reconnect_menu():
     graph.win.fill(graph.background_color)
     msg = 'Fail to Connect to the Server...'
@@ -188,6 +256,30 @@ def reconnect_menu():
                 else:
                     print('Reconnect Fail!!')   
 
+def config_menu():
+    conf_menu = True
+    #btn = Button(x, y, w, h)
+    exit_button = Button(graph.width-105, graph.height-40, 100, 35)
+    save_button = Button(graph.width-110, graph.height-40, 100, 35)
+    restore_button = Button(graph.width-115, graph.height-40, 100, 35)
+
+
+    while conf_menu:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:                                                   #close the game
+                pygame.quit()  
+                break
+            
+            if exit_button.pressed(event):
+                conf_menu = False
+            
+            if save_button.pressed(event):
+                save_configs(configs)
+            
+            if restore_button.pressed(event):
+                save_configs(default_configs)
+
+        config_screen()
     
 
 
@@ -200,9 +292,12 @@ def main():
     logged = False
     last_state = 0
     
-    upgrade_btn = graph.buttons_village(356, 63, 36, 36)                             #create the upgrade buttons
-    regist_button = Button(graph.width/2-350, graph.height/2, 300, 150)   
-    login_button = Button(graph.width/2+50, graph.height/2, 300, 150)   
+    upgrade_button = graph.buttons_village(356, 63, 36, 36)                             #create the upgrade buttons
+    logout_button = Button(graph.width-105, 5, 100, 35)                             
+    config_button = Button(graph.width-210, 5, 100, 35)                             
+
+    regist_button = Button(graph.width/2-350, graph.height/2, 300, 133)   
+    login_button = Button(graph.width/2+50, graph.height/2, 300, 133)    
     
     print(n.read())                                                                                 #read msg from server
     
@@ -215,12 +310,20 @@ def main():
                         pygame.quit()  
                         break
                   
-                    for index, btn in enumerate(upgrade_btn):
+                    for index, btn in enumerate(upgrade_button):
                         if btn.pressed(event):
                             if graph.upgrade_avaliable(index, graph.village_level[index]):      #check is is possible upgrade
                                 n.send(str(index))                                              #send an istruction to the server
                                 n.read_data()                                                   #read the return
                                 break
+                    
+                    if config_button.pressed(event):
+                        config_menu()
+                    
+                    if logout_button.pressed(event):
+                        print('logout')
+                        logged = False
+
 
                 n.send('-1')                                                                        #send a msg with no instructions
                 data, state = n.read_data()                                                         #read data from server
@@ -229,7 +332,7 @@ def main():
                     last_state = state
                     
                 graph.update(data)                                                                  #update client data
-                game_screen(upgrade_btn)                                                       #update the game display
+                game_screen(upgrade_button)                                                       #update the game display
 
             else:                                                                                   #if not logged show the login/regist menu
                 active_choice = ''
@@ -238,18 +341,21 @@ def main():
                         pygame.quit()
                         break
 
-                    if regist_button.pressed(event):                    #if the regist buttos is pressed
+                    if regist_button.pressed(event):                                            #if the regist buttos is pressed
                         active_choice = 'register'
                         n.send(active_choice)                                                   #send a msg with the choise to the server
-
                         print(n.read())
-                    elif login_button.pressed(event):                    #if the login button is presses
+
+                    elif login_button.pressed(event):                                            #if the login button is presses
                         active_choice = 'login'     
                         n.send(active_choice)                                                   #send a msg with the choise to the server
                         print(n.read())                                                             #read the return
                     
                     if active_choice == 'login':                                                    #if the login button was pressed 
-                        logged = login_menu()
+                        if configs[2] == 'true':
+                            logged = autologin()
+                        else:    
+                            logged = login_menu()
                         if logged: break
                         
 
@@ -261,6 +367,7 @@ def main():
                         
                 connect_screen()                            #update the login menu
                 
+                 
         else:
            connection = reconnect_menu()
 
