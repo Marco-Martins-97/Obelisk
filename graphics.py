@@ -43,6 +43,7 @@ class Graphics:
         self.button_colorless = (96, 96, 96) 
         self.text_color_white = (200, 200, 200)
         self.text_color_red = (222, 0,42)
+        self.map_background_color = (0, 64, 0)
         
         self.village_level = []
 
@@ -136,7 +137,7 @@ class Graphics:
         self.win.blit(text, (x + width -round(text.get_width()), y + round(height/2)-round(text.get_height()/2)))               #put it in the possition
 
     #Shapes
-    #Draw a rectangle with a border aand roud corners
+    #Draw a rectangle with a border aand round corners
     def drawRoundRect(self, x, y, width, height, radius):  
         pygame.draw.rect(self.win, (self.border_color), (x, y+radius, width, height-2*radius))
         pygame.draw.rect(self.win, (self.border_color), (x+radius, y, width-2*radius, height))
@@ -151,6 +152,15 @@ class Graphics:
         pygame.draw.circle(self.win, self.button_color, (x+3+radius, y+3+height-6-radius), radius)
         pygame.draw.circle(self.win, self.button_color, (x+3+width-6-radius, y+3+height-6-radius), radius)
     
+    #Draw a rectangle with no border and round corners
+    def drawSimpleRoundRect(self, x, y, width, height, radius):  
+        pygame.draw.rect(self.win, (self.button_color), (x, y+radius, width, height-2*radius))
+        pygame.draw.rect(self.win, (self.button_color), (x+radius, y, width-2*radius, height))
+        pygame.draw.circle(self.win, self.button_color, (x+radius, y+radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+width-radius, y+radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+radius, y+height-radius), radius)
+        pygame.draw.circle(self.win, self.button_color, (x+width-radius, y+height-radius), radius)
+
     #Draw a circle with a border
     def drawCircle(self, border_color, button_color, x, y, radius):
         pygame.draw.circle(self.win, border_color, (x, y), radius)
@@ -166,8 +176,6 @@ class Graphics:
             pygame.draw.line(self.win, self.text_color,(x+10, y+10), (x+width-10, y+height-10), 5)
             pygame.draw.line(self.win, self.text_color,(x+10, y+height-10), (x+width-10, y+10), 5)
       
-
-
 
     '---------------------------------------------------------------------------------------------------------------------'
     #Menus
@@ -233,8 +241,8 @@ class Graphics:
         self.drawCheckbox(x+width, y+row_height*3, 32, 32, autologin)
 
 
-
-    def draw_config_menu(self):
+    #draw the config menu
+    def draw_config_menu(self, win_size, autologin):
         # draw buttons
         self.drawRoundRect(self.width-105, self.height-40, 100, 35, 4)
         self.drawTextCenter('EXIT', 20, self.text_color, self.width-105, self.height-40, 100, 30)
@@ -244,14 +252,66 @@ class Graphics:
         
         self.drawRoundRect(self.width-315, self.height-40, 100, 35, 4)                               
         self.drawTextCenter('RESTORE', 20, self.text_color, self.width-315, self.height-40, 100, 30)
+
+        x = 20
+        y = 20
+        width = 200
+        height = 32
+        radius = 10
+        margin = 40
+        #draw options
+        #window size (width x height)
+        if win_size == 0:
+            self.drawRoundRect(x, y, width, height, radius)
+        else:
+            self.drawSimpleRoundRect(x, y, width, height, radius)
+        self.drawTextCenter('800 x 600', 20, self.text_color, x, y, width, height)
+        if win_size == 1:
+            self.drawRoundRect(x, y+margin, width, height, radius)
+        else:
+            self.drawSimpleRoundRect(x, y+margin, width, height, radius)
+        self.drawTextCenter('1280 x 720', 20, self.text_color, x, y+margin, width, height)
+        if win_size == 2:
+            self.drawRoundRect(x, y+margin*2, width, height, radius)
+        else:
+            self.drawSimpleRoundRect(x, y+margin*2, width, height, radius)
+        self.drawTextCenter('1600 x 900', 20, self.text_color, x, y+margin*2, width, height)
+        if win_size == 3:
+            self.drawRoundRect(x, y+margin*3, width, height, radius)
+        else:
+            self.drawSimpleRoundRect(x, y+margin*3, width, height, radius)
+        self.drawTextCenter('1920 x 1080', 20, self.text_color, x, y+margin*3, width, height)
+
+        #draw auto-login
+        self.drawTextRight('AUTO-LOGIN ', 20, self.text_color, self.width-50, y, 0, 32)
+        self.drawCheckbox(self.width-50, y, 32, 32, autologin)
+
+    #MAP
+    def draw_map(self):
+        x, y = 123, 123
+        # draw points
+        self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
+        self.drawTextCenter('X | Y', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
+        self.drawTextCenter(f'{x}|{y}', 20, self.text_color, self.width/2-55, 20, 110, 20)     #draw the value
+
+        # draw the logout button
+        self.drawRoundRect(self.width-105, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter('LOGOUT', 20, self.text_color, self.width-105, 5, 100, 30)              #draw the text
+        
+        # draw the config button
+        self.drawRoundRect(self.width-210, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter('CONFIG', 20, self.text_color, self.width-210, 5, 100, 30)              #draw the text
+        
+        # draw the map button
+        self.drawRoundRect(self.width-315, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter('VILLAGE', 20, self.text_color, self.width-315, 5, 100, 30)              #draw the text
+
+        
     '---------------------------------------------------------------------------------------------------------------------'
-    #Dashboards
+    #Dashboards 
+    #VILLAGE
     #draw he top bar
     def draw_top_bar(self):
-        #draw the top bar
-        #pygame.draw.rect(self.win, (self.button_color), (0, 0, width, height))
-        #pygame.draw.rect(self.win, (self.border_color), (0, height, width, 4))
-
         # draw points
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('Points', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
@@ -264,10 +324,11 @@ class Graphics:
         # draw the config button
         self.drawRoundRect(self.width-210, 5, 100, 35, 4)                               #draw the dashboar rectangle
         self.drawTextCenter('CONFIG', 20, self.text_color, self.width-210, 5, 100, 30)              #draw the text
-
-        #height = rows*row_height                                                        #get the height os the dashboard multipling the rown x row height
-        #text_color = self.text_color
-
+        
+        # draw the map button
+        self.drawRoundRect(self.width-315, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter('MAP', 20, self.text_color, self.width-315, 5, 100, 30)              #draw the text
+    
     #draw the progress
     def draw_progress(self, x, y, width, radius):
         rows = 3
@@ -328,9 +389,6 @@ class Graphics:
         self.drawTextCenter('FARM', 20, text_color, x, y+5, width, row_height)
         self.drawTextLeft('POPULATION: ', 20, text_color, x+20, y+row_height*1, row_height)
         self.drawTextRight(self.population, 20, text_color, x-20, y+row_height*1, width, row_height)
-
-
-
 
     #draw the village buildings
     def draw_village_buildings(self, x, y, width, height, radius):
@@ -397,11 +455,13 @@ class Graphics:
         self.drawTextRight(population, 20, tc, x-20, y+row_height*4, width, row_height)
         self.drawTextLeft('TIME: ', 20, self.text_color, x+20, y+row_height*5, row_height)
         self.drawTextRight(_time, 20, self.text_color, x-20, y+row_height*5, width, row_height)
+    
+    
     '---------------------------------------------------------------------------------------------------------------------'
     #Create Buttons
-    def buttons_village(self, x, y, width, height):
+    def create_buttons(self, x, y, width, height, margin, length):
         btns = []
-        for i in range(len(v.village)):
-            btns.append(Button(x, y + i * 40, width, height ))
+        for i in range(length):
+            btns.append(Button(x, y + i * margin, width, height ))
         return btns
 
