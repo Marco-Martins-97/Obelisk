@@ -1,4 +1,4 @@
-#v.1.6.4
+#v.1.6.5
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -141,6 +141,8 @@ def login_menu():
                             c = n.read()                                                        #read the return 
                             if c == 'connected':                                                #if is connected, is logged in
                                 print(c)      
+                                graph.game_speed = int(n.read())                                #get server configs
+     
                                 logged = True 
                                 break
                             

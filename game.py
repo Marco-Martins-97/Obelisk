@@ -1,15 +1,14 @@
 #Obelisk v.1.10.4
 from datetime import datetime, timedelta
 import village as v
-import configurations as config
 
 class Game:
-    def __init__(self, data):
+    def __init__(self, data, game_speed):
         logout_time, data = data
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data           #unpack the data
         
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
-        self.game_speed = config.game_speed             #Get the game speed
+        self.game_speed = game_speed             #Get the game speed
         
         self.wood = wood
         self.clay = clay
