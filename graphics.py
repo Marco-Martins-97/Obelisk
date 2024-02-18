@@ -1,6 +1,6 @@
 import pygame
 from datetime import datetime
-import configurations as config
+#import configurations as config
 import village as v
  
 
@@ -63,7 +63,7 @@ class Graphics:
         self.progress2 = -1
         self.progress_time = 0
 
-        self.game_speed = config.game_speed                         #game speed
+        self.game_speed = 1                        #game speed
     '---------------------------------------------------------------------------------------------------------------------'
     #Check if can upgrade the building
     def upgrade_avaliable(self, building_idx, level):    

@@ -1,9 +1,10 @@
-#v.1.6.1
+#v.1.6.2
 import socket
 import threading
 from datetime import datetime
 from game import Game
 import village as v
+import configurations as config
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -158,6 +159,7 @@ def client_conn(conn, addr):
                 #if the username exists and the password match
                 if username in user_database and user_database[username][0] == password:
                     send(conn, 'connected')
+                    send(conn, str(config.game_speed))                          #send the server configs
 
                     #logout_time, data = load_user_data(user_database, username)
                     #offline_time = datetime.now() - logout_time
@@ -165,7 +167,7 @@ def client_conn(conn, addr):
                     #print(f'OFLINE: {offline_time}')
                     #print(f'OFLINE_S: {offline_seconds}')
 
-                    g = Game(load_user_data(user_database, username))                                   #load the data from the user in dictionary database in the game
+                    g = Game(load_user_data(user_database, username), config.game_speed)                                   #load the data from the user in dictionary database in the game
                     logged = True
                     state = 0
                     while logged:                                                                       #while client logged in the game
