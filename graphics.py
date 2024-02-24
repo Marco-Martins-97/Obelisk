@@ -39,6 +39,9 @@ class Graphics:
 
         self.font = 'comicsans'                                         #font in use
 
+        self.chunk_size = 32
+
+
         self.background_color = (244, 228, 188)                         #custom colors
         self.border_color = (125, 81, 15)
         self.button_color = (203, 171, 107)
@@ -292,19 +295,32 @@ class Graphics:
         self.drawCheckbox(self.width-50, y, 32, 32, autologin)
 
     #MAP
-    def draw_map(self, data):
-        server_time, x, y = data
+    def draw_map(self, server_time, users_cords, username):
+
         self.win.fill(self.map_background_color)
         ping = round((datetime.now() - datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")).total_seconds()*1000)
-        # draw points
+
+        #draw villages
+        for user in users_cords:
+            pygame.draw.circle(self.win, (255,255,0), (users_cords[user][2], users_cords[user][3]), self.chunk_size/2)
+            self.drawTextCenter(str(user), 20, self.text_color, users_cords[user][2], users_cords[user][3]-30, 0, 0)
+            self.drawTextRight(f'X: {str(users_cords[user][2])} ', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
+            self.drawTextLeft(f' Y: {str(users_cords[user][3])}', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
+        pygame.draw.circle(self.win, (255,0,0), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2)
+
+        # draw cords
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('X | Y', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
-        self.drawTextCenter(f'{x}|{y}', 20, self.text_color, self.width/2-55, 20, 110, 20)     #draw the value
+        self.drawTextCenter(f'{users_cords[username][0]}|{users_cords[username][1]}', 20, self.text_color, self.width/2-55, 20, 110, 20)     #draw the value
 
         # draw ping
         self.drawRoundRect(5, 5, 100, 35, 4)                               #draw the dashboar rectangle
         self.drawTextCenter(f'{ping}ms', 20, self.text_color, 5, 5, 100, 30)
 
+        # draw the logout button
+        self.drawRoundRect(self.width-105, self.height-40, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter('CENTER', 20, self.text_color, self.width-105, self.height-40, 100, 30)              #draw the text
+        
         # draw the logout button
         self.drawRoundRect(self.width-105, 5, 100, 35, 4)                               #draw the dashboar rectangle
         self.drawTextCenter('LOGOUT', 20, self.text_color, self.width-105, 5, 100, 30)              #draw the text

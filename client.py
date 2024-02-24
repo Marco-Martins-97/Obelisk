@@ -1,4 +1,4 @@
-#v.1.6.7
+#v.1.6.8
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -38,6 +38,25 @@ def load_configs(filename='client_configs.txt'):            #load the client con
 
     print('configs loaded.')
     return configs
+
+def unpack_user_cords(data):
+    cords = {}
+    l = 0
+    while l < len(data):
+        #cords[user] = [x, y, x_pos, y_pos, dif_x, dif_y]
+        cords[data[l]] = [int(data[l+1]), int(data[l+2]), int(data[l+1]), int(data[l+2]), 0, 0]
+        l += 3
+    return cords
+
+def center_at_user(users_cords, user):
+    #get the diffenece to the center os screen
+    dif_x = graph.width/2 - users_cords[user][0]*graph.chunk_size
+    dif_y = graph.height/2 - users_cords[user][1]*graph.chunk_size
+    #apply the diffence to all objects
+    for i in users_cords:
+        users_cords[i][2] = dif_x + users_cords[i][0]*graph.chunk_size
+        users_cords[i][3] = dif_y + users_cords[i][1]*graph.chunk_size
+
 
 #save_configs(default_configs)
 configs = load_configs()
@@ -395,11 +414,34 @@ def config_menu():
 
 def map_menu():
     menu = True
+    #buttons
     logout_button = Button(graph.width-105, 5, 100, 35)                             
+    center_button = Button(graph.width-105, graph.height-40, 100, 35)                             
     config_button = Button(graph.width-210, 5, 100, 35)
     village_button = Button(graph.width-315, 5, 100, 35)
+    #state
     last_state = 0
+    #users cords
+    users_cords = unpack_user_cords(n.read_data('map_cords'))
+    #drag n drop
+    grab = False
+    mouse_x, mouse_y = 0, 0
+    center_at_user(users_cords, USERNAME)
+    #x, y = 0, 7
+    #x_dif ,y_dif = graph.width/2 - x*graph.chunk_size, graph.height/2 - y*graph.chunk_size
+    #pos_x, pos_y = x_dif+x*graph.chunk_size, y_dif+y*graph.chunk_size
+
+
     while menu:
+        server = n.read_data('map')     #get data
+        
+        server_time, username = server
+        #x, y = int(cord_x), int(cord_y)
+
+
+
+        print(f'server:{server}')
+        print(f'User:{users_cords[USERNAME]}')
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                   #close the game
                 pygame.quit()  
@@ -414,17 +456,37 @@ def map_menu():
                     
             if logout_button.pressed(event):
                 menu = False
+            
+            if center_button.pressed(event):
+                #users_cords[USERNAME][2], users_cords[USERNAME][3] = users_cords[USERNAME][0], users_cords[USERNAME][1]
+                center_at_user(users_cords, USERNAME)
+                pass
+                
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                for user in users_cords:
+                    users_cords[user][4] = mouse_x - users_cords[user][2]
+                    users_cords[user][5] = mouse_y - users_cords[user][3]
+                grab = True
+                break
 
-        server = n.read_data('map')
-        
-        state, data = server
-        print(f'server:{server} state:{state} data:{data}')
-        
-        if last_state != state:                                                             #update in the same speed the game run
-            last_state = state
-            print(state)
+            if event.type == pygame.MOUSEBUTTONUP:
+                grab = False
 
-        graph.draw_map(data)
+            if grab:
+                if event.type == pygame.MOUSEMOTION:
+                    mouse_x, mouse_y = pygame.mouse.get_pos()
+                    for user in users_cords:
+                        users_cords[user][2] = mouse_x - users_cords[user][4]
+                        users_cords[user][3] = mouse_y - users_cords[user][5]
+
+
+
+        #if last_state != state:                                                             #update in the same speed the game run
+        #    last_state = state
+        #    print(state)
+
+        graph.draw_map(server_time, users_cords, USERNAME)
     
 
     
@@ -509,10 +571,8 @@ def main():
                     
 
 
-                    server = n.read_data('main')
-
-                    state, data = server
-                    print(f'server:{server} state:{state} data:{data}')
+                    server = n.read_data('main')     
+                    print(f'server:{server}')
 
 
                     if server == 'loggedout':   
@@ -524,7 +584,7 @@ def main():
                         connection, playing = False, False
                         break
 
-                    graph.update(data)
+                    graph.update(server)
                     game_screen(upgrade_button) 
 
 
