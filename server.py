@@ -1,4 +1,4 @@
-#v.1.6.2
+#v.1.6.3
 import socket
 import threading
 from datetime import datetime
@@ -26,14 +26,16 @@ def send(conn, data):
         # Send a message to the client
         conn.send(data.encode())
     except socket.error as e:
-            print(e)  
+        print(e)
+        return 'error'  
 #Read data from the client
 def read(conn):
     try:
         # Receive the message from the client
         return conn.recv(1024).decode()
     except socket.error as e:
-            print(e)
+        print(e)
+        return 'error'
 #Send a datapack to the client
 def send_data(conn, data, state):
     try:
@@ -44,7 +46,8 @@ def send_data(conn, data, state):
         conn.send(data_pack.encode())
         return read(conn)   #read the return
     except socket.error as e:
-            print(e)
+        print(e)
+        return 'error'
 
 #Add a state var to the data
 def add_state(data, state):
@@ -130,106 +133,75 @@ def update_user_data(database, username, current_time, data):
 #        start_autosave = datetime.now()
 #        return True
 #save_database(user_database)
+    
+def play():
+    print('play')
+    #while True:
+    #    pass
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
 
 
 #Client Thread
 def client_conn(conn, addr):
-    try:
-        print('Connected to: ', addr)
-        user_database = load_database()     #Load the database from the file
-        print(user_database)
-        
-        send(conn, 'choise')                #send a msg to connected client
-        while True:
-            choice = read(conn)             #read the msg from the connectd client
+    print('Connected to: ', addr)
+    user_database = load_database()     #Load the database from the file
+    print(user_database)
 
-            if not choice:                  #if is and empty str 
-                break                       #close the thread
-            
-            #enter the login menu
-            if choice == 'login':
-                send(conn, 'username')      #ask for username and password
-                username = read(conn)
+    send(conn, 'connection')# s.1             #send a msg to connected client
+    while True:
+        choice = read(conn)# r.1             #read the msg from the connectd client
+        print(f'choise:{choice}')
 
-                send(conn, 'password')
-                password = read(conn)
+        if choice == 'login':
+            print(choice)
+            send(conn, 'username')      #ask for username and password
+            username = read(conn)
+            send(conn, 'password')
+            password = read(conn)
 
-                #if the username exists and the password match
-                if username in user_database and user_database[username][0] == password:
-                    send(conn, 'connected')
-                    send(conn, str(config.game_speed))                          #send the server configs
+            #if the username exists and the password match
+            if username in user_database and user_database[username][0] == password:
+                send(conn, 'connected')
 
-                    #logout_time, data = load_user_data(user_database, username)
-                    #offline_time = datetime.now() - logout_time
-                    #offline_seconds = offline_time.total_seconds()
-                    #print(f'OFLINE: {offline_time}')
-                    #print(f'OFLINE_S: {offline_seconds}')
+                play()
+            else:
+                send(conn, 'fail')
 
-                    g = Game(load_user_data(user_database, username), config.game_speed)                                   #load the data from the user in dictionary database in the game
-                    logged = True
-                    state = 0
-                    while logged:                                                                       #while client logged in the game
-                        current_time = datetime.now()
-                        upgrade_index = int(read(conn))                                                 #read Instructions from the client
+        elif choice == 'register':
+            print(choice)
 
-                        if upgrade_index != -1:                                                         #check if is a valid instruction
-                            if g.upgrade_avaliable(upgrade_index, g.village_level[upgrade_index]):      #if can upgrade
-                                g.add_to_progress(upgrade_index)    
+            send(conn, 'username')                                                                  #ask for username and password and confirm password
+            username = read(conn)
+            send(conn, 'password')
+            password = read(conn)
+            send(conn, 'password2')
+            password2 = read(conn)
+
+            print(username, password, password2)
+
+            if username in user_database:                                                           #if username already exists
+                send(conn, 'exists')
+            elif password != password2:                                                             #if password dont match
+                send(conn, 'incorrect')
+            else:                                                                                   #add the username and password to dictionary database
+                send(conn, 'created')
+                add_new_user(user_database, username, password)
 
 
-                        g.progress_countdown()                                                          #execute the progress
+        else:   #disconnect
+            break
 
-                        if g.delay(1):                                                                  #after a X time execute production
-                            g.production(1)
-                            state = 1 if state == 0 else 0                                              #update the game state
 
-                        update_user_data(user_database, username, current_time, g.get_data())                         #update the dictionary database with values from game
+    
+    print(f'Connection closed with: {addr}')
+    conn.close()
 
-                        if not send_data(conn, g.get_data(), state):                                    #if cannot send data to client
-                            break                                                                       #close connection                                     #update and add the state to data
-                                         
-                        
-                #if fail login
-                else:
-                    send(conn, 'invalid')
-            #enter the register menu
-            elif choice == 'register':
-                send(conn, 'username')                                                                  #ask for username and password and confirm password
-                username = read(conn)
-
-                send(conn, 'password')
-                password = read(conn)
-
-                send(conn, 'password2')
-                password2 = read(conn)
-
-                if username in user_database:                                                           #if username already exists
-                    send(conn, 'exists')
-                elif password != password2:                                                             #if password dont match
-                    send(conn, 'nomatch')
-                else:                                                                                   #add the username and password to dictionary database
-                    add_new_user(user_database, username, password)
-                    send(conn, 'created')
-
-    except socket.error as e:
-        print(f"Error with client {addr}: {e}")
-    finally:
-        print('Disconnected from: ', addr)
-        #logout_time = datetime.now()
-        save_database(user_database)                                #save the database when client logout
-        conn.close()    #close the connection withe the client
 
 '-----------------------------------------------------------------------------------------------------------'
-#start_autosave = datetime.now()
-
 while True:                                
     conn, addr = server_socket.accept()     # Wait for a connection   
 
     # Create a new thread to handle the client
     conn_client = threading.Thread(target=client_conn, args=(conn, addr))
     conn_client.start() #start the thread
-
-    #if autosave(5):                                                               #save the game after X time
-    #    save_database(user_database)
