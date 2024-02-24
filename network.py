@@ -37,8 +37,18 @@ class Network:
             print(e)
             return 'error'
 
-    def read_data(self):
-        pass
+    def read_data(self, menu):
+        self.send(menu)
+
+        state = self.read()
+        self.send('state')
+
+        data_pack = self.read()
+        data_unpack = data_pack.split(',')
+        data = tuple(map(str, data_unpack))
+        return int(state), data
+    
+
     #def read_data(self):
     #    try:
     #        # Receive the message from the client
@@ -56,6 +66,6 @@ class Network:
         
 #get and remove the last value from data
 def get_state(data_state):
-    state = int(data_state[-1])     #get the value and convet to and integer
-    data = data_state[:-1]          #remove the value
+    state = int(data_state[0])     #get the value and convet to and integer
+    data = data_state[1:]          #remove the value
     return data, state
