@@ -1,6 +1,5 @@
 import pygame
 from datetime import datetime
-#import configurations as config
 import village as v
  
 
@@ -10,6 +9,7 @@ class Button:
         self.y = y
         self.width = width
         self.height = height
+        self.click = True
 
     def at_button(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -17,8 +17,12 @@ class Button:
             return True
     
     def pressed(self, event):
+
+        if event.type == pygame.MOUSEBUTTONUP:
+            self.click = True
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.at_button():
+            if self.at_button() and self.click:
+                self.click = False
                 return True
     
     def draw(self, win):
@@ -287,12 +291,21 @@ class Graphics:
         self.drawCheckbox(self.width-50, y, 32, 32, autologin)
 
     #MAP
-    def draw_map(self):
+    def draw_map(self, server_time):
         x, y = 123, 123
+
+        #server_time = datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")
+        #latency = datetime.now() - server_time
+        #print(latency.total_seconds()/1000)
+        ping = round((datetime.now() - datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")).total_seconds()*1000)
         # draw points
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('X | Y', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
         self.drawTextCenter(f'{x}|{y}', 20, self.text_color, self.width/2-55, 20, 110, 20)     #draw the value
+
+        # draw ping
+        self.drawRoundRect(5, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter(f'{ping}ms', 20, self.text_color, 5, 5, 100, 30)
 
         # draw the logout button
         self.drawRoundRect(self.width-105, 5, 100, 35, 4)                               #draw the dashboar rectangle

@@ -1,4 +1,4 @@
-#v.1.6.3
+#v.1.6.4
 import socket
 import threading
 from datetime import datetime
@@ -37,17 +37,21 @@ def read(conn):
         print(e)
         return 'error'
 #Send a datapack to the client
-def send_data(conn, data, state):
-    try:
-        data_state = add_state(data, state)
-        #pack the data
-        data_pack = ','.join(map(str, data_state))
-        # Send a message to the client
-        conn.send(data_pack.encode())
-        return read(conn)   #read the return
-    except socket.error as e:
-        print(e)
-        return 'error'
+    
+
+def send_data(conn, data):
+    pass
+#def send_data(conn, data, state):
+#    try:
+#        data_state = add_state(data, state)
+#        #pack the data
+#        data_pack = ','.join(map(str, data_state))
+#        # Send a message to the client
+#        conn.send(data_pack.encode())
+#        return read(conn)   #read the return
+#    except socket.error as e:
+#        print(e)
+#        return 'error'
 
 #Add a state var to the data
 def add_state(data, state):
@@ -106,7 +110,7 @@ def load_user_data(database, username):
     im = database[username][11]                 #ITON MINE
     f = database[username][12]                  #FARM
     wh = database[username][13]                 #WAREHOUSE 
-    data = (logout_time, (w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh))     #pack the data in a tuple
+    data = (logout_time, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh)     #pack the data in a tuple
     return data
 
 #save the data in the dictionary database
@@ -133,11 +137,33 @@ def update_user_data(database, username, current_time, data):
 #        start_autosave = datetime.now()
 #        return True
 #save_database(user_database)
-    
-def play():
+'---------------------------------------------------GAMEPLAY--------------------------------------------------------'
+def play(username):
     print('play')
-    #while True:
-    #    pass
+    send(conn, str(config.game_speed))  
+
+    #g = Game(load_user_data(user_database, username), config.game_speed)                                   #load the data from the user in dictionary database in the game
+    data = '1,a,game'
+    playing = True
+    state = 0
+    while playing:
+        current_time = datetime.now()
+        client_action = read(conn)
+        print(client_action)
+        
+        if client_action == 'error' or client_action == 'logout':    #lost connection
+            playing = False
+
+        elif client_action == 'main':     #send game data
+            send(conn, data)
+
+        elif client_action == 'map':     #send game data
+            send(conn, str(current_time))
+
+        else:                           #send something else
+            send(conn, 'other')
+
+
 '---------------------------------------------------CLIENT--------------------------------------------------------'
 
 
@@ -146,11 +172,12 @@ def play():
 def client_conn(conn, addr):
     print('Connected to: ', addr)
     user_database = load_database()     #Load the database from the file
-    print(user_database)
+    #print(user_database)
 
-    send(conn, 'connection')# s.1             #send a msg to connected client
-    while True:
-        choice = read(conn)# r.1             #read the msg from the connectd client
+    send(conn, 'connection')             #send a msg to connected client
+    connected = True
+    while connected:
+        choice = read(conn)            #read the msg from the connectd client
         print(f'choise:{choice}')
 
         if choice == 'login':
@@ -164,7 +191,8 @@ def client_conn(conn, addr):
             if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
 
-                play()
+                play(username)
+                send(conn, 'loggedout')
             else:
                 send(conn, 'fail')
 
@@ -190,7 +218,7 @@ def client_conn(conn, addr):
 
 
         else:   #disconnect
-            break
+            connected = False
 
 
     
