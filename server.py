@@ -138,19 +138,20 @@ def load_database(filename='user_database.txt'):
 
 def new_random_cords(database):
     map_size = int(math.sqrt(len(database)+1))
+    print(database)
     while True:
         rep_cords = False
         x = random.randint(config.map_start_x-map_size, config.map_start_x+map_size)
         y = random.randint(config.map_start_y-map_size, config.map_start_y+map_size)
         #print(f'X:{x} Y:{y}')
         for user in database:
-            #print(f'U_X:{database[user][1]} U_Y:{database[user][2]}')
-            if x == database[user][1] and y == database[user][2]:
+            #print(f'USER:{user} X:{database[user][1]} Y:{database[user][2]}')
+            if x == int(database[user][1]) and y == int(database[user][2]):
                 #print('REP')
                 rep_cords = True
                 break
             
-        print(f'X:{x} Y:{y} Map_Size:{map_size} Rep:{rep_cords}')
+        #print(f'X:{x} Y:{y} Map_Size:{map_size} Rep:{rep_cords}')
         if not rep_cords:
             return x, y
 
@@ -294,7 +295,7 @@ def client_conn(conn, addr):
             if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
 
-                #play(user_database, username)
+                play(user_database, username)
         #         #send(conn, 'loggedout')
             else:
                 send(conn, 'fail')
