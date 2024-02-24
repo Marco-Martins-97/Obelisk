@@ -1,4 +1,4 @@
-#v.1.6.11
+#v.1.6.12
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -32,11 +32,13 @@ def load_configs(filename='client_configs.txt'):            #load the client con
         with open (filename, 'r') as file:
             for line in file:
                 configs.append(line.strip())
+        print('configs loaded.')
+        
                 
     except FileNotFoundError:
         save_configs(default_configs)
+        return default_configs
 
-    print('configs loaded.')
     return configs
 
 def unpack_user_cords(data):
@@ -281,12 +283,12 @@ def regist_menu():
                                 
                                 if account == 'created':  #login                                                #if the return is created, exit the regist menu
                                     print(account) 
-                                    n.send('login')
-                                    print(n.read())
-                                    n.send(username)                                                    #send the username and password
-                                    print(n.read())
-                                    n.send(password)
-                                    print(n.read()) 
+                                    #n.send('login')
+                                    #print(n.read())
+                                    #n.send(username)                                                    #send the username and password
+                                    #print(n.read())
+                                    #n.send(password)
+                                    #print(n.read()) 
                                     created = True
                                     break
 
@@ -611,17 +613,7 @@ def main():
                     if server == 'error':
                         connection, playing = False, False
                         break
-
-                    #if server == 'loggedout':   
-                     #   logged, playing = False, False
-                     #   connection = n.connect()
-                        #print(n.read())
-                    #    break
-
-                    #elif server == 'index':
-                    #    n.send(str(idx))
-
-
+                    
                     graph.update(server)
                     game_screen(upgrade_buttons) 
 
