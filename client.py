@@ -1,4 +1,4 @@
-#v.1.6.12
+#v.1.6.13
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -143,8 +143,8 @@ def auto_login():
                                 
             if account == 'connected':  #login                                                #if the return is created, exit the regist menu
                 print(account) 
-                #global USERNAME, PASSWORD
-                #USERNAME, PASSWORD = username, password  
+                global USERNAME, PASSWORD
+                USERNAME, PASSWORD = username, password  
                 return True, True          #connection, logged                    
                 #logged = True
                 #break
@@ -211,12 +211,12 @@ def login_menu():
                                 
                                 if account == 'connected':  #login                                                #if the return is created, exit the regist menu
                                     print(account) 
-                                #    if configs[1] == 'true':
-                                #        configs[2] = username
-                                #        configs[3] = password
-                                #        save_configs(configs)
-                                #    global USERNAME, PASSWORD
-                                #    USERNAME, PASSWORD = username, password
+                                    if configs[1] == 'true':
+                                        configs[2] = username
+                                        configs[3] = password
+                                        save_configs(configs)
+                                    global USERNAME, PASSWORD
+                                    USERNAME, PASSWORD = username, password
                                     return True, True          #connection, logged
                                 #    logged = True      
                                 #    break
@@ -463,7 +463,7 @@ def map_menu():
     #state
     last_state = 0
     #users cords
-    users_cords = unpack_user_cords(n.read_data('map_cords'))
+    users_cords = unpack_user_cords(n.send_read_data('map_cords'))
     #drag n drop
     grab = False
     mouse_x, mouse_y = 0, 0
@@ -473,15 +473,12 @@ def map_menu():
 
 
     while menu:
-        server = n.read_data('map')     #get data
-        
-        server_time, username = server
-        #x, y = int(cord_x), int(cord_y)
+        server = n.send_read('map')     #get data
+        print(f'Client: {server}')
 
 
-
-        print(f'server:{server}')
-        #print(f'User:{users_cords[USERNAME]}')
+        if server == 'error':
+            return False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                   #close the game
                 pygame.quit()  
@@ -490,12 +487,13 @@ def map_menu():
             #buttons
             if village_button.pressed(event):
                 menu = False
+                return True
 
             if config_button.pressed(event):
                 config_menu()
                     
-            if logout_button.pressed(event):
-                menu = False
+            #if logout_button.pressed(event):
+            #    menu = False
             
             if center_button.pressed(event):
                 #users_cords[USERNAME][2], users_cords[USERNAME][3] = users_cords[USERNAME][0], users_cords[USERNAME][1]
@@ -528,11 +526,79 @@ def map_menu():
         #    last_state = state
         #    print(state)
 
-        graph.draw_map(server_time, users_cords, USERNAME)
+        graph.draw_map(users_cords, USERNAME)
         #for b in user_buttons:
         #        b.draw(graph.win)
     
+def play():
+    upgrade_buttons = create_buttons(356, 63, 36, 36, 40, len(v.village))                             #create the upgrade buttons
+    #menu buttons
+    logout_button = Button(graph.width-105, 5, 100, 35)                             
+    config_button = Button(graph.width-210, 5, 100, 35)
+    map_button = Button(graph.width-315, 5, 100, 35)
 
+    graph.game_speed = int(n.read())
+    print(graph.game_speed)
+    playing = True
+    last_state = 0
+                
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:                                                   #close the game
+                pygame.quit()  
+                break
+                        
+            for idx, btn in enumerate(upgrade_buttons):
+                if btn.pressed(event):
+                    if graph.upgrade_avaliable(idx, graph.village_level[idx]):      #check is is possible upgrade    
+                        n.send('upgrade')
+                        print(n.read())
+                        n.send(str(idx))                                              #send an istruction to the server   
+                        break
+
+            #if logout_button.pressed(event):
+            # print(n.send_read('logout')) 
+            #    n.send('logout')
+                            
+            #    configs[1] = 'false'
+             #   save_configs(configs)
+                #logged = False
+                #connection = False
+                #break
+
+            #    logged, playing = False, False
+            #    print(n.read())
+            #    break
+
+            if config_button.pressed(event):
+                config_menu()
+                        
+            if map_button.pressed(event):
+                conn = map_menu()
+                if not conn:
+                    return False, True
+
+        #server = n.send_read('main')     
+        server = n.send_read_state_time_data('main')  
+        state, time, data = server   
+        print(f'Client: {server}')
+        #print(s)
+
+
+        if server == 'error':
+            return False, True #Connection, Logged
+
+        #elif server == 'loggedout':
+        #    print('loggedout')
+        #    return False, False #Connection, Logged
+
+
+        #if last_state != state:                                                             #update in the same speed the game run
+        #    last_state = state
+        #    print(state)
+
+        graph.update(time, data)
+        game_screen(upgrade_buttons) 
     
 
 
@@ -542,12 +608,7 @@ def main():
     clock = pygame.time.Clock()             #start game clock
     logged = False
     last_state = 0
-    
-    upgrade_buttons = create_buttons(356, 63, 36, 36, 40, len(v.village))                             #create the upgrade buttons
-    #menu buttons
-    logout_button = Button(graph.width-105, 5, 100, 35)                             
-    config_button = Button(graph.width-210, 5, 100, 35)
-    map_button = Button(graph.width-315, 5, 100, 35)
+        
     #connection buttons
     regist_button = Button(graph.width/2-350, graph.height/2, 300, 133)   
     login_button = Button(graph.width/2+50, graph.height/2, 300, 133)
@@ -589,75 +650,11 @@ def main():
                         #    print('r')
                         #    n.send('register') 
                         #    break
-                        #print(connection, logged)
-                    
-                
-
-                    
-
-
 
                 connect_screen()                            #update the login menu
                 
-                
-
-            else:
-                #while True:
-                #    for event in pygame.event.get():
-                #        if event.type == pygame.QUIT:                                                   #close the game
-                #            pygame.quit()  
-                #            break
-                #    print('playing')
-                
-                graph.game_speed = int(n.read())
-                playing = True
-                
-                while playing:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:                                                   #close the game
-                            pygame.quit()  
-                            break
-                        
-                        for idx, btn in enumerate(upgrade_buttons):
-                            if btn.pressed(event):
-                                if graph.upgrade_avaliable(idx, graph.village_level[idx]):      #check is is possible upgrade    
-                                    n.send('upgrade')
-                                    print(n.read())
-                                    n.send(str(idx))                                              #send an istruction to the server   
-                                    break
-
-                    if logout_button.pressed(event):
-                        n.send('logout')
-                        print('logout')
-                        configs[1] = 'false'
-                        save_configs(configs)
-
-                        logged, playing = False, False
-                        connection = n.connect()
-                        print(n.read())
-                        break
-
-                    if config_button.pressed(event):
-                        config_menu()
-                    
-                    if map_button.pressed(event):
-                        map_menu()
-
-
-                    
-
-
-                    server = n.read_data('main')     
-                    print(f'server:{server}')
-
-
-
-                    if server == 'error':
-                        connection, playing = False, False
-                        break
-                    
-                    graph.update(server)
-                    game_screen(upgrade_buttons) 
+            else:   
+                connection, logged = play()
                     
 
                     

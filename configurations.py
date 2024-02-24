@@ -5,3 +5,4 @@ seed = 0                #server seed
 
 map_start_x = 50        #start cords
 map_start_y = 50
+map_start_size = 5
