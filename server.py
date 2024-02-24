@@ -1,4 +1,4 @@
-#v.1.6.5
+#v.1.6.6
 import socket
 import threading
 import random
@@ -87,10 +87,10 @@ def save_database(database, filename='user_database.txt'):
             for u, data in database.items():
                 p, x, y, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = data
                 file.write(f'{u},{p},{x},{y},{lt},{w},{c},{i},{p1},{p2},{pt},{hq},{tc},{cp},{im},{f},{wh}\n')    #write the values
+        print('database saved.')
                 
     except FileNotFoundError:
-        pass
-    print('database saved.')
+        print('database fail to save, file not found.')
 
 #Load the database from a file
 def load_database(filename='user_database.txt'):
@@ -100,11 +100,11 @@ def load_database(filename='user_database.txt'):
             for line in file:
                 u, p, x, y, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh = line.strip().split(',')  #Read a line and split the values
                 database[u] = [p, x, y, lt, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh]               #save the values in the dictionary
+        print('database loaded.')
            
     except FileNotFoundError:
-        pass
+        print('database fail to load, file not found.')
 
-    print('database loaded.')
     return database
 
 def new_random_cords():
@@ -188,11 +188,25 @@ def play(user_database, username):
         
         if client_action == 'error' or client_action == 'logout':    #lost connection
             playing = False
+            break
 
-        elif client_action == 'main':     #send game data
+        elif client_action == 'upgrade':     #send game data
+            send(conn, 'index')
+            upgrade_index = int(read(conn))
+            if g.upgrade_avaliable(upgrade_index, g.village_level[upgrade_index]):      #if can upgrade
+                g.add_to_progress(upgrade_index) 
             
+        elif client_action == 'main':     #send game data  
+            g.progress_countdown() 
+
+            if g.delay(1):                                                                  #after a X time execute production
+                g.production(1)
+            
+            update_user_data(user_database, username, current_time, g.get_data())
+
             game_data = g.get_data()
             send_data(conn, game_data)
+
 
         elif client_action == 'map_cords':     #send game data
             data = pack_user_cords(user_database)
@@ -202,7 +216,9 @@ def play(user_database, username):
             send_data(conn, (current_time, username))
 
         else:                           #send something else
-            send(conn, 'other')
+            send(conn, 'UNKNOWN!!')
+
+    save_database(user_database)
 
 
 '---------------------------------------------------CLIENT--------------------------------------------------------'

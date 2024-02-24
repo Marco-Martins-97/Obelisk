@@ -29,6 +29,7 @@ class Button:
         #win.fill((0,0,0))
         pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
         pygame.display.update()
+        
 
 
 class Graphics:
@@ -107,27 +108,26 @@ class Graphics:
 
     #Update the calculated values
     def update(self, data):
-        headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        #wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        #self.wood = round(float(wood))
-        #self.clay = round(float(clay))
-        #self.iron = round(float(iron))
+        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        self.wood = round(float(wood))
+        self.clay = round(float(clay))
+        self.iron = round(float(iron))
 
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
-        #self.progress1 = int(progress1)
-        #self.progress2 = int(progress2)
-        #self.start_progress = datetime.strptime((progress_time), "%Y-%m-%d %H:%M:%S.%f")
-        #self.progress_time = int(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds())
+        self.progress1 = int(progress1)
+        self.progress2 = int(progress2)
+        self.start_progress = datetime.strptime((progress_time), "%Y-%m-%d %H:%M:%S.%f")
+        self.progress_time = int(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds())
 
-        #self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
-        #self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
-        #self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
-        #self.farm = v.calculate_factor(4, self.village_level[4])
-        #self.warehouse = v.calculate_factor(5, self.village_level[5])
+        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
+        self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
+        self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
+        self.farm = v.calculate_factor(4, self.village_level[4])
+        self.warehouse = v.calculate_factor(5, self.village_level[5])
 
-        #self.population = self.farm - self.get_population()
-        #self.points = self.get_points()
+        self.population = self.farm - self.get_population()
+        self.points = self.get_points()
     '---------------------------------------------------------------------------------------------------------------------'
     #Text alignment
     #Text aligned to center
@@ -304,10 +304,11 @@ class Graphics:
 
         #draw villages
         for user in users_cords:
-            pygame.draw.circle(self.win, (255,255,0), (users_cords[user][2], users_cords[user][3]), self.chunk_size/2)
-            self.drawTextCenter(str(user), 20, self.text_color, users_cords[user][2], users_cords[user][3]-30, 0, 0)
-            self.drawTextRight(f'X: {str(users_cords[user][2])} ', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
-            self.drawTextLeft(f' Y: {str(users_cords[user][3])}', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
+            if -self.chunk_size/2 <= users_cords[user][2] <= self.width+self.chunk_size/2 and -self.chunk_size/2 <= users_cords[user][3] <= self.height+self.chunk_size/2:
+                pygame.draw.circle(self.win, (255,255,0), (users_cords[user][2], users_cords[user][3]), self.chunk_size/2)
+                self.drawTextCenter(str(user), 20, self.text_color, users_cords[user][2], users_cords[user][3]-30, 0, 0)
+                self.drawTextRight(f'X: {str(users_cords[user][2])}({str(users_cords[user][0])}) ', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
+                self.drawTextLeft(f' Y: {str(users_cords[user][3])}({str(users_cords[user][1])})', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
         pygame.draw.circle(self.win, (255,0,0), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2)
 
         # draw cords
@@ -341,6 +342,7 @@ class Graphics:
     #VILLAGE
     #draw he top bar
     def draw_top_bar(self):
+        
         # draw points
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('Points', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
