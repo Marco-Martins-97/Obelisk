@@ -602,13 +602,13 @@ def main():
                 
 
             else:
-                while True:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:                                                   #close the game
-                            pygame.quit()  
-                            break
-                    print('playing')
-                '''
+                #while True:
+                #    for event in pygame.event.get():
+                #        if event.type == pygame.QUIT:                                                   #close the game
+                #            pygame.quit()  
+                #            break
+                #    print('playing')
+                
                 graph.game_speed = int(n.read())
                 playing = True
                 
@@ -658,7 +658,7 @@ def main():
                     
                     graph.update(server)
                     game_screen(upgrade_buttons) 
-                    '''
+                    
 
                     
 
