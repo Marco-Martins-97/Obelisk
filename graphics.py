@@ -26,7 +26,9 @@ class Button:
                 return True
     
     def draw(self, win):
+        #win.fill((0,0,0))
         pygame.draw.rect(win, (255, 0, 0), (self.x, self.y, self.width, self.height))
+        pygame.display.update()
 
 
 class Graphics:
@@ -484,11 +486,4 @@ class Graphics:
         self.drawTextRight(_time, 20, self.text_color, x-20, y+row_height*5, width, row_height)
     
     
-    '---------------------------------------------------------------------------------------------------------------------'
-    #Create Buttons
-    def create_buttons(self, x, y, width, height, margin, length):
-        btns = []
-        for i in range(length):
-            btns.append(Button(x, y + i * margin, width, height ))
-        return btns
 
