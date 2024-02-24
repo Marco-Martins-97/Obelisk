@@ -55,8 +55,8 @@ def game_screen(upgrade_btn):
     #graph.draw_production(graph.width-350, 185, 300, 10)
     #graph.draw_warehouse(graph.width-350, 335, 300, 10)
     #graph.draw_population(graph.width-350, 515, 300, 10)
-    #graph.draw_village_buildings(50, 65, 300, 32, 10)
-    #graph.draw_village_levels(23, 63, 18)
+    graph.draw_village_buildings(50, 65, 300, 32, 10)
+    graph.draw_village_levels(23, 63, 18)
     #graph.draw_village_upgrade_btns(356, 63, 18)
     #for index, btn in enumerate(upgrade_btn):
     #    if btn.at_button():
@@ -398,7 +398,7 @@ def map_menu():
     logout_button = Button(graph.width-105, 5, 100, 35)                             
     config_button = Button(graph.width-210, 5, 100, 35)
     village_button = Button(graph.width-315, 5, 100, 35)
-
+    last_state = 0
     while menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:                                                   #close the game
@@ -415,14 +415,16 @@ def map_menu():
             if logout_button.pressed(event):
                 menu = False
 
-        n.send('map')
-
-        server = n.read()
-        print(f'Server: {server}')
+        server = n.read_data('map')
         
-        graph.win.fill(graph.map_background_color) 
-        graph.draw_map(server)
-        pygame.display.update()
+        state, data = server
+        print(f'server:{server} state:{state} data:{data}')
+        
+        if last_state != state:                                                             #update in the same speed the game run
+            last_state = state
+            print(state)
+
+        graph.draw_map(data)
     
 
     
@@ -502,19 +504,16 @@ def main():
                     
                     if map_button.pressed(event):
                         map_menu()
-
+  
 
                     
-                    
-                    
-                    
-                    n.send('main')
-                    game_screen(upgrade_button) 
 
 
+                    server = n.read_data('main')
 
-                    server = n.read()
-                    print(f'Server: {server}')
+                    state, data = server
+                    print(f'server:{server} state:{state} data:{data}')
+
 
                     if server == 'loggedout':   
                         logged, playing = False, False
@@ -525,6 +524,8 @@ def main():
                         connection, playing = False, False
                         break
 
+                    graph.update(data)
+                    game_screen(upgrade_button) 
 
 
                     

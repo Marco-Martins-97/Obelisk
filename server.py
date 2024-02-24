@@ -39,8 +39,17 @@ def read(conn):
 #Send a datapack to the client
     
 
-def send_data(conn, data):
-    pass
+def send_data(conn, state, data):
+    try:
+        conn.send(str(state).encode())
+        print(read(conn))
+
+        data_pack = ','.join(map(str, data))
+        conn.send(data_pack.encode())
+    except socket.error as e:
+        print(e)
+        return 'error'
+    
 #def send_data(conn, data, state):
 #    try:
 #        data_state = add_state(data, state)
@@ -110,7 +119,7 @@ def load_user_data(database, username):
     im = database[username][11]                 #ITON MINE
     f = database[username][12]                  #FARM
     wh = database[username][13]                 #WAREHOUSE 
-    data = (logout_time, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh)     #pack the data in a tuple
+    data = logout_time, w, c, i, p1, p2, pt, hq, tc, cp, im, f, wh     #pack the data in a tuple
     return data
 
 #save the data in the dictionary database
@@ -138,12 +147,11 @@ def update_user_data(database, username, current_time, data):
 #        return True
 #save_database(user_database)
 '---------------------------------------------------GAMEPLAY--------------------------------------------------------'
-def play(username):
+def play(user_database, username):
     print('play')
     send(conn, str(config.game_speed))  
 
-    #g = Game(load_user_data(user_database, username), config.game_speed)                                   #load the data from the user in dictionary database in the game
-    data = '1,a,game'
+    g = Game(load_user_data(user_database, username), config.game_speed)
     playing = True
     state = 0
     while playing:
@@ -155,10 +163,12 @@ def play(username):
             playing = False
 
         elif client_action == 'main':     #send game data
-            send(conn, data)
+            
+            game_data = g.get_data()
+            send_data(conn, state, game_data)
 
         elif client_action == 'map':     #send game data
-            send(conn, str(current_time))
+            send_data(conn, state, (current_time, 5, 2))
 
         else:                           #send something else
             send(conn, 'other')
@@ -172,7 +182,7 @@ def play(username):
 def client_conn(conn, addr):
     print('Connected to: ', addr)
     user_database = load_database()     #Load the database from the file
-    #print(user_database)
+    print(user_database)
 
     send(conn, 'connection')             #send a msg to connected client
     connected = True
@@ -191,7 +201,7 @@ def client_conn(conn, addr):
             if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
 
-                play(username)
+                play(user_database, username)
                 send(conn, 'loggedout')
             else:
                 send(conn, 'fail')

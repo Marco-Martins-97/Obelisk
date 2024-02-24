@@ -102,26 +102,27 @@ class Graphics:
 
     #Update the calculated values
     def update(self, data):
-        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
-        self.wood = round(float(wood))
-        self.clay = round(float(clay))
-        self.iron = round(float(iron))
+        headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        #wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
+        #self.wood = round(float(wood))
+        #self.clay = round(float(clay))
+        #self.iron = round(float(iron))
 
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
-        self.progress1 = int(progress1)
-        self.progress2 = int(progress2)
-        self.start_progress = datetime.strptime((progress_time), "%Y-%m-%d %H:%M:%S.%f")
-        self.progress_time = int(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds())
+        #self.progress1 = int(progress1)
+        #self.progress2 = int(progress2)
+        #self.start_progress = datetime.strptime((progress_time), "%Y-%m-%d %H:%M:%S.%f")
+        #self.progress_time = int(v.calculate_time(self.progress1, self.village_level[self.progress1]+1, self.village_level[0])/self.game_speed - (datetime.now() - self.start_progress).total_seconds())
 
-        self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
-        self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
-        self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
-        self.farm = v.calculate_factor(4, self.village_level[4])
-        self.warehouse = v.calculate_factor(5, self.village_level[5])
+        #self.wood_p = v.calculate_factor(1, self.village_level[1]) * self.game_speed
+        #self.clay_p = v.calculate_factor(2, self.village_level[2]) * self.game_speed
+        #self.iron_p = v.calculate_factor(3, self.village_level[3]) * self.game_speed
+        #self.farm = v.calculate_factor(4, self.village_level[4])
+        #self.warehouse = v.calculate_factor(5, self.village_level[5])
 
-        self.population = self.farm - self.get_population()
-        self.points = self.get_points()
+        #self.population = self.farm - self.get_population()
+        #self.points = self.get_points()
     '---------------------------------------------------------------------------------------------------------------------'
     #Text alignment
     #Text aligned to center
@@ -291,12 +292,9 @@ class Graphics:
         self.drawCheckbox(self.width-50, y, 32, 32, autologin)
 
     #MAP
-    def draw_map(self, server_time):
-        x, y = 123, 123
-
-        #server_time = datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")
-        #latency = datetime.now() - server_time
-        #print(latency.total_seconds()/1000)
+    def draw_map(self, data):
+        server_time, x, y = data
+        self.win.fill(self.map_background_color)
         ping = round((datetime.now() - datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")).total_seconds()*1000)
         # draw points
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
@@ -319,7 +317,7 @@ class Graphics:
         self.drawRoundRect(self.width-315, 5, 100, 35, 4)                               #draw the dashboar rectangle
         self.drawTextCenter('VILLAGE', 20, self.text_color, self.width-315, 5, 100, 30)              #draw the text
 
-        
+        pygame.display.update()
     '---------------------------------------------------------------------------------------------------------------------'
     #Dashboards 
     #VILLAGE
