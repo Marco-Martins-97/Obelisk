@@ -1,4 +1,4 @@
-#v.1.6.8
+#v.1.6.9
 import socket
 import threading
 import random
@@ -32,6 +32,7 @@ def send(conn, send_data):
         conn.send(send_data.encode())
     except socket.error as e:
         print(e)
+        return 'error'
 #Read data from the client
 def read(conn):
     try:
@@ -40,6 +41,8 @@ def read(conn):
     except socket.error as e:
         print(e)
         return 'error'
+    #finally:
+    #    return 'error'
     
 #Send data and read from client
 def send_read(conn, send_data):
@@ -61,10 +64,13 @@ def send_data(conn, send_data):
         print(e)
         return 'error'
 
-def send_state_data(conn, state, send_data):
+def send_state_time_data(conn, state, time,  send_data):
     try:
         conn.send(str(state).encode())
-        print(read(conn))
+        read(conn)
+
+        conn.send(str(time).encode())
+        read(conn)
 
         data_pack = ','.join(map(str, send_data))
         conn.send(data_pack.encode())
@@ -131,29 +137,29 @@ def load_database(filename='user_database.txt'):
 
     return database
 
-#def new_random_cords(database):
-#    x = random.randint(0, config.map_width-1)
-#    y = random.randint(0,config.map_height-1)
-#    return x, y
+def calculate_distance(x, y, x1, y1):
+    return math.sqrt(((x - x1) ** 2) + ((y - y1) ** 2))
 
 def new_random_cords(database):
     map_size = int(math.sqrt(len(database)+1))
-    print(database)
+    if map_size < config.map_start_size: map_size = config.map_start_size
     while True:
         rep_cords = False
         x = random.randint(config.map_start_x-map_size, config.map_start_x+map_size)
         y = random.randint(config.map_start_y-map_size, config.map_start_y+map_size)
+        distance_to_center = calculate_distance(x, y, config.map_start_x, config.map_start_y)
         #print(f'X:{x} Y:{y}')
-        for user in database:
-            #print(f'USER:{user} X:{database[user][1]} Y:{database[user][2]}')
-            if x == int(database[user][1]) and y == int(database[user][2]):
-                #print('REP')
-                rep_cords = True
-                break
-            
-        #print(f'X:{x} Y:{y} Map_Size:{map_size} Rep:{rep_cords}')
-        if not rep_cords:
-            return x, y
+        if distance_to_center < map_size+1: 
+            for user in database:
+                #print(f'USER:{user} X:{database[user][1]} Y:{database[user][2]}')
+                if x == int(database[user][1]) and y == int(database[user][2]):
+                    #print('REP')
+                    rep_cords = True
+                    break
+                
+            #print(f'X:{x} Y:{y} Map_Size:{map_size} Rep:{rep_cords}')
+            if not rep_cords:
+                return x, y
 
 
 #Add a new user to database dictionary
@@ -224,15 +230,24 @@ def play(user_database, username):
     g = Game(load_user_data(user_database, username), config.game_speed)
     playing = True
     state = 0
-    while playing:
-        current_time = datetime.now()
+    #send_data(g.get_data())
+    while True:
+        #current_time = datetime.now()
         client_action = read(conn)
-        print(client_action)
+        print(f'Server: {client_action}')
         
-        if client_action == 'error' or client_action == 'logout':    #lost connection
-            playing = False
-            #break
-            #pass
+        if client_action == 'error' or client_action == '': # or client_action == 'logout':    #lost connection
+            print('client disconnected')
+            break
+
+        if client_action == 'logout':
+            #send_read(conn, 'loggedout')
+            print('client loggedout')
+            send(conn, 'loggedout')
+            break
+            #return True
+
+  
 
         elif client_action == 'upgrade':     #send game data
             send(conn, 'index')
@@ -241,28 +256,35 @@ def play(user_database, username):
                 g.add_to_progress(upgrade_index) 
             
         elif client_action == 'main':     #send game data  
+            #print('village')
+            #send(conn, 'village data')
             g.progress_countdown() 
 
             if g.delay(1):                                                                  #after a X time execute production
                 g.production(1)
+                state = 1 if state == 0 else 0
             
-            update_user_data(user_database, username, current_time, g.get_data())
+            update_user_data(user_database, username, datetime.now(), g.get_data())
 
             game_data = g.get_data()
-            send_data(conn, game_data)
-
+            send_state_time_data(conn, state, datetime.now(), game_data)
+    
 
         elif client_action == 'map_cords':     #send game data
             data = pack_user_cords(user_database)
             send_data(conn, (data))
 
         elif client_action == 'map':     #send game data
-            send_data(conn, (current_time, username))
+            #print('map')
+            send(conn, 'data')
+        #    send_data(conn, (current_time, username))
 
         else:                           #send something else
-            send(conn, 'UNKNOWN!!')
+            print('else')
+            #send(conn, 'UNKNOWN!!')
 
-    save_database(user_database)
+    #save_database(user_database)
+    #send(conn, 'loggedout')
 
 
 '---------------------------------------------------CLIENT--------------------------------------------------------'
@@ -296,7 +318,10 @@ def client_conn(conn, addr):
                 send(conn, 'connected')
 
                 play(user_database, username)
-        #         #send(conn, 'loggedout')
+                #loggedout = play(user_database, username)
+                #if loggedout:
+                    
+                save_database(user_database)
             else:
                 send(conn, 'fail')
 

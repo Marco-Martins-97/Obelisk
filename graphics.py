@@ -73,6 +73,8 @@ class Graphics:
         self.progress2 = -1
         self.progress_time = 0
 
+        self.time = datetime.now()
+
         self.game_speed = 1                        #game speed
     '---------------------------------------------------------------------------------------------------------------------'
     #Check if can upgrade the building
@@ -107,12 +109,13 @@ class Graphics:
         return pop
 
     #Update the calculated values
-    def update(self, data):
+    def update(self, time, data):
         wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data
         self.wood = round(float(wood))
         self.clay = round(float(clay))
         self.iron = round(float(iron))
 
+        self.time = time
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
 
         self.progress1 = int(progress1)
@@ -297,28 +300,22 @@ class Graphics:
         #self.drawCheckbox(self.width-50, y, 32, 32, autologin)
 
     #MAP
-    def draw_map(self, server_time, users_cords, username):
-
+    def draw_map(self, users_cords, username):
         self.win.fill(self.map_background_color)
-        ping = round((datetime.now() - datetime.strptime((server_time), "%Y-%m-%d %H:%M:%S.%f")).total_seconds()*1000)
 
         #draw villages
         for user in users_cords:
             if -self.chunk_size/2 <= users_cords[user][2] <= self.width+self.chunk_size/2 and -self.chunk_size/2 <= users_cords[user][3] <= self.height+self.chunk_size/2:
-                pygame.draw.circle(self.win, (255,255,0), (users_cords[user][2], users_cords[user][3]), self.chunk_size/2)
+                pygame.draw.circle(self.win, (255,255,0), (users_cords[user][2], users_cords[user][3]), self.chunk_size/2-2)
                 self.drawTextCenter(str(user), 20, self.text_color, users_cords[user][2], users_cords[user][3]-30, 0, 0)
-                self.drawTextRight(f'X: {str(users_cords[user][2])}({str(users_cords[user][0])}) ', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
-                self.drawTextLeft(f' Y: {str(users_cords[user][3])}({str(users_cords[user][1])})', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
-        pygame.draw.circle(self.win, (255,255,255), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2)
+                self.drawTextCenter(f'X: {str(users_cords[user][2])}({str(users_cords[user][0])})  Y: {str(users_cords[user][3])}({str(users_cords[user][1])}', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
+                #self.drawTextLeft(f' Y: {str(users_cords[user][3])}({str(users_cords[user][1])})', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
+        pygame.draw.circle(self.win, (255,255,255), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2-2)
 
         # draw cords
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('X | Y', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
         self.drawTextCenter(f'{users_cords[username][0]}|{users_cords[username][1]}', 20, self.text_color, self.width/2-55, 20, 110, 20)     #draw the value
-
-        # draw ping
-        self.drawRoundRect(5, 5, 100, 35, 4)                               #draw the dashboar rectangle
-        self.drawTextCenter(f'{ping}ms', 20, self.text_color, 5, 5, 100, 30)
 
         # draw the logout button
         self.drawRoundRect(self.width-105, self.height-40, 100, 35, 4)                               #draw the dashboar rectangle
@@ -342,7 +339,12 @@ class Graphics:
     #VILLAGE
     #draw he top bar
     def draw_top_bar(self):
+        latency = round((datetime.now() - datetime.strptime((self.time), "%Y-%m-%d %H:%M:%S.%f")).total_seconds()*1000)
         
+        # draw ping
+        self.drawRoundRect(5, 5, 100, 35, 4)                               #draw the dashboar rectangle
+        self.drawTextCenter(f'{latency}ms', 20, self.text_color, 5, 5, 100, 30)
+
         # draw points
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle
         self.drawTextCenter('Points', 20, self.text_color, self.width/2-55, 0, 110, 20)              #draw the text
