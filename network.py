@@ -39,6 +39,13 @@ class Network:
 
     def read_data(self, menu):
         self.send(menu)
+        data_pack = self.read()
+        data_unpack = data_pack.split(',')
+        data = tuple(map(str, data_unpack))
+        return data
+    
+    def read_data_state(self, menu):
+        self.send(menu)
 
         state = self.read()
         self.send('state')
