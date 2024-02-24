@@ -7,11 +7,13 @@ class Network:
         self.port = 5555                                                    #server port
         self.addr = (self.server, self.port)                                #address
 
-    def connect(self):                                                      #try connect to the server
+    def connect(self):
         try:
-            self.client.connect(self.addr)                              
+            self.client.close()
+            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client.connect(self.addr)
+            print('Connected to: ', self.addr)
             return True
-
         except socket.error as e:
             print(e)
             return False
@@ -24,6 +26,7 @@ class Network:
        
         except socket.error as e:
             print(e)
+            return 'error'
 
     def read(self):
         try:
@@ -32,6 +35,7 @@ class Network:
         
         except socket.error as e:
             print(e)
+            return 'error'
 
     def read_data(self):
         try:
@@ -46,7 +50,7 @@ class Network:
               
         except socket.error as e:
             print(e)
-            return None
+            return 'error'
         
 #get and remove the last value from data
 def get_state(data_state):
