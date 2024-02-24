@@ -4,8 +4,7 @@ import village as v
 
 class Game:
     def __init__(self, data, game_speed):
-        logout_time, data = data
-        wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data           #unpack the data
+        logout_time, wood, clay, iron, progress1, progress2, progress_time, headquartes, timbercamp, claypit, ironmine, farm, warehouse = data           #unpack the data
         
         self.village_level = [int(headquartes), int(timbercamp), int(claypit), int(ironmine), int(farm), int(warehouse)]
         self.game_speed = game_speed             #Get the game speed

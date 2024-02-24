@@ -22,7 +22,7 @@ class Network:
     def send(self, msg):
         try:
             # Send a message to the client
-            self.client.sendall(msg.encode())
+            self.client.send(msg.encode())
        
         except socket.error as e:
             print(e)
@@ -38,19 +38,21 @@ class Network:
             return 'error'
 
     def read_data(self):
-        try:
-            # Receive the message from the client
-            data_pack = self.client.recv(1024).decode()
-            #unpack the data
-            data_unpack = data_pack.split(',')
-            data_state = tuple(map(str, data_unpack)) 
-            self.send('read') 
-            data, state = get_state(data_state)
-            return data, state
-              
-        except socket.error as e:
-            print(e)
-            return 'error'
+        pass
+    #def read_data(self):
+    #    try:
+    #        # Receive the message from the client
+    #        data_pack = self.client.recv(1024).decode()
+    #        #unpack the data
+    #        data_unpack = data_pack.split(',')
+    #        data_state = tuple(map(str, data_unpack)) 
+    #        self.send('read') 
+    #        data, state = get_state(data_state)
+    #        return data, state
+    #          
+    #    except socket.error as e:
+    #        print(e)
+    #        return 'error'
         
 #get and remove the last value from data
 def get_state(data_state):
