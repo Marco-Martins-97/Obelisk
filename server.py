@@ -1,11 +1,15 @@
-#v.1.6.7
+#v.1.6.8
 import socket
 import threading
 import random
+import math
 from datetime import datetime
 from game import Game
 import village as v
 import configurations as config
+'---------------------------------------------------CONFIGS--------------------------------------------------------'
+random.seed(config.seed)
+
 '---------------------------------------------------CONNECTION--------------------------------------------------------'
 
 #Create a server socket
@@ -59,24 +63,35 @@ def send_data_state(conn, state, data):
         print(e)
         return 'error'
     
-#def send_data(conn, data, state):
-#    try:
-#        data_state = add_state(data, state)
-#        #pack the data
-#        data_pack = ','.join(map(str, data_state))
-#        # Send a message to the client
-#        conn.send(data_pack.encode())
-#        return read(conn)   #read the return
-#    except socket.error as e:
-#        print(e)
-#        return 'error'
-
-#Add a state var to the data
-def add_state(data, state):
-    data = data + (state,)
-    return data
-
 '---------------------------------------------------DATABASE--------------------------------------------------------'
+#Save Server configs
+def save_configs(configs, filename='server_configs.txt'):   #save the client configs in a file
+    with open(filename, 'w') as file:
+        for c in configs:
+            file.write(f'{c}\n')
+            print(f'saved: {c}')
+            
+    print('configs saved.')
+
+#Load server configs
+def load_configs(filename='server_configs.txt'):            #load the client configs from a file
+    configs = []
+    try:
+        with open (filename, 'r') as file:
+            for line in file:
+                configs.append(line.strip())
+        print('configs loaded.')
+                
+    except FileNotFoundError:
+        configs = [config.map_width, config.map_height]
+        print('default configs loaded.')
+        return configs
+
+    return configs
+
+#Load Server Configs
+#configs = []
+#configs = load_configs()
 #Create a dictionary used as database
 user_database = {}
 
@@ -107,15 +122,33 @@ def load_database(filename='user_database.txt'):
 
     return database
 
-def new_random_cords():
-    x = random.randint(0, config.map_width-1)
-    y = random.randint(0,config.map_height-1)
-    return x, y
+#def new_random_cords(database):
+#    x = random.randint(0, config.map_width-1)
+#    y = random.randint(0,config.map_height-1)
+#    return x, y
+
+def new_random_cords(database):
+    map_size = int(math.sqrt(len(database)+1))
+    while True:
+        rep_cords = False
+        x = random.randint(config.map_start_x-map_size, config.map_start_x+map_size)
+        y = random.randint(config.map_start_y-map_size, config.map_start_y+map_size)
+        #print(f'X:{x} Y:{y}')
+        for user in database:
+            #print(f'U_X:{database[user][1]} U_Y:{database[user][2]}')
+            if x == database[user][1] and y == database[user][2]:
+                #print('REP')
+                rep_cords = True
+                break
+            
+        print(f'X:{x} Y:{y} Map_Size:{map_size} Rep:{rep_cords}')
+        if not rep_cords:
+            return x, y
 
 
 #Add a new user to database dictionary
 def add_new_user(database, username, password):
-    x, y = new_random_cords()
+    x, y = new_random_cords(database)
     #'USERNAME': ['PASSWORD', X, Y, LOGOUT_DATATIME, WOOD, CLAY, IRON, PROGRESS, PROGRESS2, PROGRESS_TIME, HEADQUARTES, TIMBERCAMP, CLAYPIT, IRONMINE, FARM, WAREHOUSE]
     database[username] = [password, x, y, str(datetime.now()), 500, 500, 500, -1, -1, str(datetime.now()), v.village[0].min_lv, v.village[1].min_lv, v.village[2].min_lv, v.village[3].min_lv, v.village[4].min_lv, v.village[5].min_lv]
     save_database(database)
@@ -264,7 +297,7 @@ def client_conn(conn, addr):
             send(conn, 'password2')
             password2 = read(conn)
 
-            print(username, password, password2)
+            #print(username, password, password2)
 
             if username in user_database:                                                           #if username already exists
                 send(conn, 'exists')
