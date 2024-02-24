@@ -1,4 +1,4 @@
-#v.1.6.10
+#v.1.6.11
 import pygame
 import village as v
 from graphics import Graphics, Button
@@ -257,6 +257,7 @@ def regist_menu():
                     n.send('password2')
                     print(n.read())
                     return True, created
+                
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password and password2
                         if active_input == 'username':
@@ -371,7 +372,7 @@ def reconnect_menu(logged):
 def config_menu():
     menu = True
     size_choise = int(configs[0])
-    autologin = configs[1]
+    #autologin = configs[1]
     #btn = Button(x, y, w, h)
     exit_button = Button(graph.width-105, graph.height-40, 100, 35)
     save_button = Button(graph.width-210, graph.height-40, 100, 35)
@@ -380,7 +381,7 @@ def config_menu():
     x, y, width, height, margin = 20, 20, 200, 32, 40
 
     win_size_btns = create_buttons(x, y, width, height, margin, 4)
-    autologin_btn = Button(graph.width-50, y, 32, 32)  
+    #autologin_btn = Button(graph.width-50, y, 32, 32)  
 
 
     while menu:
@@ -398,7 +399,7 @@ def config_menu():
             if save_button.pressed(event):
                 print('save')
                 configs[0] = size_choise
-                configs[1] = autologin
+                #configs[1] = autologin
                 save_configs(configs)
 
             
@@ -414,18 +415,18 @@ def config_menu():
                     break
             
             #auto-login (on/off)
-            if autologin_btn.pressed(event):
-                if autologin == 'true':
-                    autologin = 'false'
-                else:
-                    autologin = 'true'
+            #if autologin_btn.pressed(event):
+            #    if autologin == 'true':
+            #        autologin = 'false'
+            #    else:
+            #        autologin = 'true'
 
 
 
 
 
         graph.win.fill(graph.background_color) 
-        graph.draw_config_menu(size_choise, autologin)
+        graph.draw_config_menu(size_choise)
         pygame.display.update()
 
 def map_menu():
@@ -582,10 +583,15 @@ def main():
                                     break
 
                     if logout_button.pressed(event):
+                        n.send('logout')
                         print('logout')
                         configs[1] = 'false'
                         save_configs(configs)
-                        n.send('logout')
+
+                        logged, playing = False, False
+                        connection = n.connect()
+                        print(n.read())
+                        break
 
                     if config_button.pressed(event):
                         config_menu()
@@ -606,10 +612,11 @@ def main():
                         connection, playing = False, False
                         break
 
-                    elif server == 'loggedout':   
-                        logged, playing = False, False
-                        connection = n.connect()
-                        print(n.read())
+                    #if server == 'loggedout':   
+                     #   logged, playing = False, False
+                     #   connection = n.connect()
+                        #print(n.read())
+                    #    break
 
                     #elif server == 'index':
                     #    n.send(str(idx))

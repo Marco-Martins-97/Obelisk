@@ -252,7 +252,7 @@ class Graphics:
 
 
     #draw the config menu
-    def draw_config_menu(self, win_size, autologin):
+    def draw_config_menu(self, win_size):
         # draw buttons
         self.drawRoundRect(self.width-105, self.height-40, 100, 35, 4)
         self.drawTextCenter('EXIT', 20, self.text_color, self.width-105, self.height-40, 100, 30)
@@ -293,8 +293,8 @@ class Graphics:
         self.drawTextCenter('1920 x 1080', 20, self.text_color, x, y+margin*3, width, height)
 
         #draw auto-login
-        self.drawTextRight('AUTO-LOGIN ', 20, self.text_color, self.width-50, y, 0, 32)
-        self.drawCheckbox(self.width-50, y, 32, 32, autologin)
+        #Eself.drawTextRight('AUTO-LOGIN ', 20, self.text_color, self.width-50, y, 0, 32)
+        #self.drawCheckbox(self.width-50, y, 32, 32, autologin)
 
     #MAP
     def draw_map(self, server_time, users_cords, username):
@@ -309,7 +309,7 @@ class Graphics:
                 self.drawTextCenter(str(user), 20, self.text_color, users_cords[user][2], users_cords[user][3]-30, 0, 0)
                 self.drawTextRight(f'X: {str(users_cords[user][2])}({str(users_cords[user][0])}) ', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0, 0)    
                 self.drawTextLeft(f' Y: {str(users_cords[user][3])}({str(users_cords[user][1])})', 20, self.text_color, users_cords[user][2], users_cords[user][3]-50, 0)
-        pygame.draw.circle(self.win, (255,0,0), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2)
+        pygame.draw.circle(self.win, (255,255,255), (users_cords[username][2], users_cords[username][3]), self.chunk_size/2)
 
         # draw cords
         self.drawRoundRect(self.width/2-55, -15, 110, 60, 15)                               #draw the dashboar rectangle

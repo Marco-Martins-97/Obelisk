@@ -1,4 +1,4 @@
-#v.1.6.6
+#v.1.6.7
 import socket
 import threading
 import random
@@ -188,7 +188,8 @@ def play(user_database, username):
         
         if client_action == 'error' or client_action == 'logout':    #lost connection
             playing = False
-            break
+            #break
+            #pass
 
         elif client_action == 'upgrade':     #send game data
             send(conn, 'index')
