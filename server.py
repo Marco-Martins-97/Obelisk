@@ -26,13 +26,12 @@ print(f"Server listening on {server_ip}:{server_port}")
 
 '---------------------------------------------------DATA--------------------------------------------------------'
 #Send data to client
-def send(conn, data):
+def send(conn, send_data):
     try:
         # Send a message to the client
-        conn.send(data.encode())
+        conn.send(send_data.encode())
     except socket.error as e:
         print(e)
-        return 'error'  
 #Read data from the client
 def read(conn):
     try:
@@ -41,23 +40,33 @@ def read(conn):
     except socket.error as e:
         print(e)
         return 'error'
-#Send a datapack to the client
     
-
-def send_data(conn, data):
+#Send data and read from client
+def send_read(conn, send_data):
     try:
-        data_pack = ','.join(map(str, data))
+        # Send a message to the client
+        conn.send(send_data.encode())
+        # Receive the message from the client
+        return conn.recv(1024).decode()
+    except socket.error as e:
+        print(e)
+        return 'error'  
+    
+#Send a datapack to the client
+def send_data(conn, send_data):
+    try:
+        data_pack = ','.join(map(str, send_data))
         conn.send(data_pack.encode())
     except socket.error as e:
         print(e)
         return 'error'
 
-def send_data_state(conn, state, data):
+def send_state_data(conn, state, send_data):
     try:
         conn.send(str(state).encode())
         print(read(conn))
 
-        data_pack = ','.join(map(str, data))
+        data_pack = ','.join(map(str, send_data))
         conn.send(data_pack.encode())
     except socket.error as e:
         print(e)
@@ -272,32 +281,40 @@ def client_conn(conn, addr):
         print(f'choise:{choice}')
 
         if choice == 'login':
-            print(choice)
-            send(conn, 'username')      #ask for username and password
-            username = read(conn)
-            send(conn, 'password')
-            password = read(conn)
+        #     send(conn, 'username')      #ask for username and password
+        #     username = read(conn)
+            username = send_read(conn, 'username')
+            password = send_read(conn, 'password')
+            print(username)
+            print(password)
+        #     send(conn, 'password')
+        #     password = read(conn)
 
             #if the username exists and the password match
             if username in user_database and user_database[username][0] == password:
                 send(conn, 'connected')
 
-                play(user_database, username)
-                send(conn, 'loggedout')
+                #play(user_database, username)
+        #         #send(conn, 'loggedout')
             else:
                 send(conn, 'fail')
 
         elif choice == 'register':
-            print(choice)
+            #print(choice)
+            username = send_read(conn, 'username')
+            password = send_read(conn, 'password')
+            password2 = send_read(conn, 'password2')
+            print(username)
+            print(password)
+            print(password2)
+        #     send(conn, 'username')                                                                  #ask for username and password and confirm password
+        #     username = read(conn)
+        #     send(conn, 'password')
+        #     password = read(conn)
+        #     send(conn, 'password2')
+        #     password2 = read(conn)
 
-            send(conn, 'username')                                                                  #ask for username and password and confirm password
-            username = read(conn)
-            send(conn, 'password')
-            password = read(conn)
-            send(conn, 'password2')
-            password2 = read(conn)
-
-            #print(username, password, password2)
+        #     #print(username, password, password2)
 
             if username in user_database:                                                           #if username already exists
                 send(conn, 'exists')

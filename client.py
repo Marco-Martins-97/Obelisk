@@ -128,35 +128,34 @@ def login_screen(input, username, password):
     graph.draw_login_menu(configs[1], input, username, password, graph.width/2, graph.height/2, 300, 10)                 #draw the menu
     pygame.display.update()                                                                                                     #update the screen
 
-#Menus
+#Menus        
 def auto_login():
     conn = n.read()
     username = configs[2]
     password = configs[3]
     logged = False
     if conn == 'error':
-        return False, logged
+        return False, False #connection, logged
     else:
-        while not logged:
-            n.send(username)
-            print(n.read()) 
-            n.send(password)
-            account = n.read()                                                        #read the return 
+        while True:
+            print(n.send_read(username))
+            account = n.send_read(password)                                                        #read the return 
                                 
             if account == 'connected':  #login                                                #if the return is created, exit the regist menu
                 print(account) 
-                global USERNAME, PASSWORD
-                USERNAME, PASSWORD = username, password                      
-                logged = True
-                break
+                #global USERNAME, PASSWORD
+                #USERNAME, PASSWORD = username, password  
+                return True, True          #connection, logged                    
+                #logged = True
+                #break
             elif account == 'fail':                                                 #if the username already exists, repeat
-                print('Username or Password Incorrect')            
-                n.send('login')
-                print(n.read())
+                print('Username or Password Incorrect')  
+                print(n.send_read('login')) 
 
             else:                                                               #if the password and password2 dont match, repeat
-                break
-    return True, logged
+                print('connection lost !')
+                return False, False #connection, logged
+    #return True, logged
 
 def login_menu():
     conn = n.read()
@@ -167,20 +166,30 @@ def login_menu():
     autologin_button = Button(graph.width/2+300, (graph.height/2)+96, 32, 32)
     regist_button = Button(graph.width/2-350, graph.height/2, 300, 133)
     if conn == 'error':
-        return False, logged
+        return False, False #connection, logged
     else:
-        while not logged:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     break
                 if regist_button.pressed(event):
-                    #print('regist')
-                    n.send('username')
-                    print(n.read()) 
-                    n.send('password')
-                    print(n.read())
-                    return True, logged
+                    print(n.send_read('username'))
+                    account = n.send_read('password')
+                    if account == 'fail':  
+                        #n.send('login')  
+                        print('login > connect')                                             #if the username already exists, repeat 
+                        return True, False #connection, created
+                    else:                                                               #if the password and password2 dont match, repeat
+                        print('connection lost !')
+                        return False, False #connection, created
+
+                #    #print('regist')
+                #    n.send('username')
+                #    print(n.read()) 
+                #    n.send('password')
+                #    print(n.read())
+                #    return True, logged
                 
                 if autologin_button.pressed(event): #auto-login
                     if configs[1] == 'true':
@@ -196,28 +205,30 @@ def login_menu():
                             active_input = 'password'
                         elif active_input == "password": 
                             if username != '' and password != '':               #if the active choise is password2 and none choise is empty
-                                n.send(username)
-                                print(n.read()) 
-                                n.send(password)
-                                account = n.read()                                                        #read the return 
+                                
+                                print(n.send_read(username))
+                                account = n.send_read(password)
                                 
                                 if account == 'connected':  #login                                                #if the return is created, exit the regist menu
                                     print(account) 
-                                    if configs[1] == 'true':
-                                        configs[2] = username
-                                        configs[3] = password
-                                        save_configs(configs)
-                                    global USERNAME, PASSWORD
-                                    USERNAME, PASSWORD = username, password
-                                    logged = True
-                                    break
+                                #    if configs[1] == 'true':
+                                #        configs[2] = username
+                                #        configs[3] = password
+                                #        save_configs(configs)
+                                #    global USERNAME, PASSWORD
+                                #    USERNAME, PASSWORD = username, password
+                                    return True, True          #connection, logged
+                                #    logged = True      
+                                #    break
                                 elif account == 'fail':                                                 #if the username already exists, repeat
-                                    print('Username or Password Incorrect')            
-                                    n.send('login')
-                                    print(n.read())
+                                    print('Username or Password Incorrect')  
+                                    print(n.send_read('login'))          
+                                #    n.send('login')
+                                #    print(n.read())
                                     active_input = 'username'
                                 else:                                                               #if the password and password2 dont match, repeat
-                                    return False, logged
+                                    print('connection lost !')
+                                    return False, False #connection, logged
 
                     elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and password
                         if active_input == 'username':
@@ -232,7 +243,7 @@ def login_menu():
 
             login_screen(active_input, username, password)               #update the login menu
 
-    return True, logged
+    #return True, logged
 
 def regist_menu():
     conn = n.read()
@@ -243,22 +254,32 @@ def regist_menu():
     active_input = 'username'
     login_button = Button(graph.width/2+50, graph.height/2, 300, 133)
     if conn == 'error':
-        return False, created
+        return False, False #connection, created
     else:
-        while not created:
+        while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     break
                 if login_button.pressed(event):
-                    #print('login')
-                    n.send('username')
-                    print(n.read()) 
-                    n.send('password')
-                    print(n.read())
-                    n.send('password2')
-                    print(n.read())
-                    return True, created
+                    print(n.send_read('username'))
+                    print(n.send_read('password'))
+                    account = n.send_read('password2')
+                    if account == 'incorrect':  
+                        #n.send('login')  
+                        print('regist > connect')                                             #if the username already exists, repeat 
+                        return True, False #connection, created
+                    else:                                                               #if the password and password2 dont match, repeat
+                        print('connection lost !')
+                        return False, False #connection, created
+                #    #print('login')
+                #    n.send('username')
+                #    print(n.read()) 
+                #    n.send('password')
+                #    print(n.read())
+                #    n.send('password2')
+                #    print(n.read())
+                #    return True, created
                 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_TAB:                                                   #if the tab key is pressed, switch the active choise beetween username and password and password2
@@ -274,12 +295,9 @@ def regist_menu():
                             active_input = 'password2'
                         elif active_input == "password2":
                             if username != '' and password != '' and password2 != '':               #if the active choise is password2 and none choise is empty
-                                n.send(username)
-                                print(n.read()) 
-                                n.send(password)
-                                print(n.read())
-                                n.send(password2)
-                                account = n.read()                                                        #read the return 
+                                print(n.send_read(username))
+                                print(n.send_read(password))
+                                account = n.send_read(password2)                                                        #read the return 
                                 
                                 if account == 'created':  #login                                                #if the return is created, exit the regist menu
                                     print(account) 
@@ -289,21 +307,25 @@ def regist_menu():
                                     #print(n.read())
                                     #n.send(password)
                                     #print(n.read()) 
-                                    created = True
-                                    break
+                                    return True, True          #connection, created
+                                    #created = True
+                                    #break
 
                                 elif account == 'exists':                                                 #if the username already exists, repeat
-                                    print('username already in use')            
-                                    n.send('register')
-                                    print(n.read())
+                                    print('username already in use')  
+                                    print(n.send_read('register'))           
+                                    #n.send('register')
+                                    #print(n.read())
                                     active_input = 'username'
                                 elif account == 'incorrect':                                                 #if the username already exists, repeat
                                     print('password dont match')            
-                                    n.send('register')
-                                    print(n.read())
+                                    print(n.send_read('register')) 
+                                    #n.send('register')
+                                    #print(n.read())
                                     active_input = 'username'
                                 else:                                                               #if the password and password2 dont match, repeat
-                                    return False, created
+                                    print('connection lost !')
+                                    return False, False #connection, created
                                     
                     elif event.key == pygame.K_BACKSPACE:                                           #delete character from username and passwords
                         if active_input == 'username':
@@ -323,7 +345,7 @@ def regist_menu():
                 
             regist_screen(active_input,  username, password, password2)
 
-    return True, created
+    #return True, created
 
 def reconnect_menu(logged):
     graph.win.fill(graph.background_color)
@@ -544,20 +566,33 @@ def main():
                         pygame.quit()
                         break
 
-                    if login_button.pressed(event):                                            #if the login button is presses   
+                    if regist_button.pressed(event):                                            #if the regist buttos is pressed
+                        n.send('register')                                            #send a msg with the choise to the server
+                        print('connect > regist') 
+                        connection, created = regist_menu()
+                        break
+                        #if connection and not created:
+                        #    print('l')
+                        #    n.send('login')
+                        #    break
+                        #print(connection, created)
+
+                    elif login_button.pressed(event):                                            #if the login button is presses   
                         n.send('login')                                                 #send a msg with the choise to the server
+                        print('connect > login') 
                         if configs[1] == 'true':
                             connection, logged = auto_login()
                         else:    
                             connection, logged = login_menu()
-                        print(connection, logged)
+                        break
+                        #if connection and not logged:
+                        #    print('r')
+                        #    n.send('register') 
+                        #    break
+                        #print(connection, logged)
                     
                 
 
-                    if regist_button.pressed(event):                                            #if the regist buttos is pressed
-                        n.send('register')                                            #send a msg with the choise to the server
-                        connection, created = regist_menu()
-                        print(connection, created)
                     
 
 
@@ -567,6 +602,13 @@ def main():
                 
 
             else:
+                while True:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:                                                   #close the game
+                            pygame.quit()  
+                            break
+                    print('playing')
+                '''
                 graph.game_speed = int(n.read())
                 playing = True
                 
@@ -616,7 +658,7 @@ def main():
                     
                     graph.update(server)
                     game_screen(upgrade_buttons) 
-
+                    '''
 
                     
 

@@ -210,7 +210,7 @@ class Graphics:
         self.drawRoundRect(x-width-50, y, width, height+5, radius)
         self.drawRoundRect(x+50, y, width, height+5, radius)
 
-        self.drawTextCenter('LOGIN', 40, text_color, x+50, y+height/3, width, row_height)
+        self.drawTextCenter('RETURN', 40, text_color, x+50, y+height/3, width, row_height)
 
         self.drawTextCenter('REGISTER', 20, text_color, x-width-50, y+5, width, row_height)
         self.drawTextLeft('USERNAME: ', 20, text_color, x-width-50+20, y+row_height*1, row_height)
@@ -235,7 +235,7 @@ class Graphics:
         self.drawRoundRect(x-width-50, y, width, height+5, radius)
         self.drawRoundRect(x+50, y, width, height+5, radius)
 
-        self.drawTextCenter('REGISTER', 40, text_color, x-width-50, y+height/3, width, row_height)
+        self.drawTextCenter('RETURN', 40, text_color, x-width-50, y+height/3, width, row_height)
 
         self.drawTextCenter('LOGIN', 20, text_color, x+50, y+5, width, row_height)
         self.drawTextLeft('USERNAME: ', 20, text_color, x+50+20, y+row_height*1, row_height)

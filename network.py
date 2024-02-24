@@ -19,10 +19,10 @@ class Network:
             return False
 
 
-    def send(self, msg):
+    def send(self, send_data):
         try:
             # Send a message to the client
-            self.client.send(msg.encode())
+            self.client.send(send_data.encode())
        
         except socket.error as e:
             print(e)
@@ -36,29 +36,41 @@ class Network:
         except socket.error as e:
             print(e)
             return 'error'
-
-    def read_data(self, menu):
+        
+        #Send data and read from client
+    def send_read(self, send_data):
         try:
-            self.send(menu)
+            # Send a message to the client
+            self.client.send(send_data.encode())
+            #Read msg from server
+            return self.client.recv(1024).decode()
+        except socket.error as e:
+            print(e)
+            return 'error' 
+
+    def read_send_data(self, send_data):
+        try:
             data_pack = self.read()
             data_unpack = data_pack.split(',')
-            data = tuple(map(str, data_unpack))
-            return data
+            read_data = tuple(map(str, data_unpack))
+
+            self.send(send_data)
+            return read_data
         except socket.error as e:
             print(e)
             return 'error'
     
-    def read_data_state(self, menu):
+    def read_send_state_data(self, send_data):
         try:
-            self.send(menu)
-
             state = self.read()
             self.send('state')
 
             data_pack = self.read()
             data_unpack = data_pack.split(',')
-            data = tuple(map(str, data_unpack))
-            return int(state), data
+            read_data = tuple(map(str, data_unpack))
+            self.send(send_data)
+
+            return state, read_data
         except socket.error as e:
             print(e)
             return 'error'
